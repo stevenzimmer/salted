@@ -19,13 +19,13 @@ export default function HomePage() {
     <>
       <Hero />
       <div className="bread-strip" aria-hidden="true">
-        <span>SLOW DOUGH</span>
+        <span>slow dough</span>
         <span>✳</span>
-        <span>CRISPY EDGES</span>
+        <span>crispy edges</span>
         <span>✳</span>
-        <span>SOFT MIDDLES</span>
+        <span>soft middles</span>
         <span>✳</span>
-        <span>VERY GOOD BREAD</span>
+        <span>very good bread</span>
         <span>✳</span>
       </div>
       <section id="products" className="shell section-pad storefront">

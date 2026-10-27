@@ -12,7 +12,7 @@ export const siteConfig = {
   },
   announcement: "Friday pickup · 2–6 pm · Orders close Wednesday at midnight",
   navigation: [
-    { label: "Order the good stuff", href: "/#products" },
+    { label: "Feed me", href: "/#products" },
     { label: "Recipes", href: "/recipes" },
     { label: "Pickup info", href: "/pickup" },
     { label: "Special orders", href: "/special-orders" },

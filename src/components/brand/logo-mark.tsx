@@ -5,11 +5,11 @@ export function LogoMark() {
       role="img"
       aria-label="Salted Focaccia — sourdough and good things"
     >
-      <span>SOURDOUGH &</span>
+      <span>sourdough &</span>
       <span className="seal-flower" aria-hidden="true">
         ✳
       </span>
-      <span>GOOD THINGS</span>
+      <span>good things</span>
     </div>
   );
 }
