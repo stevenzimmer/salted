@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Camera } from "lucide-react";
 import { Wordmark } from "@/components/brand/wordmark";
 import { LogoMark } from "@/components/brand/logo-mark";
 import { siteConfig } from "@/data/site-config";
@@ -25,16 +25,21 @@ export function SiteFooter() {
           ))}
           <Link href="/storage-heating">Storage + reheating</Link>
         </nav>
-        <div className="flex flex-col items-start gap-6 lg:items-end">
+        <div className="footer-social flex flex-col items-end gap-6 text-right">
           <LogoMark />
+          <div>
+            <p className="eyebrow">{siteConfig.instagram.eyebrow}</p>
+            <h2>{siteConfig.instagram.heading}</h2>
+          </div>
           <a
             className="inline-link text-sm"
             href={siteConfig.instagram.url}
             target="_blank"
             rel="noreferrer"
           >
+            <Camera size={18} aria-hidden="true" />
             {siteConfig.instagram.label}
-            <ArrowUpRight size={16} />
+            <ArrowUpRight size={16} aria-hidden="true" />
           </a>
         </div>
       </div>

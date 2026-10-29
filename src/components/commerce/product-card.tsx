@@ -9,12 +9,14 @@ type ProductCardProps = {
   product: Product;
   variant?: "default" | "preview";
   preload?: boolean;
+  showDetailsLink?: boolean;
 };
 
 export function ProductCard({
   product,
   variant = "default",
   preload = false,
+  showDetailsLink = true,
 }: ProductCardProps) {
   const Heading = variant === "preview" ? "h2" : "h3";
 
@@ -52,15 +54,17 @@ export function ProductCard({
             </span>
           </div>
           <div className="product-reveal">
-            <div className="min-h-0 overflow-hidden">
+            <div>
               <p className="product-description">{product.shortDescription}</p>
-              <Link
-                className="product-details-link"
-                href={`/products/${product.slug}`}
-              >
-                The delicious details{" "}
-                <ArrowUpRight size={13} aria-hidden="true" />
-              </Link>
+              {showDetailsLink ? (
+                <Link
+                  className="product-details-link"
+                  href={`/products/${product.slug}`}
+                >
+                  The delicious details{" "}
+                  <ArrowUpRight size={13} aria-hidden="true" />
+                </Link>
+              ) : null}
             </div>
           </div>
         </div>

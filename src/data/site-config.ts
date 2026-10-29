@@ -9,6 +9,8 @@ export const siteConfig = {
   instagram: {
     label: "@saltedfocaccia",
     url: "https://www.instagram.com/saltedfocaccia/",
+    eyebrow: "Fresh from the oven. And the feed.",
+    heading: "Let’s break bread.",
   },
   announcement: "Friday pickup · 2–6 pm · Orders close Wednesday at midnight",
   navigation: [
@@ -20,7 +22,7 @@ export const siteConfig = {
   ],
   hero: {
     eyebrow: "Sourdough focaccia + more",
-    headline: "A little salty.\nA lot to love.",
+    headline: "A little salty. A lot to love.",
     description: "Fresh-baked sourdough focaccia made for sharing. Or not.",
     image:
       "https://placehold.co/1200x1400/BB906F/FAF3E7/png?text=the+good%0Astuff.&font=lora",

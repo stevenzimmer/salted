@@ -1,12 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ArrowUpRight, ArrowRight, Camera } from "lucide-react";
+import { ArrowUpRight, ArrowRight } from "lucide-react";
 import { Hero } from "@/components/home/hero";
 import { ProductStorefront } from "@/components/home/product-storefront";
 import { ProductCard } from "@/components/commerce/product-card";
 import { RecipeCard } from "@/components/recipes/recipe-card";
-import { LogoMark } from "@/components/brand/logo-mark";
 import { products } from "@/data/products";
 import { recipes } from "@/data/recipes";
 import { reviews } from "@/data/reviews";
@@ -49,7 +48,9 @@ export default function HomePage() {
             .map((product) => ({
               id: product.id,
               category: product.category,
-              content: <ProductCard product={product} />,
+              content: (
+                <ProductCard product={product} showDetailsLink={false} />
+              ),
             }))}
         />
         <p className="menu-note">
@@ -185,25 +186,6 @@ export default function HomePage() {
         <p className="draft-note mt-7">
           Draft recipe inspiration · final recipes are awaiting bakery approval.
         </p>
-      </section>
-      <section className="instagram-section">
-        <div className="shell instagram-inner">
-          <LogoMark />
-          <div>
-            <p className="eyebrow">Fresh from the oven. And the feed.</p>
-            <h2>Let’s break bread.</h2>
-          </div>
-          <a
-            className="inline-link"
-            href={siteConfig.instagram.url}
-            target="_blank"
-            rel="noreferrer"
-          >
-            <Camera size={18} />
-            {siteConfig.instagram.label}
-            <ArrowUpRight size={17} />
-          </a>
-        </div>
       </section>
     </>
   );

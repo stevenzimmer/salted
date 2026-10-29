@@ -9,7 +9,7 @@ import { siteConfig } from "@/data/site-config";
 export function Hero() {
   return (
     <section className="shell hero" aria-label="Welcome to Salted">
-      <div className="hero-copy">
+      <div>
         <div className="hero-brand">
           <Wordmark className="hero-wordmark" />
           <span className="hero-spark" aria-hidden="true">
