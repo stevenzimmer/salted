@@ -587,14 +587,11 @@ img {
     transparent 100%
   );
   pointer-events: none;
-  opacity: 0;
+  opacity: 1;
   transition: opacity 0.3s ease-in-out;
 }
 .product-card:is(:hover, :focus-within) .product-overlay {
   color: var(--charcoal);
-}
-.product-card:is(:hover, :focus-within) .product-scrim {
-  opacity: 1;
 }
 .product-overlay .photo-label {
   position: static;
@@ -649,9 +646,11 @@ img {
   transition: opacity 0.3s ease-in-out;
 }
 @media (hover: hover) and (pointer: fine) {
+  .product-scrim,
   .product-reveal {
     opacity: 0;
   }
+  .product-card:is(:hover, :focus-within) .product-scrim,
   .product-card:is(:hover, :focus-within) .product-reveal {
     opacity: 1;
   }
@@ -765,6 +764,7 @@ img {
   display: flex;
   align-items: center;
   gap: 6px;
+  margin-top: 8px;
   font-size: 10px;
   text-decoration: underline;
   text-decoration-color: color-mix(in srgb, var(--cream) 60%, transparent);
@@ -784,6 +784,7 @@ img {
   }
   .product-reveal .product-details-link {
     flex-shrink: 0;
+    margin-top: 0;
     white-space: nowrap;
   }
 }
@@ -1994,6 +1995,7 @@ img {
   }
   .hero {
     grid-template-columns: 1fr;
+    row-gap: 40px;
     padding-top: 15px;
     padding-bottom: 24px;
   }
@@ -2242,6 +2244,7 @@ img {
   .special-workflow {
     display: grid;
     grid-template-columns: 1fr 1fr;
+    gap: 8px 20px;
   }
   .form-grid {
     gap: 22px 18px;
@@ -2272,9 +2275,19 @@ img {
   }
 }
 @media (max-width: 639px) {
+  .section-heading {
+    flex-direction: column;
+    gap: 20px;
+  }
+  .section-heading .inline-link {
+    margin-top: 0;
+  }
   .recipe-grid,
   .related-product-grid {
     grid-template-columns: 1fr;
+  }
+  .related-product-grid {
+    row-gap: 38px;
   }
   .product-grid {
     row-gap: 38px;
@@ -2353,9 +2366,6 @@ img {
     max-width: none;
     margin-top: 9px;
   }
-  .how-section .section-heading {
-    flex-direction: column;
-  }
   .reviews-grid {
     grid-template-columns: 1fr;
     gap: 30px;
@@ -2406,6 +2416,9 @@ img {
     margin: 0;
   }
   .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .special-workflow {
     grid-template-columns: 1fr;
   }
   .form-bottom .button-primary {
