@@ -15,6 +15,8 @@
 - Avoid unnecessary dependencies and broad Client Component boundaries. Use npm and retain the lockfile.
 - Run `npm run lint`, `npm run typecheck`, `npm test`, and `npm run build` for substantial changes. Test cart and availability rules when they change.
 - Do not deploy or begin Phase 2 integrations without an explicit request.
+- Read `docs/deployment.md` before deployment work. Pushes to Vercel-connected branches can trigger deployments; require an explicit request to push or deploy.
+- Keep `.vercel/` gitignored; its project configuration belongs to the local working directory.
 
 <!-- BEGIN:nextjs-agent-rules -->
 
