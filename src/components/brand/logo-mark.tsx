@@ -7,7 +7,7 @@ export function LogoMark() {
     >
       <span>sourdough &</span>
       <span className="seal-flower" aria-hidden="true">
-        ✳
+        {"\u2733\uFE0E"}
       </span>
       <span>good things</span>
     </div>

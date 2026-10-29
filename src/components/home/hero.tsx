@@ -13,7 +13,7 @@ export function Hero() {
         <p className="eyebrow hero-eyebrow">
           <span>
             <span className="hero-eyebrow-star" aria-hidden="true">
-              ✳
+              {"\u2733\uFE0E"}
             </span>
             <span>{siteConfig.hero.caption}</span>
           </span>

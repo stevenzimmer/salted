@@ -19,13 +19,13 @@ export default function HomePage() {
       <Hero />
       <div className="bread-strip" aria-hidden="true">
         <span>slow dough</span>
-        <span>✳</span>
+        <span>{"\u2733\uFE0E"}</span>
         <span>crispy edges</span>
-        <span>✳</span>
+        <span>{"\u2733\uFE0E"}</span>
         <span>soft middles</span>
-        <span>✳</span>
+        <span>{"\u2733\uFE0E"}</span>
         <span>very good bread</span>
-        <span>✳</span>
+        <span>{"\u2733\uFE0E"}</span>
       </div>
       <section id="products" className="shell section-pad storefront">
         <div className="section-heading">
@@ -62,7 +62,7 @@ export default function HomePage() {
         <div className="shell seasonal-grid">
           <div className="seasonal-art">
             <span className="seasonal-asterisk" aria-hidden="true">
-              ✳
+              {"\u2733\uFE0E"}
             </span>
             <p>
               Something
