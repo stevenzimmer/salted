@@ -44,6 +44,7 @@ export function ProductCard({
           aria-label={`View ${product.name}`}
         />
         <div className="product-overlay absolute inset-x-0 bottom-0 z-20">
+          <span className="product-scrim" aria-hidden="true" />
           <div className="product-heading">
             <Heading>
               <Link href={`/products/${product.slug}`}>{product.name}</Link>

@@ -567,9 +567,34 @@ img {
   text-transform: lowercase;
 }
 .product-overlay {
+  isolation: isolate;
   padding: 18px;
   color: var(--charcoal);
   pointer-events: none;
+  transition: color 0.3s ease-in-out;
+}
+.product-scrim {
+  position: absolute;
+  z-index: -1;
+  inset: -40px 0 0;
+  /* Keep the solid stop above all copy, even when the text wraps. */
+  background: linear-gradient(
+    to top,
+    /* var(--copper-ink) 0%, */
+    /* var(--copper-ink) calc(100% - 112px), */
+    color-mix(in srgb, var(--copper-ink) 60%, transparent) calc(100% - 72px),
+    color-mix(in srgb, var(--copper-ink) 25%, transparent) calc(100% - 32px),
+    transparent 100%
+  );
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+.product-card:is(:hover, :focus-within) .product-overlay {
+  color: var(--charcoal);
+}
+.product-card:is(:hover, :focus-within) .product-scrim {
+  opacity: 1;
 }
 .product-overlay .photo-label {
   position: static;
@@ -583,6 +608,9 @@ img {
 }
 .product-image :focus-visible {
   outline-color: var(--charcoal);
+}
+.product-overlay :focus-visible {
+  outline-color: var(--cream);
 }
 .product-image .product-image-link:focus-visible,
 .product-image .product-details-link:focus-visible {
@@ -618,7 +646,7 @@ img {
 }
 .product-reveal {
   /* Reserve the details' space so the heading stays fixed during the fade. */
-  transition: opacity 0.3s ease;
+  transition: opacity 0.3s ease-in-out;
 }
 @media (hover: hover) and (pointer: fine) {
   .product-reveal {
