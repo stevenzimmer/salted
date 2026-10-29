@@ -331,15 +331,22 @@ img {
 .hero-cta {
   margin-top: 27px;
 }
-.hero-footnote {
+.hero-eyebrow {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 9px;
-  font-size: 12px;
-}
-.small-star {
+  gap: 8px 20px;
+  margin-bottom: 12px;
   color: var(--copper-ink);
+}
+.hero-eyebrow > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.hero-eyebrow-star {
   font-size: 18px;
+  line-height: 1;
 }
 .hero-visual {
   position: relative;
@@ -369,23 +376,6 @@ img {
 }
 .product-card[data-variant="preview"] .product-details-link {
   font-size: 11px;
-}
-.hero-image-caption {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding-top: 15px;
-  font-size: 10px;
-}
-.hero-image-caption > span:last-child {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-display), sans-serif;
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  text-transform: lowercase;
 }
 .hero-sticker {
   position: absolute;
@@ -1389,6 +1379,9 @@ img {
 .special-order-aside > p {
   font-size: 12px;
 }
+.special-order-aside h2 + p {
+  margin-top: 20px;
+}
 .special-order-aside dl {
   margin-block: 25px 15px;
 }
@@ -2009,10 +2002,6 @@ img {
     height: 108px;
   }
   .hero-sticker > span:not(.sticker-script) {
-    font-size: 9px;
-  }
-  .hero-image-caption {
-    padding-top: 12px;
     font-size: 9px;
   }
   .section-heading {

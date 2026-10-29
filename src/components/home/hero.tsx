@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowDown, ArrowDownRight } from "lucide-react";
+import { ArrowDownRight, MapPin } from "lucide-react";
 import { Wordmark } from "@/components/brand/wordmark";
 import { ProductCard } from "@/components/commerce/product-card";
 import { HeroProductCarousel } from "@/components/home/hero-product-carousel";
@@ -10,6 +10,17 @@ export function Hero() {
   return (
     <section className="shell hero" aria-label="Welcome to Salted">
       <div>
+        <p className="eyebrow hero-eyebrow">
+          <span>
+            <span className="hero-eyebrow-star" aria-hidden="true">
+              ✳
+            </span>
+            <span>{siteConfig.hero.caption}</span>
+          </span>
+          <span>
+            <MapPin size={13} aria-hidden="true" /> {siteConfig.hero.location}
+          </span>
+        </p>
         <div className="hero-brand">
           <Wordmark className="hero-wordmark" />
           <span className="hero-spark" aria-hidden="true">
@@ -40,17 +51,6 @@ export function Hero() {
               ),
             }))}
         />
-        <div className="hero-image-caption">
-<p className="hero-footnote">
-          <span className="small-star" aria-hidden="true">
-            ✳
-          </span>{" "}
-          A small bakery. A very good Friday.
-        </p>
-          <span>
-            Rocklin, CA <ArrowDown size={13} />
-          </span>
-        </div>
         <div
           className="hero-sticker pointer-events-none"
           aria-label="Made for sharing, or not"

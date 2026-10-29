@@ -21,6 +21,8 @@ export const siteConfig = {
     { label: "About", href: "/about" },
   ],
   hero: {
+    caption: "A small bakery. A very good Friday.",
+    location: "Rocklin, CA",
     eyebrow: "Sourdough focaccia + more",
     headline: "A little salty. A lot to love.",
     description: "Fresh-baked sourdough focaccia made for sharing. Or not.",
