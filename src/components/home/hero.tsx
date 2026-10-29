@@ -24,7 +24,8 @@ export function Hero() {
         <div className="hero-brand">
           <Wordmark className="hero-wordmark" />
           <span className="hero-spark" aria-hidden="true">
-            ✳
+            {/* Request text presentation to prevent mobile emoji substitution. */}
+            {"\u2733\uFE0E"}
           </span>
         </div>
         <p className="eyebrow hero-tagline">{siteConfig.hero.eyebrow}</p>

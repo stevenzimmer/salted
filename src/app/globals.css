@@ -308,6 +308,7 @@ img {
   right: -24px;
   color: var(--copper-ink);
   font-family: Georgia, serif;
+  font-variant-emoji: text;
   font-size: 52px;
   transform: rotate(15deg);
 }
@@ -761,7 +762,7 @@ img {
   flex-shrink: 0;
 }
 .product-details-link {
-  display: flex;
+  display: none;
   align-items: center;
   gap: 6px;
   margin-top: 8px;
@@ -783,6 +784,7 @@ img {
     margin-top: 0;
   }
   .product-reveal .product-details-link {
+    display: flex;
     flex-shrink: 0;
     margin-top: 0;
     white-space: nowrap;
