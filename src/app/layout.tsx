@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { editorialFont, displayFont } from "@/lib/fonts";
 import { siteConfig } from "@/data/site-config";
 import { getMockSchedule } from "@/data/product-availability";
@@ -50,6 +51,7 @@ export default function RootLayout({
           <SiteFooter />
         </CartProvider>
       </body>
+      <GoogleAnalytics gaId="G-FF1JFYJLTV" />
     </html>
   );
 }

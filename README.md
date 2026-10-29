@@ -27,6 +27,8 @@ The production build uses Next.js’s supported webpack compiler because the loc
 
 Next.js 16, React 19, strict TypeScript, App Router, Tailwind CSS 4, and official shadcn/ui Sheet, Calendar, Button, Input, and Textarea primitives. Radix supplies accessible modal behavior; React Day Picker supplies the calendar. `lucide-react` supplies icons. `tsx` runs the focused Node test suite. The npm lockfile records installed versions.
 
+Google Analytics 4 uses `@next/third-parties/google` in the root layout with measurement ID `G-FF1JFYJLTV`. It loads after hydration on every route, including local development. For client-side pageviews, keep Enhanced Measurement and “Page changes based on browser history events” enabled in the Google Analytics web stream. After deployment, verify visits in the property's Realtime report.
+
 ## Routes
 
 | Route                | Purpose                                                                                                                                    |
