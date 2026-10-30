@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { ArrowUpRight, ArrowRight } from "lucide-react";
 import { Hero } from "@/components/home/hero";
+import { InstagramSection } from "@/components/home/instagram-section";
 import { ProductStorefront } from "@/components/home/product-storefront";
 import { ProductCard } from "@/components/commerce/product-card";
 import { RecipeCard } from "@/components/recipes/recipe-card";
@@ -187,6 +188,7 @@ export default function HomePage() {
           Draft recipe inspiration · final recipes are awaiting bakery approval.
         </p>
       </section>
+      <InstagramSection />
     </>
   );
 }

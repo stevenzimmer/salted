@@ -50,9 +50,17 @@ function scrollToSlide(
 
 type HeroProductCarouselProps = {
   items: { id: string; name: string; content: ReactNode }[];
+  label?: string;
+  itemLabel?: string;
+  showPlaybackControl?: boolean;
 };
 
-export function HeroProductCarousel({ items }: HeroProductCarouselProps) {
+export function HeroProductCarousel({
+  items,
+  label = "Explore the menu",
+  itemLabel = "product",
+  showPlaybackControl = false,
+}: HeroProductCarouselProps) {
   const viewportId = useId();
   const viewportRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -162,7 +170,7 @@ export function HeroProductCarousel({ items }: HeroProductCarouselProps) {
     <div
       role="region"
       aria-roledescription="carousel"
-      aria-label="Explore the menu"
+      aria-label={label}
       onKeyDown={handleKeyDown}
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}
@@ -173,7 +181,7 @@ export function HeroProductCarousel({ items }: HeroProductCarouselProps) {
         id={viewportId}
         ref={viewportRef}
         role="group"
-        aria-label="Menu products"
+        aria-label={label}
         tabIndex={0}
         className="hero-carousel-viewport flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain scroll-smooth motion-reduce:scroll-auto"
         onScroll={handleScroll}
@@ -200,13 +208,17 @@ export function HeroProductCarousel({ items }: HeroProductCarouselProps) {
               variant="outline"
               size="icon"
               className="size-10 rounded-full border-foreground/40 shadow-none min-[360px]:size-11"
-              aria-label="Previous product"
+              aria-label={`Previous ${itemLabel}`}
               aria-controls={viewportId}
               onClick={handlePrevious}
             >
               <ArrowLeft aria-hidden="true" />
             </Button>
-            <div role="group" aria-label="Choose a product" className="flex">
+            <div
+              role="group"
+              aria-label={`Choose a ${itemLabel}`}
+              className="flex"
+            >
               {items.map((item, index) => (
                 <button
                   key={item.id}
@@ -226,14 +238,33 @@ export function HeroProductCarousel({ items }: HeroProductCarouselProps) {
               variant="outline"
               size="icon"
               className="size-10 rounded-full border-foreground/40 shadow-none min-[360px]:size-11"
-              aria-label="Next product"
+              aria-label={`Next ${itemLabel}`}
               aria-controls={viewportId}
               onClick={handleNext}
             >
               <ArrowRight aria-hidden="true" />
             </Button>
           </div>
-
+          {showPlaybackControl ? (
+            <div className="mt-2 flex justify-center">
+              <Button
+                type="button"
+                variant="ghost"
+                className="min-h-11 gap-2 font-heading text-sm tracking-wide"
+                data-carousel-playback
+                aria-label={isPaused ? "Play slideshow" : "Pause slideshow"}
+                aria-controls={viewportId}
+                onClick={handlePlaybackToggle}
+              >
+                {isPaused ? (
+                  <Play aria-hidden="true" />
+                ) : (
+                  <Pause aria-hidden="true" />
+                )}
+                {isPaused ? "Play slideshow" : "Pause slideshow"}
+              </Button>
+            </div>
+          ) : null}
         </>
       ) : null}
       <p
