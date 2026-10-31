@@ -6,6 +6,7 @@ import { pickupLabel } from "@/lib/format";
 import { pickupConfig } from "@/data/pickup-config";
 import { getMockSchedule } from "@/data/product-availability";
 import { isPickupOpen } from "@/lib/availability";
+import { OrderPreviewAnalytics } from "@/components/commerce/order-preview-analytics";
 
 export const metadata: Metadata = {
   title: "Confirmation preview",
@@ -23,6 +24,7 @@ export default async function SuccessPage({
   );
   return (
     <div className="shell confirmation-page">
+      <OrderPreviewAnalytics hasValidPickupDate={Boolean(date)} />
       <LogoMark />
       <p className="eyebrow mt-8">A taste of what’s next</p>
       <h1>

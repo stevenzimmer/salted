@@ -17,6 +17,7 @@ import {
 } from "@/lib/cart-store";
 import { maximumInventory } from "@/lib/availability";
 import { MAX_CART_QUANTITY } from "@/lib/cart";
+import { trackCheckoutEvent } from "@/lib/analytics";
 import type { CartItem, MockSchedule } from "@/types/content";
 
 const CartDrawer = dynamic(
@@ -83,8 +84,19 @@ export function CartProvider({
       item.quantity < 1 ||
       !Number.isSafeInteger(item.quantity) ||
       current + item.quantity > max
-    )
+    ) {
+      if (Number.isSafeInteger(item.quantity) && item.quantity > 0) {
+        trackCheckoutEvent("add_to_cart_blocked", {
+          item_id: item.productId,
+          item_variant: item.variantId,
+          requested_quantity: item.quantity,
+          cart_quantity: current,
+          available_quantity: max,
+          reason_code: "quantity_limit",
+        });
+      }
       return false;
+    }
     updateCart((cart) => [...cart, item]);
     handleOpen(true);
     return true;

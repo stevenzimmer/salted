@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -26,6 +26,7 @@ import { resolveCart, cartSubtotal } from "@/lib/cart";
 import { maximumInventory, validPickupDates } from "@/lib/availability";
 import { money, pickupLabel } from "@/lib/format";
 import { pickupConfig } from "@/data/pickup-config";
+import { trackCheckoutEvent, type CheckoutStep } from "@/lib/analytics";
 
 function focusHeading(element: HTMLHeadingElement | null) {
   element?.focus();
@@ -41,14 +42,53 @@ export function CartDrawer() {
     removeItem,
     restoreFocus,
   } = useCart();
-  const [step, setStep] = useState<"bag" | "pickup" | "payment">("bag");
+  const [step, setStep] = useState<CheckoutStep>("bag");
   const [selectedDate, setSelectedDate] = useState<string>();
   const lines = resolveCart(items);
   const subtotal = cartSubtotal(items);
   const dates = validPickupDates(items, schedule);
   const selected = dates.find((date) => date.date === selectedDate);
+  const itemCount = items.reduce((total, item) => total + item.quantity, 0);
+  const visibleStep = lines.length === 0 ? "bag" : step;
+  const lastViewedStep = useRef<CheckoutStep | null>(null);
+  const wasUnavailable = useRef(false);
+
+  // Synchronize analytics with the visible drawer, including cross-tab cart
+  // changes. Refs prevent duplicate views on rerenders and Strict Mode replay.
+  useEffect(() => {
+    if (!open) {
+      lastViewedStep.current = null;
+      wasUnavailable.current = false;
+      return;
+    }
+
+    if (lastViewedStep.current !== visibleStep) {
+      trackCheckoutEvent("checkout_step_view", {
+        step_name: visibleStep,
+        item_count: itemCount,
+        available_date_count: dates.length,
+      });
+      lastViewedStep.current = visibleStep;
+    }
+
+    const unavailable = visibleStep === "pickup" && dates.length === 0;
+    if (unavailable && !wasUnavailable.current) {
+      trackCheckoutEvent("pickup_dates_unavailable", {
+        step_name: "pickup",
+        item_count: itemCount,
+        available_date_count: 0,
+      });
+    }
+    wasUnavailable.current = unavailable;
+  }, [open, visibleStep, itemCount, dates.length]);
 
   function handleOpenChange(next: boolean) {
+    if (!next && open) {
+      trackCheckoutEvent("checkout_closed", {
+        step_name: visibleStep,
+        item_count: itemCount,
+      });
+    }
     setOpen(next);
     if (!next) setStep("bag");
   }
@@ -57,12 +97,49 @@ export function CartDrawer() {
     handleOpenChange(false);
   }
 
+  function closeForNavigation() {
+    setOpen(false);
+    setStep("bag");
+  }
+
+  function goBack(toStep: CheckoutStep) {
+    trackCheckoutEvent("checkout_back", {
+      from_step: visibleStep,
+      to_step: toStep,
+      item_count: itemCount,
+    });
+    setStep(toStep);
+  }
+
+  function backToBag() {
+    goBack("bag");
+  }
+
+  function backToPickup() {
+    goBack("pickup");
+  }
+
+  function selectPickupDate(date: string | undefined) {
+    setSelectedDate(date);
+    if (
+      date &&
+      date !== selected?.date &&
+      dates.some((option) => option.date === date)
+    ) {
+      trackCheckoutEvent("pickup_date_selected", {
+        pickup_date: date,
+        item_count: itemCount,
+        available_date_count: dates.length,
+      });
+    }
+  }
+
   function continueToPayment() {
     if (
       selected &&
       validPickupDates(items, schedule).some((date) => date.id === selected.id)
     )
-      setStep("payment");
+      setStep("payment_preview");
   }
 
   return (
@@ -98,7 +175,11 @@ export function CartDrawer() {
               with good bread.
             </h3>
             <p>Your bag is waiting for something delicious.</p>
-            <Link href="/#products" className="button-primary" onClick={close}>
+            <Link
+              href="/#products"
+              className="button-primary"
+              onClick={closeForNavigation}
+            >
               Find your good stuff <ArrowRight size={18} />
             </Link>
           </div>
@@ -112,7 +193,7 @@ export function CartDrawer() {
                 >
                   <Link
                     href={`/products/${line.product.slug}`}
-                    onClick={close}
+                    onClick={closeForNavigation}
                     className="cart-line-image"
                   >
                     <Image
@@ -128,7 +209,7 @@ export function CartDrawer() {
                       <h3>
                         <Link
                           href={`/products/${line.product.slug}`}
-                          onClick={close}
+                          onClick={closeForNavigation}
                         >
                           {line.product.name}
                         </Link>
@@ -192,11 +273,7 @@ export function CartDrawer() {
           </>
         ) : step === "pickup" ? (
           <div className="checkout-scroll" key="pickup">
-            <button
-              type="button"
-              onClick={() => setStep("bag")}
-              className="back-link m-0"
-            >
+            <button type="button" onClick={backToBag} className="back-link m-0">
               <ArrowLeft size={15} /> Back to your bag
             </button>
             <h3 className="checkout-heading" tabIndex={-1} ref={focusHeading}>
@@ -212,7 +289,7 @@ export function CartDrawer() {
               <PickupDatePicker
                 dates={dates}
                 selected={selected?.date}
-                onSelect={setSelectedDate}
+                onSelect={selectPickupDate}
               />
             ) : (
               <div className="checkout-notice" role="status">
@@ -224,7 +301,7 @@ export function CartDrawer() {
                 <button
                   type="button"
                   className="inline-link mt-4"
-                  onClick={() => setStep("bag")}
+                  onClick={backToBag}
                 >
                   Edit your bag <ArrowRight size={15} />
                 </button>
@@ -309,7 +386,7 @@ export function CartDrawer() {
                   ? `/order/success?pickup=${selected.date}`
                   : "/order/success"
               }
-              onClick={close}
+              onClick={closeForNavigation}
               className="button-primary mt-6 w-full"
             >
               Preview the confirmation <ArrowUpRight size={17} />
@@ -317,7 +394,7 @@ export function CartDrawer() {
             <button
               type="button"
               className="text-button"
-              onClick={() => setStep("pickup")}
+              onClick={backToPickup}
             >
               Back to pickup dates
             </button>

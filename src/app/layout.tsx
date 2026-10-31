@@ -39,6 +39,7 @@ export default function RootLayout({
       className={`${editorialFont.variable} ${displayFont.variable}`}
     >
       <body>
+        <GoogleAnalytics gaId="G-FF1JFYJLTV" />
         <a className="skip-link" href="#main">
           Skip to content
         </a>
@@ -51,7 +52,6 @@ export default function RootLayout({
           <SiteFooter />
         </CartProvider>
       </body>
-      <GoogleAnalytics gaId="G-FF1JFYJLTV" />
     </html>
   );
 }

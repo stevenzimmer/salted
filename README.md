@@ -29,6 +29,8 @@ Next.js 16, React 19, strict TypeScript, App Router, Tailwind CSS 4, and officia
 
 Google Analytics 4 uses `@next/third-parties/google` in the root layout with measurement ID `G-FF1JFYJLTV`. It loads after hydration on every route, including local development. For client-side pageviews, keep Enhanced Measurement and “Page changes based on browser history events” enabled in the Google Analytics web stream. After deployment, verify visits in the property's Realtime report.
 
+Custom cart and checkout events track quantity limits, unavailable pickup dates, date selection, visible steps, back navigation, drawer closure, and confirmation previews. All are labeled as preview activity; none reports a purchase. See [checkout analytics](docs/analytics.md) for triggers, payloads, verification, and GA4 custom dimension setup.
+
 ## Routes
 
 | Route                | Purpose                                                                                                                                    |
