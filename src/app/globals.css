@@ -292,8 +292,6 @@ img {
 .hero {
   display: grid;
   grid-template-columns: 1.05fr 1fr;
-  padding-top: 40px;
-  padding-bottom: 40px;
 }
 .hero-brand {
   position: relative;
