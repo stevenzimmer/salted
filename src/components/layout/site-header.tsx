@@ -14,10 +14,14 @@ import {
   SheetDescription,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { siteConfig } from "@/data/site-config";
+import type { SiteSettings } from "../../../sanity.types";
+import { navigation } from "@/lib/navigation";
+import { hasText } from "@/sanity/lib/content";
+import { Text } from "@/components/cms/text";
 import { cn } from "@/lib/utils";
 
-export function SiteHeader() {
+export function SiteHeader({ settings }: { settings: SiteSettings | null }) {
+  const links = navigation(settings);
   const pathname = usePathname();
   const { items, setOpen } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -46,90 +50,123 @@ export function SiteHeader() {
   return (
     <header className="site-header">
       <div className="shell flex h-24 items-center justify-between gap-6">
-        <Link href="/" aria-label="Salted Focaccia home" className="shrink-0">
-          <Wordmark className="text-[44px]" />
-        </Link>
+        {hasText(settings?.brand?.wordmark) ? (
+          <Link href="/" aria-label="Home" className="shrink-0">
+            <Wordmark
+              value={settings?.brand?.wordmark}
+              className="text-[44px]"
+            />
+          </Link>
+        ) : null}
         <div className="lg:flex items-center gap-12">
-        <nav
-          className="hidden items-center gap-7 lg:flex"
-          aria-label="Main navigation"
-        >
-          {siteConfig.navigation.map((link) => {
-            const active = isActiveLink(link.href);
-            // Let the browser scroll same-page anchors, including repeated clicks.
-            const NavigationLink =
-              pathname === "/" && link.href === "/#products" ? "a" : Link;
-            return (
-              <NavigationLink
-                key={link.href}
-                href={link.href}
-                className={cn("nav-link", active && "nav-order")}
-                aria-current={active ? "page" : undefined}
-              >
-                {link.label}
-              </NavigationLink>
-            );
-          })}
-        </nav>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            className="cart-trigger"
-            onClick={openCart}
-            aria-label={`Open cart, ${count} ${count === 1 ? "item" : "items"}`}
+          <nav
+            className="hidden items-center gap-7 lg:flex"
+            aria-label="Main navigation"
           >
-            <ShoppingBag size={23} strokeWidth={1.5} />
-            <span className="hidden sm:inline text-xl">Your bag</span>
-            <span className="cart-count" aria-live="polite">
-              {count}
-            </span>
-          </button>
-          <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-            <SheetTrigger
-              ref={menuTriggerRef}
-              className="icon-button lg:hidden"
-              aria-label="Open navigation"
+            {links.map((link) => {
+              const active = isActiveLink(link.href);
+              // Let the browser scroll same-page anchors, including repeated clicks.
+              const NavigationLink =
+                pathname === "/" && link.href === "/#products" ? "a" : Link;
+              return (
+                <NavigationLink
+                  key={link.href}
+                  href={link.href}
+                  className={cn("nav-link", active && "nav-order")}
+                  aria-current={active ? "page" : undefined}
+                >
+                  {link.label}
+                </NavigationLink>
+              );
+            })}
+          </nav>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              className="cart-trigger"
+              onClick={openCart}
+              aria-label={`Open cart, ${count} ${count === 1 ? "item" : "items"}`}
             >
-              <Menu size={23} strokeWidth={1.5} />
-            </SheetTrigger>
-            <SheetContent
-              className="mobile-menu"
-              onCloseAutoFocus={restoreMenuFocus}
-            >
-              <SheetHeader>
-                <SheetTitle>
-                  <Wordmark className="text-5xl" />
-                </SheetTitle>
-                <SheetDescription>
-                  A little salty. A lot to love.
-                </SheetDescription>
-              </SheetHeader>
-              <nav
-                aria-label="Mobile navigation"
-                className="mt-10 flex flex-col"
+              <ShoppingBag size={23} strokeWidth={1.5} />
+              <Text
+                as="span"
+                className="hidden sm:inline text-xl"
+                value={settings?.navigation?.cart}
+              />
+              <span className="cart-count" aria-live="polite">
+                {count}
+              </span>
+            </button>
+            <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+              <SheetTrigger
+                ref={menuTriggerRef}
+                className="icon-button lg:hidden"
+                aria-label="Open navigation"
               >
-                {siteConfig.navigation.map((link) => {
-                  const active = isActiveLink(link.href);
-                  const NavigationLink =
-                    pathname === "/" && link.href === "/#products" ? "a" : Link;
-                  return (
-                    <NavigationLink
-                      key={link.href}
-                      href={link.href}
-                      onClick={closeMenu}
-                      className={cn("mobile-nav-link", active && "nav-order")}
-                      aria-current={active ? "page" : undefined}
-                    >
-                      {link.label}
-                      <ArrowUpRight size={20} />
-                    </NavigationLink>
-                  );
-                })}
-              </nav>
-              <p className="eyebrow mt-auto">Made for your Friday.</p>
-            </SheetContent>
-          </Sheet>
-        </div>
+                <Menu size={23} strokeWidth={1.5} />
+              </SheetTrigger>
+              <SheetContent
+                className="mobile-menu"
+                onCloseAutoFocus={restoreMenuFocus}
+              >
+                <SheetHeader>
+                  <SheetTitle
+                    className={
+                      hasText(settings?.brand?.wordmark) ? undefined : "sr-only"
+                    }
+                  >
+                    {hasText(settings?.brand?.wordmark) ? (
+                      <Wordmark
+                        value={settings.brand.wordmark}
+                        className="text-5xl"
+                      />
+                    ) : (
+                      "Navigation"
+                    )}
+                  </SheetTitle>
+                  <SheetDescription
+                    className={
+                      hasText(settings?.brand?.mobileDescription)
+                        ? undefined
+                        : "sr-only"
+                    }
+                  >
+                    {hasText(settings?.brand?.mobileDescription)
+                      ? settings.brand.mobileDescription
+                      : "Navigation"}
+                  </SheetDescription>
+                </SheetHeader>
+                <nav
+                  aria-label="Mobile navigation"
+                  className="mt-10 flex flex-col"
+                >
+                  {links.map((link) => {
+                    const active = isActiveLink(link.href);
+                    const NavigationLink =
+                      pathname === "/" && link.href === "/#products"
+                        ? "a"
+                        : Link;
+                    return (
+                      <NavigationLink
+                        key={link.href}
+                        href={link.href}
+                        onClick={closeMenu}
+                        className={cn("mobile-nav-link", active && "nav-order")}
+                        aria-current={active ? "page" : undefined}
+                      >
+                        {link.label}
+                        <ArrowUpRight size={20} />
+                      </NavigationLink>
+                    );
+                  })}
+                </nav>
+                <Text
+                  className="eyebrow mt-auto"
+                  value={settings?.brand?.mobileNote}
+                />
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </div>
     </header>

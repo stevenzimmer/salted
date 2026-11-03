@@ -1,9 +1,12 @@
-import { getProduct } from "@/data/products";
+import type { Product } from "@/types/content";
 import type { CartItem } from "@/types/content";
 
 export const MAX_CART_QUANTITY = 20;
 
-export function normalizeCart(input: unknown): CartItem[] {
+export function normalizeCart(
+  input: unknown,
+  products?: Product[],
+): CartItem[] {
   if (!Array.isArray(input)) return [];
   const rows = new Map<string, CartItem>();
   for (const value of input) {
@@ -16,8 +19,13 @@ export function normalizeCart(input: unknown): CartItem[] {
       quantity < 1
     )
       continue;
-    const product = getProduct(productId);
-    if (!product?.variants.some((variant) => variant.id === variantId))
+    const product = products?.find(
+      (product) => product.id === productId && product.active,
+    );
+    if (
+      products &&
+      !product?.variants.some((variant) => variant.id === variantId)
+    )
       continue;
     const key = `${productId}:${variantId}`;
     rows.set(key, {
@@ -32,9 +40,11 @@ export function normalizeCart(input: unknown): CartItem[] {
   return [...rows.values()];
 }
 
-export function resolveCart(items: CartItem[]) {
+export function resolveCart(items: CartItem[], products: Product[]) {
   return items.flatMap((item) => {
-    const product = getProduct(item.productId);
+    const product = products.find(
+      (product) => product.id === item.productId && product.active,
+    );
     const variant = product?.variants.find(
       (variant) => variant.id === item.variantId,
     );
@@ -51,8 +61,8 @@ export function resolveCart(items: CartItem[]) {
   });
 }
 
-export function cartSubtotal(items: CartItem[]): number {
-  return resolveCart(items).reduce(
+export function cartSubtotal(items: CartItem[], products: Product[]): number {
+  return resolveCart(items, products).reduce(
     (subtotal, line) => subtotal + line.lineTotal,
     0,
   );

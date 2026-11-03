@@ -1,4 +1,20 @@
-import { products } from "./products";
+const products = [
+  ...[
+    "classic-focaccia",
+    "pesto-mozzarella",
+    "jalapeno-cheddar",
+    "parmesan-chili-crisp",
+    "rosemary-olive-black-pepper",
+    "seasonal-flavor",
+  ].map((id) => ({
+    id,
+    variants: ["round", "square", "pan"].map((id) => ({ id })),
+  })),
+  ...["classic-sourdough", "specialty-sourdough"].map((id) => ({
+    id,
+    variants: [{ id: "loaf" }],
+  })),
+];
 import { createPickupDates } from "./pickup-dates";
 import type {
   MockSchedule,

@@ -19,6 +19,8 @@ import {
 } from "../src/lib/special-orders";
 import type { CartItem } from "../src/types/content";
 
+import { products } from "./fixtures/catalog";
+
 const now = new Date("2026-10-24T19:00:00Z");
 const schedule = getMockSchedule(now);
 const pesto: CartItem = {
@@ -139,34 +141,44 @@ test("sold-out, unavailable-size, and low-stock fixtures are separate inventory 
 });
 
 test("cart normalization rejects malformed and unknown data, merges duplicates, and strips extra fields", () => {
-  assert.deepEqual(normalizeCart(null), []);
-  assert.deepEqual(normalizeCart({ items: [pesto] }), []);
+  assert.deepEqual(normalizeCart(null, products), []);
+  assert.deepEqual(normalizeCart({ items: [pesto] }, products), []);
   assert.deepEqual(
-    normalizeCart([
-      null,
-      {},
-      { ...pesto, quantity: "1" },
-      { ...pesto, quantity: 0 },
-      { ...pesto, productId: "unknown" },
-    ]),
+    normalizeCart(
+      [
+        null,
+        {},
+        { ...pesto, quantity: "1" },
+        { ...pesto, quantity: 0 },
+        { ...pesto, productId: "unknown" },
+      ],
+      products,
+    ),
     [],
   );
   assert.deepEqual(
-    normalizeCart([{ ...pesto, date: "2026-11-06", price: 1 }, pesto]),
+    normalizeCart(
+      [{ ...pesto, date: "2026-11-06", price: 1 }, pesto],
+      products,
+    ),
     [{ ...pesto, quantity: 2 }],
   );
-  assert.equal(normalizeCart([{ ...pesto, quantity: 999 }])[0].quantity, 20);
+  assert.equal(
+    normalizeCart([{ ...pesto, quantity: 999 }], products)[0].quantity,
+    20,
+  );
 });
 
 test("totals use catalog prices in cents, including selected variants", () => {
-  assert.equal(cartSubtotal([pesto, chili]), 3100);
+  assert.equal(cartSubtotal([pesto, chili], products), 3100);
   assert.equal(
-    cartSubtotal([
-      { productId: "classic-focaccia", variantId: "pan", quantity: 2 },
-    ]),
+    cartSubtotal(
+      [{ productId: "classic-focaccia", variantId: "pan", quantity: 2 }],
+      products,
+    ),
     3800,
   );
-  assert.equal(cartSubtotal([]), 0);
+  assert.equal(cartSubtotal([], products), 0);
 });
 
 const validRequest: SpecialOrderInput = {

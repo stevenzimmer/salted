@@ -1,9 +1,17 @@
 import { cn } from "@/lib/utils";
-
-export function Wordmark({ className }: { className?: string }) {
+import { hasText } from "@/sanity/lib/content";
+export function Wordmark({
+  className,
+  value,
+}: {
+  className?: string;
+  value?: string | null;
+}) {
+  if (!hasText(value)) return null;
   return (
     <span className={cn("wordmark", className)}>
-      salted<span aria-hidden="true">.</span>
+      {value}
+      <span aria-hidden="true">.</span>
     </span>
   );
 }

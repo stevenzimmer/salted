@@ -1,6 +1,6 @@
 # Open decisions before a live launch
 
-These do not block Phase 1. Draft content and business rules are centralized in `src/data`.
+These business decisions remain open after Phase 2. Draft editorial content is now in Sanity; operational preview rules remain in `src/data`. The migration preserves existing approval notices.
 
 | Decision                                     | Phase 1 treatment                                                                                                            |
 | -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |

@@ -5,6 +5,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { trackAddToCart, trackCheckoutEvent } from "../src/lib/analytics";
 
+import { products } from "./fixtures/catalog";
+
 test("checkout analytics is safe on the server", () => {
   assert.doesNotThrow(() => {
     trackCheckoutEvent("order_preview_view", { has_valid_pickup_date: false });
@@ -64,11 +66,14 @@ test("a blocked analytics queue cannot break checkout", () => {
 
   try {
     assert.doesNotThrow(() => {
-      trackAddToCart({
-        productId: "pesto-mozzarella",
-        variantId: "round",
-        quantity: 1,
-      });
+      trackAddToCart(
+        {
+          productId: "pesto-mozzarella",
+          variantId: "round",
+          quantity: 1,
+        },
+        products,
+      );
     });
     assert.doesNotThrow(() => {
       trackCheckoutEvent("checkout_back", {
@@ -101,7 +106,7 @@ test("add_to_cart uses catalog prices in dollars and only the quantity added", (
       price: 1,
       value: 999,
     };
-    trackAddToCart(item);
+    trackAddToCart(item, products);
     assert.equal(browser.dataLayer.length, 1);
     assert.deepEqual(Array.from(browser.dataLayer[0] as IArguments), [
       "event",
@@ -144,10 +149,10 @@ test("unknown products, variants and invalid quantities do not emit add_to_cart"
       variantId: "round",
       quantity: 1,
     };
-    trackAddToCart({ ...item, productId: "unknown" });
-    trackAddToCart({ ...item, variantId: "unknown" });
+    trackAddToCart({ ...item, productId: "unknown" }, products);
+    trackAddToCart({ ...item, variantId: "unknown" }, products);
     for (const quantity of [0, -1, 1.5, Number.NaN, Infinity]) {
-      trackAddToCart({ ...item, quantity });
+      trackAddToCart({ ...item, quantity }, products);
     }
     assert.equal(browser.dataLayer.length, 0);
   } finally {

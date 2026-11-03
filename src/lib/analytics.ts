@@ -1,6 +1,7 @@
 import { sendGAEvent } from "@next/third-parties/google";
 import { resolveCart } from "@/lib/cart";
-import type { CartItem } from "@/types/content";
+import { clean } from "@/sanity/lib/content";
+import type { CartItem, Product } from "@/types/content";
 
 export type CheckoutStep = "bag" | "pickup" | "payment_preview";
 
@@ -53,9 +54,9 @@ type CheckoutEvents = {
   };
 };
 
-export function trackAddToCart(item: CartItem): void {
+export function trackAddToCart(item: CartItem, products: Product[]): void {
   if (!Number.isSafeInteger(item.quantity) || item.quantity < 1) return;
-  const [line] = resolveCart([item]);
+  const [line] = resolveCart([item], products);
   if (!line) return;
 
   // Keep prices in cents internally; GA4 expects currency units at the boundary.
@@ -65,7 +66,7 @@ export function trackAddToCart(item: CartItem): void {
     items: [
       {
         item_id: line.product.id,
-        item_name: line.product.name,
+        item_name: clean(line.product.name),
         item_variant: line.variant.id,
         item_category: line.product.category,
         price: line.variant.price / 100,
