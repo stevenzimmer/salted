@@ -30,7 +30,7 @@ Website layout renders `SanityLive`. Draft Mode alone renders Visual Editing. Im
 
 The installed next-sanity 13 default Visual Editing handler ignores mutation refreshes. `DraftVisualEditing` explicitly calls `router.refresh()` on Presentation refresh notifications so edits can update without sharing an Editor/read token with the browser. `browserToken` remains disabled; authenticated Studio notifications drive draft refreshes. A dedicated Viewer token is recommended for server reads after setup; the user-requested `SANITY_API_TOKEN` alias is supported server-side for both read and seed operations.
 
-Localhost and the stable staged Vercel origin have credentialed CORS entries. No wildcard or future production domain was added. Automated Studio QA reaches the Sanity sign-in screen; the signed-in editor confirmed that content clicks open the correct fields. The mutation-refresh fix was added after the editor reported stale draft previews; final editor confirmation is recorded separately when available.
+Localhost and the stable staged Vercel origin have credentialed CORS entries. No wildcard or future production domain was added. Automated Studio QA reaches the Sanity sign-in screen; the signed-in editor confirmed that content clicks open the correct fields. The mutation-refresh fix was added after the editor reported stale draft previews. After reloading Presentation, the signed-in editor confirmed that draft edits now update live.
 
 ## 9–10. Migration and removed mock content
 
@@ -59,7 +59,7 @@ Schema extraction and TypeGen generated and committed `schema.json` and `sanity.
 - Homepage screenshots were visually inspected at 390px and 1440px. Normal homepage has the existing six focaccia cards by default; controls still filter the eight-product catalog. No horizontal overflow was observed.
 - Draft metadata is free of stega; image annotations identify the correct product document/type/field. No token is passed to browser props.
 
-Signed-in editor acceptance still needs to cover live updates after the mutation-refresh correction, image-field clicks/replacement, and publish-to-normal-visitor updates. The automated browser does not hold the editor's login session. Studio development diagnostics about suspended default fields were observed during HMR; no custom page/field components or transaction integrations were added in response.
+The signed-in editor confirmed working field navigation and live draft updates after the mutation-refresh correction. Image-field replacement and publish-to-normal-visitor updates remain recommended manual acceptance checks. The automated browser does not hold the editor's login session. Studio development diagnostics about suspended default fields were observed during HMR; no custom page/field components or transaction integrations were added in response.
 
 ## 14–16. Boundaries, manual configuration, next steps
 
