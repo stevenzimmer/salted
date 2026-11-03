@@ -17,7 +17,7 @@ import {
 } from "@/lib/cart-store";
 import { maximumInventory } from "@/lib/availability";
 import { MAX_CART_QUANTITY } from "@/lib/cart";
-import { trackCheckoutEvent } from "@/lib/analytics";
+import { trackAddToCart, trackCheckoutEvent } from "@/lib/analytics";
 import type { CartItem, MockSchedule } from "@/types/content";
 
 const CartDrawer = dynamic(
@@ -98,6 +98,7 @@ export function CartProvider({
       return false;
     }
     updateCart((cart) => [...cart, item]);
+    trackAddToCart(item);
     handleOpen(true);
     return true;
   }

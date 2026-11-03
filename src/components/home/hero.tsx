@@ -37,7 +37,7 @@ export function Hero() {
         </Link>
       </div>
       <div className="hero-visual min-w-0 self-center">
-        <HeroProductCarousel
+        {/* <HeroProductCarousel
           items={products
             .filter((product) => product.active)
             .map((product, index) => ({
@@ -51,15 +51,15 @@ export function Hero() {
                 />
               ),
             }))}
-        />
-        <div
+        /> */}
+        {/* <div
           className="hero-sticker pointer-events-none"
           aria-label="Made for sharing, or not"
         >
           <span>made for</span>
           <span className="sticker-script">sharing</span>
           <span>(or not.)</span>
-        </div>
+        </div> */}
       </div>
     </section>
   );

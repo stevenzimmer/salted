@@ -18,16 +18,32 @@ export default function HomePage() {
   return (
     <>
       <Hero />
-      <div className="bread-strip" aria-hidden="true">
-        <span>slow dough</span>
-        <span>{"\u2733\uFE0E"}</span>
-        <span>crispy edges</span>
-        <span>{"\u2733\uFE0E"}</span>
-        <span>soft middles</span>
-        <span>{"\u2733\uFE0E"}</span>
-        <span>very good bread</span>
-        <span>{"\u2733\uFE0E"}</span>
-      </div>
+          <section className="section-pad how-section border-border bg-muted/40">
+          <div className="shell">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Good bread. Easy plans.</p>
+            <h2>Your Friday, sorted.</h2>
+          </div>
+          <Link className="inline-link" href="/pickup">
+            The pickup details <ArrowUpRight size={17} />
+          </Link>
+        </div>
+        <ol className="how-grid">
+          {siteConfig.howItWorks.map((step) => (
+            <li key={step.number}>
+              <span className="step-number">{step.number}</span>
+              <h3>{step.title}</h3>
+              <p>{step.description}</p>
+            </li>
+          ))}
+        </ol>
+        <p className="draft-note mt-7">
+          You’re exploring our preview. Online payment will be available in a
+          future phase.
+        </p>
+        </div>
+      </section>
       <section id="products" className="shell section-pad storefront">
         <div className="section-heading">
           <div>
@@ -59,7 +75,51 @@ export default function HomePage() {
           are awaiting bakery approval.
         </p>
       </section>
-      <section className="seasonal-section">
+            <section className="section-pad border-border bg-muted/40">
+               <div className="shell">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Beyond the bread basket</p>
+            <h2>A little table inspiration.</h2>
+          </div>
+          <Link href="/recipes" className="inline-link">
+            All recipes <ArrowRight size={17} />
+          </Link>
+        </div>
+        <div className="recipe-grid">
+          {recipes.map((recipe) => (
+            <RecipeCard key={recipe.id} recipe={recipe} />
+          ))}
+        </div>
+        <p className="draft-note mt-7">
+          Draft recipe inspiration · final recipes are awaiting bakery approval.
+        </p>
+        </div>
+      </section>
+         <section className="shell section-pad reviews-section">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Word around the table</p>
+            <h2>We’ll let the bread talk.</h2>
+          </div>
+          <span className="draft-pill">Sample testimonials</span>
+        </div>
+        <div className="reviews-grid">
+          {reviews.map((review) => (
+            <figure key={review.id}>
+              <span className="quote-mark" aria-hidden="true">
+                “
+              </span>
+              <blockquote>{review.quote}</blockquote>
+              <figcaption>
+                — {review.attribution}
+                <span>Illustrative review · not a real customer quote</span>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </section>
+      {/* <section className="seasonal-section">
         <div className="shell seasonal-grid">
           <div className="seasonal-art">
             <span className="seasonal-asterisk" aria-hidden="true">
@@ -84,32 +144,8 @@ export default function HomePage() {
             <p className="draft-note">{siteConfig.seasonal.note}</p>
           </div>
         </div>
-      </section>
-      <section className="shell section-pad how-section">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">Good bread. Easy plans.</p>
-            <h2>Your Friday, sorted.</h2>
-          </div>
-          <Link className="inline-link" href="/pickup">
-            The pickup details <ArrowUpRight size={17} />
-          </Link>
-        </div>
-        <ol className="how-grid">
-          {siteConfig.howItWorks.map((step) => (
-            <li key={step.number}>
-              <span className="step-number">{step.number}</span>
-              <h3>{step.title}</h3>
-              <p>{step.description}</p>
-            </li>
-          ))}
-        </ol>
-        <p className="draft-note mt-7">
-          You’re exploring our preview. Online payment will be available in a
-          future phase.
-        </p>
-      </section>
-      <section className="about-section">
+      </section> */}
+      {/* <section className="about-section">
         <div className="shell about-grid">
           <div className="about-image">
             <Image
@@ -133,31 +169,8 @@ export default function HomePage() {
             <p className="draft-note">{siteConfig.about.status}</p>
           </div>
         </div>
-      </section>
-      <section className="shell section-pad reviews-section">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">Word around the table</p>
-            <h2>We’ll let the bread talk.</h2>
-          </div>
-          <span className="draft-pill">Sample testimonials</span>
-        </div>
-        <div className="reviews-grid">
-          {reviews.map((review) => (
-            <figure key={review.id}>
-              <span className="quote-mark" aria-hidden="true">
-                “
-              </span>
-              <blockquote>{review.quote}</blockquote>
-              <figcaption>
-                — {review.attribution}
-                <span>Illustrative review · not a real customer quote</span>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-      </section>
-      <section className="storage-callout">
+      </section> */}
+      {/* <section className="storage-callout">
         <div className="shell flex flex-col items-start justify-between gap-8 md:flex-row md:items-center">
           <div>
             <p className="eyebrow">A word to the bread-wise</p>
@@ -168,26 +181,7 @@ export default function HomePage() {
             Storage + reheating <ArrowUpRight size={18} />
           </Link>
         </div>
-      </section>
-      <section className="shell section-pad">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">Beyond the bread basket</p>
-            <h2>A little table inspiration.</h2>
-          </div>
-          <Link href="/recipes" className="inline-link">
-            All recipes <ArrowRight size={17} />
-          </Link>
-        </div>
-        <div className="recipe-grid">
-          {recipes.map((recipe) => (
-            <RecipeCard key={recipe.id} recipe={recipe} />
-          ))}
-        </div>
-        <p className="draft-note mt-7">
-          Draft recipe inspiration · final recipes are awaiting bakery approval.
-        </p>
-      </section>
+      </section> */}
       <InstagramSection />
     </>
   );

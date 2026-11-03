@@ -31,6 +31,8 @@ Google Analytics 4 uses `@next/third-parties/google` in the root layout with mea
 
 Custom cart and checkout events track quantity limits, unavailable pickup dates, date selection, visible steps, back navigation, drawer closure, and confirmation previews. All are labeled as preview activity; none reports a purchase. See [checkout analytics](docs/analytics.md) for triggers, payloads, verification, and GA4 custom dimension setup.
 
+Successful Add to bag actions also send GA4's standard `add_to_cart` event with catalog product details, the quantity added, and its value in USD. Blocked attempts send only the custom `add_to_cart_blocked` event.
+
 ## Routes
 
 | Route                | Purpose                                                                                                                                    |

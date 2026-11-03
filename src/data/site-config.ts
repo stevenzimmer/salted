@@ -10,7 +10,7 @@ export const siteConfig = {
     label: "@saltedfocaccia",
     url: "https://www.instagram.com/saltedfocaccia/",
     eyebrow: "Fresh from the oven. And the feed.",
-    heading: "Let’s break bread.",
+    // heading: "Let’s break bread.",
   },
   announcement: "Friday pickup · 2–6 pm · Orders close Wednesday at midnight",
   navigation: [

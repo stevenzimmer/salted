@@ -1,12 +1,29 @@
 # Checkout analytics
 
-The existing GA4 integration sends these custom events to `G-FF1JFYJLTV`.
-Every custom event includes `preview_mode: true` and
+The existing GA4 integration sends the standard `add_to_cart` event and the
+custom events below to `G-FF1JFYJLTV`.
+Every event includes `preview_mode: true` and
 `flow_version: checkout_preview_v1`. No order, payment, or reservation is created.
 There is deliberately no `purchase` event; visiting `/order/success` is only a
 confirmation preview, including direct visits without a selected pickup date.
 
 ## Event definitions
+
+### Standard ecommerce event
+
+`add_to_cart` fires once after a successful **Add to bag** action on the storefront
+or a product detail page. It sends `currency: USD`, `value`, and an `items` array
+containing `item_id`, `item_name`, `item_variant`, `item_category`, `price`, and
+`quantity`. Quantity and value describe only the units added in that action,
+not the accumulated bag. Prices come from the typed catalog in integer cents
+and convert to dollars only in the GA4 payload. Tax and shipping are excluded.
+
+Blocked attempts emit only `add_to_cart_blocked`. Loading a saved bag, changing
+quantity within the bag, opening the drawer, or rerendering does not emit this
+event. Standard ecommerce parameters do not need custom dimension registration.
+See [Google's add_to_cart reference](https://developers.google.com/analytics/devguides/collection/ga4/reference/events#add_to_cart).
+
+### Custom events
 
 | Event                      | Trigger                                                                                                                     | Parameters                                                                                                            |
 | -------------------------- | --------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
@@ -30,9 +47,10 @@ unavailable state and can fire again after recovery or a new visit to pickup.
 Navigation to product details or the confirmation preview does not emit
 `checkout_closed`. Closing the drawer is an interaction, not proof of abandonment.
 
-Only catalog identifiers, validated schedule dates, controlled status values,
-and counts are included. No customer fields, raw error messages, prices, or
-payment information are sent in these custom payloads. The transport uses the
+Only catalog identifiers, product names, validated schedule dates, controlled
+status values, and counts are included, plus catalog prices and value for the
+standard ecommerce event. No customer fields, raw error messages, or payment
+information are sent. The transport uses the
 existing Google queue, buffers events before its script loads, and isolates
 analytics failures from checkout. It adds no storage or dependencies.
 The root initializes GA before mounting the cart and page tracking components so
@@ -67,10 +85,12 @@ Reporting setup reference:
    `window.dataLayer` and confirm each starts with `event` and the expected name.
 2. Add a product, proceed to pickup, choose an enabled Friday, go back and
    forward, close and reopen the drawer, then visit the confirmation preview.
+   Confirm one `add_to_cart` per successful Add to bag action with the correct
+   added quantity and USD value, including repeated adds to an existing line.
    Confirm each view fires once per visit and the selected date applies to the
    whole order. Confirmation navigation must not emit `checkout_closed`.
 3. Fill a product variant to its maximum stock, close the bag, and attempt to add
-   more. Confirm `add_to_cart_blocked` and no cart mutation.
+   more. Confirm `add_to_cart_blocked`, no `add_to_cart`, and no cart mutation.
 4. Use a stored cart quantity exceeding current stock to show no valid dates.
    Confirm one `pickup_dates_unavailable` per visit, without duplicates when the
    drawer rerenders. Recover by editing the bag and lowering the quantity.

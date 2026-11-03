@@ -25,11 +25,10 @@ export function SiteFooter() {
           ))}
           <Link href="/storage-heating">Storage + reheating</Link>
         </nav>
-        <div className="footer-social flex flex-col items-end gap-6 text-right">
+        <div className="footer-social flex flex-col items-end gap-2 text-right">
           <LogoMark />
           <div>
-            <p className="eyebrow">{siteConfig.instagram.eyebrow}</p>
-            <h2>{siteConfig.instagram.heading}</h2>
+            <h2>{siteConfig.instagram.eyebrow}</h2>
           </div>
           <a
             className="inline-link text-sm"

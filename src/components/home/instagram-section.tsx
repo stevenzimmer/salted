@@ -35,7 +35,7 @@ export function InstagramSection() {
             <ArrowUpRight size={18} aria-hidden="true" />
           </a>
         </div>
-        <div className="min-w-0">
+        <div className="min-w-0 sm:px-6 md:px-12 xl:px-24">
           <HeroProductCarousel
             label={`Photos from ${siteConfig.instagram.label} on Instagram`}
             itemLabel="Instagram photo"

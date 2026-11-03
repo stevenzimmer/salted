@@ -1084,15 +1084,9 @@ img {
   text-decoration: underline;
   text-underline-offset: 4px;
 }
-.footer-social .eyebrow {
-  font-size: 11px;
-  line-height: 1.6;
-  letter-spacing: 0.08em;
-}
 .footer-social h2 {
-  margin-top: 8px;
   font-family: var(--font-display), sans-serif;
-  font-size: 36px;
+  font-size: 24px;
   font-weight: 600;
   line-height: 1.1;
   text-transform: lowercase;
@@ -2401,7 +2395,7 @@ img {
     font-size: 13px;
   }
   .footer-social h2 {
-    font-size: 32px;
+    font-size: 18px;
   }
   .footer-grid .inline-link {
     gap: 7px;
