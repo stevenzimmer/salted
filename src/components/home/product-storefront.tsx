@@ -5,9 +5,9 @@ import type { ReactNode } from "react";
 
 type Category = "all" | "focaccia" | "sourdough";
 const filters: { value: Category; label: string }[] = [
-  { value: "all", label: "All the good stuff" },
   { value: "focaccia", label: "Focaccia" },
   { value: "sourdough", label: "Sourdough" },
+    { value: "all", label: "All the good stuff" },
 ];
 
 export function ProductStorefront({
@@ -19,7 +19,7 @@ export function ProductStorefront({
     content: ReactNode;
   }[];
 }) {
-  const [category, setCategory] = useState<Category>("all");
+  const [category, setCategory] = useState<Category>("focaccia");
   return (
     <>
       <div className="storefront-toolbar">

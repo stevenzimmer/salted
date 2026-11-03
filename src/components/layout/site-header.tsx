@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Menu, ShoppingBag, ArrowUpRight } from "lucide-react";
 import { Wordmark } from "@/components/brand/wordmark";
 import { useCart } from "@/components/commerce/cart-provider";
@@ -21,6 +21,7 @@ export function SiteHeader() {
   const pathname = usePathname();
   const { items, setOpen } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuTriggerRef = useRef<HTMLButtonElement>(null);
   const count = items.reduce((total, item) => total + item.quantity, 0);
 
   function isActiveLink(href: string): boolean {
@@ -37,6 +38,10 @@ export function SiteHeader() {
   function closeMenu() {
     setMenuOpen(false);
   }
+  function restoreMenuFocus(event: Event) {
+    event.preventDefault();
+    menuTriggerRef.current?.focus({ preventScroll: true });
+  }
 
   return (
     <header className="site-header">
@@ -44,21 +49,25 @@ export function SiteHeader() {
         <Link href="/" aria-label="Salted Focaccia home" className="shrink-0">
           <Wordmark className="text-[44px]" />
         </Link>
+        <div className="lg:flex items-center gap-12">
         <nav
           className="hidden items-center gap-7 lg:flex"
           aria-label="Main navigation"
         >
           {siteConfig.navigation.map((link) => {
             const active = isActiveLink(link.href);
+            // Let the browser scroll same-page anchors, including repeated clicks.
+            const NavigationLink =
+              pathname === "/" && link.href === "/#products" ? "a" : Link;
             return (
-              <Link
+              <NavigationLink
                 key={link.href}
                 href={link.href}
                 className={cn("nav-link", active && "nav-order")}
                 aria-current={active ? "page" : undefined}
               >
                 {link.label}
-              </Link>
+              </NavigationLink>
             );
           })}
         </nav>
@@ -77,12 +86,16 @@ export function SiteHeader() {
           </button>
           <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
             <SheetTrigger
+              ref={menuTriggerRef}
               className="icon-button lg:hidden"
               aria-label="Open navigation"
             >
               <Menu size={23} strokeWidth={1.5} />
             </SheetTrigger>
-            <SheetContent className="mobile-menu">
+            <SheetContent
+              className="mobile-menu"
+              onCloseAutoFocus={restoreMenuFocus}
+            >
               <SheetHeader>
                 <SheetTitle>
                   <Wordmark className="text-5xl" />
@@ -97,8 +110,10 @@ export function SiteHeader() {
               >
                 {siteConfig.navigation.map((link) => {
                   const active = isActiveLink(link.href);
+                  const NavigationLink =
+                    pathname === "/" && link.href === "/#products" ? "a" : Link;
                   return (
-                    <Link
+                    <NavigationLink
                       key={link.href}
                       href={link.href}
                       onClick={closeMenu}
@@ -107,13 +122,14 @@ export function SiteHeader() {
                     >
                       {link.label}
                       <ArrowUpRight size={20} />
-                    </Link>
+                    </NavigationLink>
                   );
                 })}
               </nav>
               <p className="eyebrow mt-auto">Made for your Friday.</p>
             </SheetContent>
           </Sheet>
+        </div>
         </div>
       </div>
     </header>

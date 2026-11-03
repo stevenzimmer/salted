@@ -122,7 +122,7 @@ img {
   margin-inline: auto;
 }
 .section-pad {
-  padding-block: 96px;
+  padding-block: 64px;
 }
 .eyebrow {
   font-family: var(--font-display), "Arial Narrow", sans-serif;
@@ -1984,7 +1984,7 @@ img {
     width: calc(100% - 44px);
   }
   .section-pad {
-    padding-block: 65px;
+    padding-block: 40px;
   }
   .site-header .h-24 {
     height: 78px;

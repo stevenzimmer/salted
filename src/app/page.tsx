@@ -94,6 +94,11 @@ export default function HomePage() {
         <p className="draft-note mt-7">
           Draft recipe inspiration · final recipes are awaiting bakery approval.
         </p>
+        <div className="mt-16 flex justify-center">
+          <a className="button-primary" href="#products">
+            Feed me <ArrowUpRight size={18} aria-hidden="true" />
+          </a>
+        </div>
         </div>
       </section>
          <section className="shell section-pad reviews-section">
@@ -117,6 +122,11 @@ export default function HomePage() {
               </figcaption>
             </figure>
           ))}
+        </div>
+        <div className="mt-16 flex justify-center">
+          <a className="button-primary" href="#products">
+            Feed me <ArrowUpRight size={18} aria-hidden="true" />
+          </a>
         </div>
       </section>
       {/* <section className="seasonal-section">

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { ArrowDownRight, MapPin } from "lucide-react";
 import { Wordmark } from "@/components/brand/wordmark";
 import { ProductCard } from "@/components/commerce/product-card";
@@ -31,10 +30,10 @@ export function Hero() {
         <p className="eyebrow hero-tagline">{siteConfig.hero.eyebrow}</p>
         <h1 className="hero-headline">{siteConfig.hero.headline}</h1>
         <p className="hero-description">{siteConfig.hero.description}</p>
-        <Link className="button-primary hero-cta" href="#products">
+        <a className="button-primary hero-cta" href="#products">
           Feed me
           <ArrowDownRight size={18} />
-        </Link>
+        </a>
       </div>
       <div className="hero-visual min-w-0 self-center">
         {/* <HeroProductCarousel
