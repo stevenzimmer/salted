@@ -263,7 +263,7 @@ const singletons = Object.entries(copyFields).map(([name, groups]) =>
                   description:
                     field === "headerNavigation"
                       ? "Add up to seven items for the desktop header and mobile menu. Drag to change their order."
-                      : "Add up to seven footer menu items, including Storage + reheating. Drag to change their order independently of the header.",
+                      : "Add up to seven footer menu items. Drag to change their order.",
                   validation: (rule) =>
                     rule
                       .max(MAX_NAVIGATION_ITEMS)
