@@ -6,13 +6,10 @@ footer. Each slide opens its original Instagram post. Reel entries use a still
 image; videos do not load or autoplay on the storefront.
 
 The selection was retrieved from the account’s public profile embed on October
-30, 2026. Images live in `public/images/instagram/`, with source post links and
-descriptive alt text in `src/data/instagram.ts`. Local images avoid expiring CDN
-links, Instagram login requirements, and third-party embed scripts. No Instagram
+30, 2026. The original files remain in `public/images/instagram/` as migration input. Phase 2 imported them into Sanity; images, source post links, captions and alt text now live in Homepage → Instagram photos. The website reads Sanity assets, avoiding expiring Instagram CDN links, login requirements and third-party embed scripts. No Instagram
 credentials or tracking embeds are included.
 
-To change the selection, add the bakery’s image to `public/images/instagram/`
-and update `instagramPhotos` with its source post URL and alt text. Keep dated
+To change the selection, open `/studio` → Homepage → Instagram photos and upload an approved image, alt text and original-post URL. Keep dated
 menu announcements out of the selection so they do not imply current availability.
 
 This slideshow does **not** automatically fetch new posts. Automatic updates

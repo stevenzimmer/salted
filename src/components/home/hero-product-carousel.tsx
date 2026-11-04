@@ -15,6 +15,7 @@ import type {
   UIEvent,
 } from "react";
 import { ArrowLeft, ArrowRight, Pause, Play } from "lucide-react";
+import { hasText, clean } from "@/sanity/lib/content";
 import { Button } from "@/components/ui/button";
 
 const AUTO_ADVANCE_MS = 6_000;
@@ -53,6 +54,8 @@ type HeroProductCarouselProps = {
   label?: string;
   itemLabel?: string;
   showPlaybackControl?: boolean;
+  playLabel?: string;
+  pauseLabel?: string;
 };
 
 export function HeroProductCarousel({
@@ -60,6 +63,8 @@ export function HeroProductCarousel({
   label = "Explore the menu",
   itemLabel = "product",
   showPlaybackControl = false,
+  playLabel,
+  pauseLabel,
 }: HeroProductCarouselProps) {
   const viewportId = useId();
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -245,14 +250,14 @@ export function HeroProductCarousel({
               <ArrowRight aria-hidden="true" />
             </Button>
           </div>
-          {showPlaybackControl ? (
+          {showPlaybackControl && hasText(isPaused ? playLabel : pauseLabel) ? (
             <div className="mt-2 flex justify-center">
               <Button
                 type="button"
                 variant="ghost"
                 className="min-h-11 gap-2 font-heading text-sm tracking-wide"
                 data-carousel-playback
-                aria-label={isPaused ? "Play slideshow" : "Pause slideshow"}
+                aria-label={clean(isPaused ? playLabel : pauseLabel)}
                 aria-controls={viewportId}
                 onClick={handlePlaybackToggle}
               >
@@ -261,7 +266,7 @@ export function HeroProductCarousel({
                 ) : (
                   <Pause aria-hidden="true" />
                 )}
-                {isPaused ? "Play slideshow" : "Pause slideshow"}
+                {isPaused ? playLabel : pauseLabel}
               </Button>
             </div>
           ) : null}
@@ -273,7 +278,8 @@ export function HeroProductCarousel({
         aria-live={isAutoAdvancing ? "off" : "polite"}
         aria-atomic="true"
       >
-        {items[activeIndex].name}, {activeIndex + 1} of {items.length}
+        {items[Math.min(activeIndex, items.length - 1)].name}, {activeIndex + 1}{" "}
+        of {items.length}
       </p>
     </div>
   );

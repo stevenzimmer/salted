@@ -18,7 +18,9 @@ import {
 import { maximumInventory } from "@/lib/availability";
 import { MAX_CART_QUANTITY } from "@/lib/cart";
 import { trackAddToCart, trackCheckoutEvent } from "@/lib/analytics";
-import type { CartItem, MockSchedule } from "@/types/content";
+import type { CommerceCopy, SiteSettings } from "../../../sanity.types";
+import { normalizeCart } from "@/lib/cart";
+import type { CartItem, MockSchedule, Product } from "@/types/content";
 
 const CartDrawer = dynamic(
   () => import("./cart-drawer").then((module) => module.CartDrawer),
@@ -27,6 +29,9 @@ const CartDrawer = dynamic(
 
 type CartContextValue = {
   items: CartItem[];
+  products: Product[];
+  commerce: CommerceCopy | null;
+  settings: SiteSettings | null;
   schedule: MockSchedule;
   open: boolean;
   setOpen: (open: boolean) => void;
@@ -41,15 +46,22 @@ const CartContext = createContext<CartContextValue | null>(null);
 export function CartProvider({
   children,
   schedule,
+  products,
+  commerce,
+  settings,
 }: {
+  products: Product[];
+  commerce: CommerceCopy | null;
+  settings: SiteSettings | null;
   children: ReactNode;
   schedule: MockSchedule;
 }) {
-  const items = useSyncExternalStore(
+  const storedItems = useSyncExternalStore(
     subscribeCart,
     getCartSnapshot,
     getServerCartSnapshot,
   );
+  const items = normalizeCart(storedItems, products);
   const [open, setOpen] = useState(false);
   const [hasOpened, setHasOpened] = useState(false);
   const opener = useRef<HTMLElement | null>(null);
@@ -70,6 +82,15 @@ export function CartProvider({
   }
 
   function addItem(item: CartItem): boolean {
+    if (
+      !products.some(
+        (product) =>
+          product.id === item.productId &&
+          product.active &&
+          product.variants.some((variant) => variant.id === item.variantId),
+      )
+    )
+      return false;
     const current =
       getCartSnapshot().find(
         (line) =>
@@ -98,7 +119,7 @@ export function CartProvider({
       return false;
     }
     updateCart((cart) => [...cart, item]);
-    trackAddToCart(item);
+    trackAddToCart(item, products);
     handleOpen(true);
     return true;
   }
@@ -129,6 +150,9 @@ export function CartProvider({
     <CartContext
       value={{
         items,
+        products,
+        commerce,
+        settings,
         schedule,
         open,
         setOpen: handleOpen,

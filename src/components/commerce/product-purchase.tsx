@@ -1,13 +1,13 @@
 "use client";
-
-import { useState, useId } from "react";
+import { useId, useState } from "react";
 import { ArrowUpRight } from "lucide-react";
-import { useCart } from "./cart-provider";
 import { QuantitySelector } from "./quantity-selector";
+import { useCart } from "./cart-provider";
 import { maximumInventory } from "@/lib/availability";
 import { money } from "@/lib/format";
+import { hasText, clean, interpolate } from "@/sanity/lib/content";
+import { Text } from "@/components/cms/text";
 import type { Product } from "@/types/content";
-
 export function ProductPurchase({
   product,
   detailed = false,
@@ -15,46 +15,58 @@ export function ProductPurchase({
   product: Product;
   detailed?: boolean;
 }) {
-  const { schedule, addItem } = useCart();
-  const firstAvailable = product.variants.find(
+  const { schedule, addItem, commerce } = useCart();
+  const copy = commerce?.product;
+  const options = product.variants.filter((option) => hasText(option.label));
+  const firstAvailable = options.find(
     (variant) => maximumInventory(schedule, product.id, variant.id) > 0,
   );
   const [variantId, setVariantId] = useState(
-    firstAvailable?.id ?? product.variants[0].id,
+    firstAvailable?.id ?? options[0]?.id,
   );
   const [quantity, setQuantity] = useState(1);
-  const [message, setMessage] = useState("");
+  const [outcome, setOutcome] = useState<"added" | "blocked" | null>(null);
   const id = useId();
   const variant =
-    product.variants.find((variant) => variant.id === variantId) ??
-    product.variants[0];
+    options.find((variant) => variant.id === variantId) ??
+    firstAvailable ??
+    options[0];
+  if (!variant) return null;
   const inventory = maximumInventory(schedule, product.id, variant.id);
   const soldOut = inventory === 0;
   const safeQuantity = Math.min(quantity, Math.max(1, inventory));
-
+  const button = soldOut ? copy?.soldOut : copy?.add;
+  const legend =
+    product.category === "focaccia" ? copy?.chooseSize : copy?.yourLoaf;
+  const message =
+    outcome === "added"
+      ? interpolate(copy?.added, { product: product.name })
+      : outcome === "blocked"
+        ? copy?.quantityLimit
+        : undefined;
   function handleAdd() {
-    const added = addItem({
-      productId: product.id,
-      variantId: variant.id,
-      quantity: safeQuantity,
-    });
-    setMessage(
-      added
-        ? `${product.name} added to your bag.`
-        : "You’ve reached the available quantity for this size. Check your bag.",
+    if (!variant) return;
+    setOutcome(
+      addItem({
+        productId: product.id,
+        variantId: variant.id,
+        quantity: safeQuantity,
+      })
+        ? "added"
+        : "blocked",
     );
   }
-
   return (
     <div
       className={detailed ? "product-purchase detailed" : "product-purchase"}
     >
-      <fieldset className="m-0 min-w-0 border-0 p-0">
-        <legend className="eyebrow mb-2.5">
-          {product.category === "focaccia" ? "Choose your size" : "Your loaf"}
-        </legend>
+      <fieldset
+        className="m-0 min-w-0 border-0 p-0"
+        aria-label={hasText(legend) ? clean(legend) : "Product size"}
+      >
+        <Text as="legend" className="eyebrow mb-2.5" value={legend} />
         <div className="variant-options">
-          {product.variants.map((option) => {
+          {options.map((option) => {
             const unavailable =
               maximumInventory(schedule, product.id, option.id) === 0;
             return (
@@ -71,14 +83,24 @@ export function ProductPurchase({
                   onChange={() => {
                     setVariantId(option.id);
                     setQuantity(1);
-                    setMessage("");
+                    setOutcome(null);
                   }}
                 />
-                <span>{option.shortLabel}</span>
+                <span>
+                  {hasText(option.shortLabel)
+                    ? option.shortLabel
+                    : option.label}
+                </span>
                 {detailed ? (
-                  <span className="variant-price">
-                    {unavailable ? "Unavailable" : money(option.price)}
-                  </span>
+                  unavailable ? (
+                    <Text
+                      as="span"
+                      className="variant-price"
+                      value={copy?.unavailable}
+                    />
+                  ) : (
+                    <span className="variant-price">{money(option.price)}</span>
+                  )
                 ) : null}
               </label>
             );
@@ -86,49 +108,50 @@ export function ProductPurchase({
         </div>
       </fieldset>
       {detailed ? (
-        <p className="serving-note">{variant.servingDescription}</p>
+        <Text className="serving-note" value={variant.servingDescription} />
       ) : null}
       {inventory > 0 && inventory <= 3 ? (
-        <p className="stock-note">
-          Small batch · up to {inventory} available on a future Friday
-        </p>
+        <Text
+          className="stock-note"
+          value={interpolate(copy?.lowStock, { quantity: inventory })}
+        />
       ) : null}
       <div className="purchase-actions">
         <QuantitySelector
           value={safeQuantity}
           onChange={setQuantity}
           max={inventory}
-          label={`Quantity for ${product.name}`}
+          label={`Quantity for ${clean(product.name) || "product"}`}
           disabled={soldOut}
         />
-        <button
-          type="button"
-          onClick={handleAdd}
-          disabled={soldOut}
-          className="add-button"
-        >
-          {soldOut ? (
-            "Sold out"
-          ) : (
-            <>
-              Add to bag <span>— {money(variant.price * safeQuantity)}</span>
-              <ArrowUpRight size={15} />
-            </>
-          )}
-        </button>
+        {hasText(button) ? (
+          <button
+            type="button"
+            onClick={handleAdd}
+            disabled={soldOut}
+            className="add-button"
+          >
+            {button}
+            {!soldOut ? (
+              <>
+                <span>— {money(variant.price * safeQuantity)}</span>
+                <ArrowUpRight size={15} aria-hidden="true" />
+              </>
+            ) : null}
+          </button>
+        ) : null}
       </div>
       {detailed ? (
-        <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
-          Pickup in Rocklin · choose your Friday in checkout.
-          <br />
-          Preview only. No payment or real order is created.
-        </p>
+        <Text
+          className="mt-4 whitespace-pre-line text-xs leading-relaxed text-muted-foreground"
+          value={copy?.pickupNote}
+        />
       ) : null}
-      <p className="sr-only" role="status">
-        {message}
-      </p>
-      {message.includes("reached") ? (
-        <p className="mt-2 text-xs" role="alert">
+      {hasText(message) ? (
+        <p
+          className={outcome === "blocked" ? "mt-2 text-xs" : "sr-only"}
+          role={outcome === "blocked" ? "alert" : "status"}
+        >
           {message}
         </p>
       ) : null}

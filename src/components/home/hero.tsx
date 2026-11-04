@@ -1,50 +1,83 @@
-import Image from "next/image";
 import { ArrowDownRight, MapPin } from "lucide-react";
 import { Wordmark } from "@/components/brand/wordmark";
-import { siteConfig } from "@/data/site-config";
+import { CmsImage } from "@/components/cms/image";
+import { Text } from "@/components/cms/text";
+import { hasCopy, hasImage, hasText } from "@/sanity/lib/content";
+import type { Homepage, SiteSettings } from "../../../sanity.types";
 
-export function Hero() {
+export function Hero({
+  page,
+  settings,
+}: {
+  page: Homepage;
+  settings: SiteSettings | null;
+}) {
+  const hero = page.hero;
+  const hasBrand = hasText(settings?.brand?.wordmark);
+  const hasColumn = hasCopy(hero) || hasBrand;
+  if (!hasColumn && !hasImage(page.heroImage)) return null;
   return (
-    <section className="shell hero section-pad" aria-label="Welcome to Salted">
-      <div>
-        <p className="eyebrow hero-eyebrow">
-          <span>
-            <span className="hero-eyebrow-star" aria-hidden="true">
-              {"\u2733\uFE0E"}
-            </span>
-            <span>{siteConfig.hero.caption}</span>
-          </span>
-          <span>
-            <MapPin size={13} aria-hidden="true" /> {siteConfig.hero.location}
-          </span>
-        </p>
-        <div className="hero-brand">
-          <Wordmark className="hero-wordmark" />
-          <span className="hero-spark" aria-hidden="true">
-            {/* Request text presentation to prevent mobile emoji substitution. */}
-            {"\u2733\uFE0E"}
-          </span>
+    <section
+      className={`shell hero section-pad ${!hasColumn || !hasImage(page.heroImage) ? "cms-single-column" : ""}`}
+      aria-label="Welcome"
+    >
+      {hasColumn ? (
+        <div>
+          {hasText(hero?.caption) || hasText(hero?.location) ? (
+            <p className="eyebrow hero-eyebrow">
+              {hasText(hero?.caption) ? (
+                <span>
+                  <span className="hero-eyebrow-star" aria-hidden="true">
+                    {"\u2733\uFE0E"}
+                  </span>
+                  <span>{hero.caption}</span>
+                </span>
+              ) : null}
+              {hasText(hero?.location) ? (
+                <span>
+                  <MapPin size={13} aria-hidden="true" />
+                  {hero.location}
+                </span>
+              ) : null}
+            </p>
+          ) : null}
+          {hasBrand ? (
+            <div className="hero-brand">
+              <Wordmark
+                value={settings?.brand?.wordmark}
+                className="hero-wordmark"
+              />
+              <span className="hero-spark" aria-hidden="true">
+                {"\u2733\uFE0E"}
+              </span>
+            </div>
+          ) : null}
+          <Text className="eyebrow hero-tagline" value={hero?.eyebrow} />
+          <Text as="h1" className="hero-headline" value={hero?.headline} />
+          <Text className="hero-description" value={hero?.description} />
+          {hasText(hero?.cta) ? (
+            <a className="button-primary hero-cta" href="#products">
+              {hero.cta}
+              <ArrowDownRight size={18} aria-hidden="true" />
+            </a>
+          ) : null}
         </div>
-        <p className="eyebrow hero-tagline">{siteConfig.hero.eyebrow}</p>
-        <h1 className="hero-headline">{siteConfig.hero.headline}</h1>
-        <p className="hero-description">{siteConfig.hero.description}</p>
-        <a className="button-primary hero-cta" href="#products">
-          Feed me
-          <ArrowDownRight size={18} />
-        </a>
-      </div>
-      <div className="hero-visual min-w-0 self-center">
-        <Image
-          src={siteConfig.hero.image}
-          alt={siteConfig.hero.imageAlt}
-          width={1200}
-          height={1400}
-          preload
-          unoptimized
-          sizes="(max-width: 767px) 100vw, 45vw"
-          className="aspect-[4/3] w-full border border-border bg-muted object-cover"
-        />
-      </div>
+      ) : null}
+      {hasImage(page.heroImage) ? (
+        <div className="hero-visual min-w-0 self-center">
+          <CmsImage
+            image={page.heroImage}
+            aspectRatio={4 / 3}
+            documentType={page._type}
+            documentId={page._id}
+            path="heroImage"
+            fill={false}
+            preload
+            sizes="(max-width: 767px) 100vw, 45vw"
+            className="aspect-[4/3] w-full border border-border bg-muted object-cover"
+          />
+        </div>
+      ) : null}
     </section>
   );
 }

@@ -1,0 +1,1512 @@
+[
+  {
+    "_id": "siteSettings",
+    "_type": "siteSettings",
+    "internalName": "siteSettings",
+    "brand": {
+      "businessName": "Salted Focaccia",
+      "wordmark": "salted",
+      "tagline": "Sourdough focaccia + more",
+      "sealTop": "sourdough &",
+      "sealBottom": "good things",
+      "footerCopy": "Good bread. Rocklin, California.",
+      "copyright": "Salted Focaccia",
+      "domain": "saltedfocaccia.com",
+      "previewLabel": "Storefront preview · no live orders",
+      "mobileDescription": "A little salty. A lot to love.",
+      "mobileNote": "Made for your Friday."
+    },
+    "contact": {
+      "instagramLabel": "@saltedfocaccia",
+      "instagramHeading": "Fresh from the oven. And the feed.",
+      "instagramUrl": "https://www.instagram.com/saltedfocaccia/",
+      "email": "feedme@saltedfocaccia.com",
+      "shortLocation": "Rocklin, California"
+    },
+    "announcementEnabled": true,
+    "announcement": {
+      "text": "Friday pickup · 2–6 pm · Orders close Wednesday at midnight"
+    },
+    "notFound": {
+      "eyebrow": "404 · Crumbs, nothing here",
+      "title": "This one’s\nout of the oven.",
+      "description": "We couldn’t find that page. There’s still plenty of good stuff on the menu.",
+      "cta": "Back to the good stuff"
+    },
+    "seo": {
+      "_type": "seo",
+      "title": "Salted Focaccia · A little salty. A lot to love.",
+      "description": "Sourdough focaccia, a little extra olive oil, and something worth sharing. Browse the Salted Focaccia menu for Friday pickup in Rocklin, California."
+    },
+    "utilityLabels": {
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "cart": "Your bag"
+    },
+    "headerNavigation": [
+      {
+        "_key": "nav-1",
+        "_type": "navigationItem",
+        "label": "Feed me",
+        "href": "/#products"
+      },
+      {
+        "_key": "nav-2",
+        "_type": "navigationItem",
+        "label": "Recipes",
+        "href": "/recipes"
+      },
+      {
+        "_key": "nav-3",
+        "_type": "navigationItem",
+        "label": "Pickup info",
+        "href": "/pickup"
+      },
+      {
+        "_key": "nav-4",
+        "_type": "navigationItem",
+        "label": "Special orders",
+        "href": "/special-orders"
+      },
+      {
+        "_key": "nav-5",
+        "_type": "navigationItem",
+        "label": "About",
+        "href": "/about"
+      }
+    ],
+    "footerNavigation": [
+      {
+        "_key": "nav-1",
+        "_type": "navigationItem",
+        "label": "Feed me",
+        "href": "/#products"
+      },
+      {
+        "_key": "nav-2",
+        "_type": "navigationItem",
+        "label": "Recipes",
+        "href": "/recipes"
+      },
+      {
+        "_key": "nav-3",
+        "_type": "navigationItem",
+        "label": "Pickup info",
+        "href": "/pickup"
+      },
+      {
+        "_key": "nav-4",
+        "_type": "navigationItem",
+        "label": "Special orders",
+        "href": "/special-orders"
+      },
+      {
+        "_key": "nav-5",
+        "_type": "navigationItem",
+        "label": "About",
+        "href": "/about"
+      },
+      {
+        "_key": "footer-storage",
+        "_type": "navigationItem",
+        "label": "Storage + reheating",
+        "href": "/storage-heating"
+      }
+    ]
+  },
+  {
+    "_id": "homepage",
+    "_type": "homepage",
+    "internalName": "homepage",
+    "hero": {
+      "caption": "A small bakery. A very good Friday.",
+      "location": "Rocklin, CA",
+      "eyebrow": "Sourdough focaccia + more",
+      "headline": "A little salty. A lot to love.",
+      "description": "Fresh-baked sourdough focaccia made for sharing. Or not.",
+      "cta": "Feed me"
+    },
+    "heroImage": {
+      "_type": "imageWithAlt",
+      "migrationSource": "https://placehold.co/1200x1400/BB906F/FAF3E7/png?text=the+good%0Astuff.&font=lora",
+      "alt": "Warm copper placeholder for future Salted focaccia photography"
+    },
+    "howItWorks": {
+      "eyebrow": "Good bread. Easy plans.",
+      "heading": "Your Friday, sorted.",
+      "cta": "The pickup details",
+      "note": "You’re exploring our preview. Online payment will be available in a future phase.",
+      "stepOneTitle": "Pick your bread",
+      "stepOneBody": "Choose your flavor, size, and quantity.",
+      "stepTwoTitle": "Pick your Friday",
+      "stepTwoBody": "Choose an available pickup date at checkout.",
+      "stepThreeTitle": "Pay online + pick it up",
+      "stepThreeBody": "Friday, 2–6 pm. Your weekend starts here."
+    },
+    "productsSection": {
+      "eyebrow": "The weekly bread edit",
+      "heading": "This week’s good stuff.",
+      "intro": "For your table. For your people.\nFor the drive home. We get it.",
+      "note": "A preview of what’s baking. Final ingredients and allergen information are awaiting bakery approval."
+    },
+    "recipesPreview": {
+      "eyebrow": "Beyond the bread basket",
+      "heading": "A little table inspiration.",
+      "cta": "All recipes",
+      "note": "Draft recipe inspiration · final recipes are awaiting bakery approval.",
+      "orderCta": "Feed me"
+    },
+    "reviewsSection": {
+      "eyebrow": "Word around the table",
+      "heading": "We’ll let the bread talk.",
+      "badge": "Sample testimonials",
+      "orderCta": "Feed me"
+    },
+    "instagramSection": {
+      "eyebrow": "A little slice of salted",
+      "heading": "Fresh from the oven.\nAnd the feed.",
+      "description": "A few favorites from our Instagram. A little bread inspiration for your scroll.",
+      "postLabel": "View post",
+      "play": "Play slideshow",
+      "pause": "Pause slideshow"
+    },
+    "instagramPhotos": [
+      {
+        "_type": "instagramPhoto",
+        "_key": "De2AbtYu9yk",
+        "image": {
+          "_type": "imageWithAlt",
+          "migrationSource": "/images/instagram/De2AbtYu9yk.webp",
+          "alt": "A hand holding sliced jalapeño cheddar focaccia, showing its airy crumb and golden crust"
+        },
+        "permalink": "https://www.instagram.com/p/De2AbtYu9yk/"
+      },
+      {
+        "_type": "instagramPhoto",
+        "_key": "Dew18OWtn0L",
+        "image": {
+          "_type": "imageWithAlt",
+          "migrationSource": "/images/instagram/Dew18OWtn0L.jpg",
+          "alt": "Three golden focaccia rounds topped with olives on a cooling rack beside rosemary and a rust-colored cloth"
+        },
+        "permalink": "https://www.instagram.com/p/Dew18OWtn0L/"
+      },
+      {
+        "_type": "instagramPhoto",
+        "_key": "Dew0q55BQEs",
+        "image": {
+          "_type": "imageWithAlt",
+          "migrationSource": "/images/instagram/Dew0q55BQEs.jpg",
+          "alt": "A focaccia sandwich cut in half, with the words ‘your sandwich bread could never’ over the photograph"
+        },
+        "permalink": "https://www.instagram.com/reel/Dew0q55BQEs/"
+      },
+      {
+        "_type": "instagramPhoto",
+        "_key": "De13PV7P0Ln",
+        "image": {
+          "_type": "imageWithAlt",
+          "migrationSource": "/images/instagram/De13PV7P0Ln.webp",
+          "alt": "Salted’s ‘friday ritual.’ graphic in cream lettering on a lavender background"
+        },
+        "permalink": "https://www.instagram.com/p/De13PV7P0Ln/"
+      }
+    ],
+    "featuredRecipes": [
+      {
+        "_type": "reference",
+        "_key": "0",
+        "_ref": "recipe-tomato-toast"
+      },
+      {
+        "_type": "reference",
+        "_key": "1",
+        "_ref": "recipe-focaccia-sandwich"
+      },
+      {
+        "_type": "reference",
+        "_key": "2",
+        "_ref": "recipe-bread-salad"
+      }
+    ],
+    "featuredReviews": [
+      {
+        "_type": "reference",
+        "_key": "0",
+        "_ref": "review-one"
+      },
+      {
+        "_type": "reference",
+        "_key": "1",
+        "_ref": "review-two"
+      },
+      {
+        "_type": "reference",
+        "_key": "2",
+        "_ref": "review-three"
+      }
+    ],
+    "seo": {
+      "_type": "seo",
+      "title": "Salted Focaccia · A little salty. A lot to love.",
+      "description": "Sourdough focaccia, a little extra olive oil, and something worth sharing. Browse the Salted Focaccia menu for Friday pickup in Rocklin, California."
+    }
+  },
+  {
+    "_id": "aboutPage",
+    "_type": "aboutPage",
+    "internalName": "aboutPage",
+    "intro": {
+      "eyebrow": "A little about salted",
+      "title": "Good bread.\nGood company.",
+      "description": "Salted is a small bakery with a soft spot for sourdough focaccia. Bread for the middle of the table, the last bit of sauce, and the people you love feeding."
+    },
+    "story": {
+      "heading": "Bread for\nthe good moments.",
+      "body": "From sourdough focaccia to round loaves, Salted is about making a little room for good bread.",
+      "note": "Draft brand copy · our full story is coming soon. Founder details, bakery history, and sourcing information will be added when final client-approved copy is supplied.",
+      "cta": "Find your good stuff"
+    },
+    "image": {
+      "_type": "imageWithAlt",
+      "migrationSource": "https://placehold.co/1000x1200/D8C6AF/594735/png?text=meet+you%0Aat+the%0Atable.&font=lora",
+      "alt": "Placeholder for future Salted bakery and founder photography"
+    },
+    "seo": {
+      "_type": "seo",
+      "title": "A little about Salted",
+      "description": "Sourdough focaccia and something good for the table. Meet Salted Focaccia."
+    }
+  },
+  {
+    "_id": "pickupPage",
+    "_type": "pickupPage",
+    "internalName": "pickupPage",
+    "intro": {
+      "eyebrow": "See you Friday",
+      "title": "Your weekend\nstarts with bread.",
+      "description": "Pick your good stuff, choose your Friday, and swing by. We’ll keep the pickup details right here."
+    },
+    "when": {
+      "eyebrow": "The when",
+      "heading": "Fridays.\n2–6 pm.",
+      "body": "Orders close Wednesday at 11:59 pm Pacific. Available dates depend on everything in your bag."
+    },
+    "where": {
+      "eyebrow": "The where",
+      "heading": "Rocklin, California",
+      "address": "Exact pickup address is provided after purchase.",
+      "body": "One pickup date covers your whole order. Need bread for different Fridays? Plan separate orders.",
+      "cta": "Plan your Friday"
+    },
+    "policies": {
+      "eyebrow": "Before you head over",
+      "heading": "The pickup details.",
+      "note": "Draft policies · bakery approval required before live orders.",
+      "addressTitle": "Pickup address",
+      "addressBody": "TODO: Confirm the exact pickup address and arrival instructions. The full address will be provided after purchase.",
+      "missedTitle": "Missed pickup",
+      "missedBody": "TODO: Bakery approval needed for the missed-pickup policy.",
+      "cancellationTitle": "Cancellations",
+      "cancellationBody": "TODO: Bakery approval needed for cancellation deadlines and procedures.",
+      "refundTitle": "Refunds",
+      "refundBody": "TODO: Bakery approval needed for the refund policy."
+    },
+    "seo": {
+      "_type": "seo",
+      "title": "Friday pickup",
+      "description": "Friday pickup, 2–6 pm in Rocklin, California. Plan your next Salted Focaccia Friday."
+    }
+  },
+  {
+    "_id": "specialOrdersPage",
+    "_type": "specialOrdersPage",
+    "internalName": "specialOrdersPage",
+    "intro": {
+      "eyebrow": "For a few more around the table",
+      "title": "Big plans.\nVery good bread.",
+      "description": "A celebration, a gathering, or just an excellent excuse. Tell us what you have in mind and let’s make room for something good."
+    },
+    "planning": {
+      "heading": "A little planning\ngoes a long way.",
+      "body": "Special orders require a minimum $40 product purchase plus a $10 special-order fee.",
+      "minimumLabel": "Product minimum",
+      "feeLabel": "Special-order fee",
+      "leadTimeLabel": "Lead time",
+      "leadTimeValue": "5+ days",
+      "note": "The fee is additional and does not count toward the product minimum. The lead time is temporary and subject to bakery confirmation.",
+      "requestStep": "Your request",
+      "reviewStep": "Bakery review",
+      "approvalStep": "Approval",
+      "paymentStep": "Payment"
+    },
+    "form": {
+      "nameLabel": "Your name",
+      "namePlaceholder": "First and last name",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "you@example.com",
+      "phoneLabel": "Phone number",
+      "phonePlaceholder": "(555) 123-4567",
+      "dateLabel": "Your ideal date",
+      "productsLabel": "What are you dreaming of?",
+      "productsPlaceholder": "Tell us about the flavors, sizes, and bread you have in mind.",
+      "quantityLabel": "Approximate quantity",
+      "quantityPlaceholder": "How many breads?",
+      "eventTypeLabel": "What’s the occasion?",
+      "eventTypePlaceholder": "A gathering, a birthday, just because…",
+      "notesLabel": "Anything else?",
+      "notesPlaceholder": "Questions or details we should know.",
+      "optional": "Optional",
+      "disclaimer": "No payment is collected with a request. Every special order needs bakery approval.",
+      "submit": "Preview my request",
+      "note": "Preview form · your information stays in this browser and is not sent or persisted.",
+      "successEyebrow": "Looking good",
+      "successHeading": "Your request preview\nis ready.",
+      "successBody": "Your details passed the form check. This is a preview, so nothing was sent to the bakery or saved on a server.",
+      "successNote": "When special orders launch, the bakery will review each request before approval and payment. Submission won’t guarantee acceptance.",
+      "restart": "Start another preview"
+    },
+    "validation": {
+      "name": "Please enter your name.",
+      "email": "Enter a valid email address.",
+      "phone": "Enter a phone number with 10–15 digits.",
+      "date": "Choose a valid date.",
+      "leadTime": "Please allow at least {days} days.",
+      "products": "Tell us a little more about the bread you have in mind (at least 10 characters).",
+      "quantity": "Enter an approximate quantity between 1 and 1,000."
+    },
+    "seo": {
+      "_type": "seo",
+      "title": "Special orders",
+      "description": "Something good for your gathering. Preview a Salted Focaccia special-order request."
+    }
+  },
+  {
+    "_id": "storageHeatingPage",
+    "_type": "storageHeatingPage",
+    "internalName": "storageHeatingPage",
+    "intro": {
+      "eyebrow": "Don’t ruin good focaccia",
+      "title": "Good today.\nGreat again tomorrow.",
+      "description": "A little care for your good bread. Our bakery-approved storage and reheating guide is coming soon."
+    },
+    "guide": {
+      "note": "Draft guide · instructions awaiting bakery approval",
+      "shortTermTitle": "Short-term storage",
+      "shortTermBody": "Storage method and timing will be added after bakery approval.",
+      "freezerTitle": "Into the freezer",
+      "freezerBody": "Freezing, wrapping, and thawing guidance will be added after bakery approval.",
+      "ovenTitle": "Back to the oven",
+      "ovenBody": "Product-specific reheating temperatures and times are awaiting bakery approval.",
+      "servingTitle": "Bring it to the table",
+      "servingBody": "Serving suggestions and finishing touches will be shared with the final guide."
+    },
+    "seo": {
+      "_type": "seo",
+      "title": "Storage + reheating",
+      "description": "The future Salted bread care guide. Bakery-approved storage and reheating details are coming soon."
+    }
+  },
+  {
+    "_id": "recipesPage",
+    "_type": "recipesPage",
+    "internalName": "recipesPage",
+    "intro": {
+      "eyebrow": "Beyond the bread basket",
+      "title": "Good bread.\nGreat possibilities.",
+      "description": "Slow lunches, picnic plans, and the things we gather around. A little inspiration for your Salted bread."
+    },
+    "listing": {
+      "note": "All recipes are draft inspiration and require bakery approval before publication.",
+      "empty": ""
+    },
+    "seo": {
+      "_type": "seo",
+      "title": "Recipes",
+      "description": "A little table inspiration, made even better with Salted bread."
+    }
+  },
+  {
+    "_id": "privacyPage",
+    "_type": "privacyPage",
+    "internalName": "privacyPage",
+    "intro": {
+      "eyebrow": "Privacy policy · draft",
+      "title": "Privacy, please.",
+      "description": "This is a local storefront preview. The final privacy policy will be reviewed before launch."
+    },
+    "body": [
+      {
+        "_key": "0-h2",
+        "_type": "block",
+        "style": "h2",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "_key": "text",
+            "text": "In this preview",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "_key": "0-normal",
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "_key": "text",
+            "text": "Your cart is saved in this browser’s local storage. The special-order form runs locally and does not send your details to the bakery. No payment details are collected.",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "_key": "1-h2",
+        "_type": "block",
+        "style": "h2",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "_key": "text",
+            "text": "Before launch",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "_key": "1-normal",
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "_key": "text",
+            "text": "TODO: Approve the full privacy policy covering customer information, service providers, retention, cookies, analytics, and privacy requests.",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "seo": {
+      "_type": "seo",
+      "title": "Privacy",
+      "description": "This is a local storefront preview. The final privacy policy will be reviewed before launch."
+    }
+  },
+  {
+    "_id": "termsPage",
+    "_type": "termsPage",
+    "internalName": "termsPage",
+    "intro": {
+      "eyebrow": "Terms of use · draft",
+      "title": "The little details.",
+      "description": "These are draft terms for the preview. Final terms require bakery and legal review before launch."
+    },
+    "body": [
+      {
+        "_key": "0-h2",
+        "_type": "block",
+        "style": "h2",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "_key": "text",
+            "text": "Preview only",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "_key": "0-normal",
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "_key": "text",
+            "text": "No real orders, payments, inventory reservations, or special-order requests are created by this website in Phase 1.",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "_key": "1-h2",
+        "_type": "block",
+        "style": "h2",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "_key": "text",
+            "text": "Before launch",
+            "marks": []
+          }
+        ]
+      },
+      {
+        "_key": "1-normal",
+        "_type": "block",
+        "style": "normal",
+        "markDefs": [],
+        "children": [
+          {
+            "_type": "span",
+            "_key": "text",
+            "text": "TODO: Confirm ordering terms, taxes, pickup responsibilities, cancellations, refunds, missed pickups, and special-order approval terms.",
+            "marks": []
+          }
+        ]
+      }
+    ],
+    "seo": {
+      "_type": "seo",
+      "title": "Terms",
+      "description": "These are draft terms for the preview. Final terms require bakery and legal review before launch."
+    }
+  },
+  {
+    "_id": "commerceCopy",
+    "_type": "commerceCopy",
+    "internalName": "commerceCopy",
+    "product": {
+      "focacciaFilter": "Focaccia",
+      "sourdoughFilter": "Sourdough",
+      "allFilter": "All the good stuff",
+      "menuNote": "Small batches. Big bread energy.",
+      "details": "The delicious details",
+      "chooseSize": "Choose your size",
+      "yourLoaf": "Your loaf",
+      "unavailable": "Unavailable",
+      "soldOut": "Sold out",
+      "add": "Add to bag",
+      "added": "{product} added to your bag.",
+      "quantityLimit": "You’ve reached the available quantity for this size. Check your bag.",
+      "lowStock": "Small batch · up to {quantity} available on a future Friday",
+      "pickupNote": "Pickup in Rocklin · choose your Friday in checkout.\nPreview only. No payment or real order is created.",
+      "from": "From",
+      "back": "Back to the good stuff",
+      "foodSummary": "Ingredients + allergens",
+      "approvalNote": "Draft · approval required",
+      "ingredients": "Ingredients",
+      "allergens": "Allergens",
+      "dietaryPending": "Dietary classifications have not yet been confirmed.",
+      "storageHeading": "Keeping it good",
+      "storageBody": "Storage and reheating instructions are awaiting bakery approval. No final temperatures or storage periods are published in this preview.",
+      "storageCta": "Storage + reheating guide",
+      "pickupHeading": "Friday pickup",
+      "pickupBody": "Pick up in Rocklin, California on an available Friday, 2–6 pm. Choose one pickup date for your whole bag during checkout.",
+      "pickupCta": "Pickup details",
+      "recipesEyebrow": "Good company for your bread",
+      "recipesHeading": "Try it with.",
+      "relatedEyebrow": "Room for one more?",
+      "relatedHeading": "Also very good."
+    },
+    "recipe": {
+      "allRecipes": "All recipes",
+      "minutes": "minutes",
+      "prep": "Prep",
+      "cook": "Cook",
+      "total": "Total",
+      "serves": "Serves",
+      "note": "Draft recipe · illustrative content awaiting bakery approval.",
+      "ingredientsEyebrow": "On the counter",
+      "ingredientsHeading": "What you’ll need.",
+      "instructionsEyebrow": "Make something good",
+      "instructionsHeading": "Bring it together.",
+      "relatedEyebrow": "Start with the good stuff",
+      "relatedHeading": "Made even better with."
+    },
+    "cart": {
+      "eyebrow": "A little happiness, bagged.",
+      "bagHeading": "Your good stuff.",
+      "pickupHeading": "Make it a Friday.",
+      "paymentHeading": "Almost at the table.",
+      "bagDescription": "Good bread is better when there’s enough to share.",
+      "pickupDescription": "One pickup date for your entire order.",
+      "emptyHeading": "A good bag starts\nwith good bread.",
+      "emptyBody": "Your bag is waiting for something delicious.",
+      "emptyCta": "Find your good stuff",
+      "each": "each",
+      "subtotal": "Subtotal",
+      "pickupHelper": "Pickup date selected at checkout.",
+      "previewNote": "Storefront preview · no live payment or order.",
+      "checkout": "Checkout",
+      "keepShopping": "Keep the good stuff coming",
+      "backToBag": "Back to your bag",
+      "dateHeading": "When do you want\nyour bread?",
+      "dateIntro": "Pick a Friday that works for you. Only dates with enough of everything in your bag are available.",
+      "unavailableHeading": "No Fridays fit this bag just yet.",
+      "unavailableBody": "A product, size, or quantity is unavailable across the upcoming dates. Adjust your bag to find a Friday.",
+      "editBag": "Edit your bag",
+      "city": "Rocklin, California",
+      "hours": "2–6 pm",
+      "address": "Exact pickup address is provided after purchase.",
+      "cutoff": "Orders close {date} at 11:59 pm Pacific.",
+      "continue": "Continue to payment",
+      "paymentNote": "Preview only. Payment is coming in a later phase.",
+      "paymentPreviewHeading": "Your Friday looks good.",
+      "paymentPreviewBody": "This is where secure payment will happen. You won’t be charged and no order has been placed in this preview.",
+      "paymentPickupLabel": "One pickup for your whole bag",
+      "productSubtotal": "Product subtotal",
+      "taxNote": "Final tax treatment will be confirmed before checkout launches.",
+      "expiredDate": "Your date is no longer available. Please choose another Friday.",
+      "confirmation": "Preview the confirmation",
+      "backToDates": "Back to pickup dates",
+      "calendarKey": "Available for your whole bag"
+    },
+    "confirmation": {
+      "eyebrow": "A taste of what’s next",
+      "heading": "Good things\nare on the way.",
+      "body": "This is a sample confirmation. No order has been placed, no payment was taken, and your bag is still here.",
+      "pickupLabel": "Your preview pickup",
+      "chosenDate": "Your chosen Friday",
+      "address": "The exact address will be shared after a future completed purchase.",
+      "note": "Thanks for taking a little look around. We can’t wait to share the real good stuff with you.",
+      "cta": "Back to the good stuff",
+      "seoTitle": "Confirmation preview"
+    }
+  },
+  {
+    "ingredients": ["Ingredient list awaiting bakery approval."],
+    "allergens": [
+      "Allergen information is not yet approved. Please confirm with the bakery before ordering."
+    ],
+    "dietaryLabels": [],
+    "active": true,
+    "id": "classic-focaccia",
+    "slug": {
+      "_type": "slug",
+      "current": "classic-focaccia"
+    },
+    "category": "focaccia",
+    "tier": "classic",
+    "shortDescription": "The golden, olive-oil-kissed original.",
+    "description": "A crisp, golden outside. A soft, airy middle. Our classic sourdough focaccia is the starting point for a very good meal. Temporary tasting copy, subject to bakery approval.",
+    "image": {
+      "_type": "imageWithAlt",
+      "migrationSource": "https://placehold.co/800x1000/DAC8AD/594735/png?text=the%0Aclassic.&font=lora",
+      "alt": "Classic focaccia product photography placeholder",
+      "caption": "Product photography coming soon"
+    },
+    "variants": [
+      {
+        "id": "round",
+        "label": "6\" Round",
+        "shortLabel": "6\" round",
+        "servingDescription": "Perfect for a personal size or to pair with a meal.",
+        "price": 700,
+        "_key": "round",
+        "_type": "productVariant",
+        "active": true
+      },
+      {
+        "id": "square",
+        "label": "8\" × 8\" Square",
+        "shortLabel": "8\" × 8\"",
+        "servingDescription": "Great for sharing — serves 4–6.",
+        "price": 1300,
+        "_key": "square",
+        "_type": "productVariant",
+        "active": true
+      },
+      {
+        "id": "pan",
+        "label": "9\" × 13\" Pan",
+        "shortLabel": "9\" × 13\"",
+        "servingDescription": "Our full-size focaccia — perfect for gatherings. Serves 8–12.",
+        "price": 1900,
+        "_key": "pan",
+        "_type": "productVariant",
+        "active": true
+      }
+    ],
+    "badge": "The original",
+    "_id": "product-classic-focaccia",
+    "_type": "product",
+    "internalName": "Classic Focaccia",
+    "displayName": "Classic Focaccia",
+    "displayOrder": 0,
+    "relatedRecipes": [
+      {
+        "_type": "reference",
+        "_key": "0",
+        "_ref": "recipe-tomato-toast"
+      },
+      {
+        "_type": "reference",
+        "_key": "1",
+        "_ref": "recipe-focaccia-sandwich"
+      }
+    ],
+    "relatedProducts": [
+      {
+        "_type": "reference",
+        "_key": "0",
+        "_ref": "product-pesto-mozzarella"
+      },
+      {
+        "_type": "reference",
+        "_key": "1",
+        "_ref": "product-jalapeno-cheddar"
+      },
+      {
+        "_type": "reference",
+        "_key": "2",
+        "_ref": "product-parmesan-chili-crisp"
+      }
+    ],
+    "eyebrow": "classic focaccia"
+  },
+  {
+    "ingredients": ["Ingredient list awaiting bakery approval."],
+    "allergens": [
+      "Allergen information is not yet approved. Please confirm with the bakery before ordering."
+    ],
+    "dietaryLabels": [],
+    "active": true,
+    "id": "pesto-mozzarella",
+    "slug": {
+      "_type": "slug",
+      "current": "pesto-mozzarella"
+    },
+    "category": "focaccia",
+    "tier": "specialty",
+    "shortDescription": "A little herby. A little melty. A favorite.",
+    "description": "Our sourdough focaccia meets the familiar pairing of pesto and mozzarella. Made for the center of the table — if it makes it that far. Temporary description; final recipe and ingredient details are pending.",
+    "image": {
+      "_type": "imageWithAlt",
+      "migrationSource": "https://placehold.co/800x1000/C9CEB7/45513B/png?text=pesto%0Aplease.&font=lora",
+      "alt": "Pesto mozzarella focaccia photography placeholder",
+      "caption": "Product photography coming soon"
+    },
+    "variants": [
+      {
+        "id": "round",
+        "label": "6\" Round",
+        "shortLabel": "6\" round",
+        "servingDescription": "Perfect for a personal size or to pair with a meal.",
+        "price": 800,
+        "_key": "round",
+        "_type": "productVariant",
+        "active": true
+      },
+      {
+        "id": "square",
+        "label": "8\" × 8\" Square",
+        "shortLabel": "8\" × 8\"",
+        "servingDescription": "Great for sharing — serves 4–6.",
+        "price": 1500,
+        "_key": "square",
+        "_type": "productVariant",
+        "active": true
+      },
+      {
+        "id": "pan",
+        "label": "9\" × 13\" Pan",
+        "shortLabel": "9\" × 13\"",
+        "servingDescription": "Our full-size focaccia — perfect for gatherings. Serves 8–12.",
+        "price": 2200,
+        "_key": "pan",
+        "_type": "productVariant",
+        "active": true
+      }
+    ],
+    "badge": "Crowd favorite",
+    "_id": "product-pesto-mozzarella",
+    "_type": "product",
+    "internalName": "Pesto Mozzarella",
+    "displayName": "Pesto Mozzarella",
+    "displayOrder": 1,
+    "relatedRecipes": [
+      {
+        "_type": "reference",
+        "_key": "0",
+        "_ref": "recipe-focaccia-sandwich"
+      }
+    ],
+    "relatedProducts": [
+      {
+        "_type": "reference",
+        "_key": "0",
+        "_ref": "product-classic-focaccia"
+      },
+      {
+        "_type": "reference",
+        "_key": "1",
+        "_ref": "product-jalapeno-cheddar"
+      },
+      {
+        "_type": "reference",
+        "_key": "2",
+        "_ref": "product-parmesan-chili-crisp"
+      }
+    ],
+    "eyebrow": "specialty focaccia"
+  },
+  {
+    "ingredients": ["Ingredient list awaiting bakery approval."],
+    "allergens": [
+      "Allergen information is not yet approved. Please confirm with the bakery before ordering."
+    ],
+    "dietaryLabels": [],
+    "active": true,
+    "id": "jalapeno-cheddar",
+    "slug": {
+      "_type": "slug",
+      "current": "jalapeno-cheddar"
+    },
+    "category": "focaccia",
+    "tier": "specialty",
+    "shortDescription": "For the ones who like a little kick.",
+    "description": "A savory, slightly spirited take on sourdough focaccia. Jalapeño and cheddar bring a little extra personality to the table. Temporary tasting copy awaiting bakery approval.",
+    "image": {
+      "_type": "imageWithAlt",
+      "migrationSource": "https://placehold.co/800x1000/E4C99C/6B4B2C/png?text=a+little%0Aheat.&font=lora",
+      "alt": "Jalapeño cheddar focaccia photography placeholder",
+      "caption": "Product photography coming soon"
+    },
+    "variants": [
+      {
+        "id": "round",
+        "label": "6\" Round",
+        "shortLabel": "6\" round",
+        "servingDescription": "Perfect for a personal size or to pair with a meal.",
+        "price": 800,
+        "_key": "round",
+        "_type": "productVariant",
+        "active": true
+      },
+      {
+        "id": "square",
+        "label": "8\" × 8\" Square",
+        "shortLabel": "8\" × 8\"",
+        "servingDescription": "Great for sharing — serves 4–6.",
+        "price": 1500,
+        "_key": "square",
+        "_type": "productVariant",
+        "active": true
+      },
+      {
+        "id": "pan",
+        "label": "9\" × 13\" Pan",
+        "shortLabel": "9\" × 13\"",
+        "servingDescription": "Our full-size focaccia — perfect for gatherings. Serves 8–12.",
+        "price": 2200,
+        "_key": "pan",
+        "_type": "productVariant",
+        "active": true
+      }
+    ],
+    "_id": "product-jalapeno-cheddar",
+    "_type": "product",
+    "internalName": "Jalapeño Cheddar",
+    "displayName": "Jalapeño Cheddar",
+    "displayOrder": 2,
+    "relatedRecipes": [
+      {
+        "_type": "reference",
+        "_key": "0",
+        "_ref": "recipe-tomato-toast"
+      }
+    ],
+    "relatedProducts": [
+      {
+        "_type": "reference",
+        "_key": "0",
+        "_ref": "product-classic-focaccia"
+      },
+      {
+        "_type": "reference",
+        "_key": "1",
+        "_ref": "product-pesto-mozzarella"
+      },
+      {
+        "_type": "reference",
+        "_key": "2",
+        "_ref": "product-parmesan-chili-crisp"
+      }
+    ],
+    "eyebrow": "specialty focaccia"
+  },
+  {
+    "ingredients": ["Ingredient list awaiting bakery approval."],
+    "allergens": [
+      "Allergen information is not yet approved. Please confirm with the bakery before ordering."
+    ],
+    "dietaryLabels": [],
+    "active": true,
+    "id": "parmesan-chili-crisp",
+    "slug": {
+      "_type": "slug",
+      "current": "parmesan-chili-crisp"
+    },
+    "category": "focaccia",
+    "tier": "specialty",
+    "shortDescription": "Savory, crispy, and just a bit fiery.",
+    "description": "Parmesan and chili crisp, on a sourdough focaccia foundation. A flavor for anyone who reaches for the spicy stuff. Temporary description, pending final recipe and ingredient approval.",
+    "image": {
+      "_type": "imageWithAlt",
+      "migrationSource": "https://placehold.co/800x1000/CEAA94/613C28/png?text=crisp.%0Achili.%0Arepeat.&font=lora",
+      "alt": "Parmesan chili crisp focaccia photography placeholder",
+      "caption": "Product photography coming soon"
+    },
+    "variants": [
+      {
+        "id": "round",
+        "label": "6\" Round",
+        "shortLabel": "6\" round",
+        "servingDescription": "Perfect for a personal size or to pair with a meal.",
+        "price": 800,
+        "_key": "round",
+        "_type": "productVariant",
+        "active": true
+      },
+      {
+        "id": "square",
+        "label": "8\" × 8\" Square",
+        "shortLabel": "8\" × 8\"",
+        "servingDescription": "Great for sharing — serves 4–6.",
+        "price": 1500,
+        "_key": "square",
+        "_type": "productVariant",
+        "active": true
+      },
+      {
+        "id": "pan",
+        "label": "9\" × 13\" Pan",
+        "shortLabel": "9\" × 13\"",
+        "servingDescription": "Our full-size focaccia — perfect for gatherings. Serves 8–12.",
+        "price": 2200,
+        "_key": "pan",
+        "_type": "productVariant",
+        "active": true
+      }
+    ],
+    "_id": "product-parmesan-chili-crisp",
+    "_type": "product",
+    "internalName": "Parmesan Chili Crisp",
+    "displayName": "Parmesan Chili Crisp",
+    "displayOrder": 3,
+    "relatedRecipes": [
+      {
+        "_type": "reference",
+        "_key": "0",
+        "_ref": "recipe-tomato-toast"
+      }
+    ],
+    "relatedProducts": [
+      {
+        "_type": "reference",
+        "_key": "0",
+        "_ref": "product-classic-focaccia"
+      },
+      {
+        "_type": "reference",
+        "_key": "1",
+        "_ref": "product-pesto-mozzarella"
+      },
+      {
+        "_type": "reference",
+        "_key": "2",
+        "_ref": "product-jalapeno-cheddar"
+      }
+    ],
+    "eyebrow": "specialty focaccia"
+  },
+  {
+    "ingredients": ["Ingredient list awaiting bakery approval."],
+    "allergens": [
+      "Allergen information is not yet approved. Please confirm with the bakery before ordering."
+    ],
+    "dietaryLabels": [],
+    "active": true,
+    "id": "rosemary-olive-black-pepper",
+    "slug": {
+      "_type": "slug",
+      "current": "rosemary-olive-black-pepper"
+    },
+    "category": "focaccia",
+    "tier": "specialty",
+    "shortDescription": "Big Mediterranean energy. Pass the olive oil.",
+    "description": "Rosemary, olive, and black pepper come together in our sourdough focaccia. A good companion for a generous salad or a slow lunch. Temporary tasting copy awaiting bakery approval.",
+    "image": {
+      "_type": "imageWithAlt",
+      "migrationSource": "https://placehold.co/800x1000/C7C5AE/4B4B36/png?text=olive%0Ayou.&font=lora",
+      "alt": "Rosemary olive and black pepper focaccia photography placeholder",
+      "caption": "Product photography coming soon"
+    },
+    "variants": [
+      {
+        "id": "round",
+        "label": "6\" Round",
+        "shortLabel": "6\" round",
+        "servingDescription": "Perfect for a personal size or to pair with a meal.",
+        "price": 800,
+        "_key": "round",
+        "_type": "productVariant",
+        "active": true
+      },
+      {
+        "id": "square",
+        "label": "8\" × 8\" Square",
+        "shortLabel": "8\" × 8\"",
+        "servingDescription": "Great for sharing — serves 4–6.",
+        "price": 1500,
+        "_key": "square",
+        "_type": "productVariant",
+        "active": true
+      },
+      {
+        "id": "pan",
+        "label": "9\" × 13\" Pan",
+        "shortLabel": "9\" × 13\"",
+        "servingDescription": "Our full-size focaccia — perfect for gatherings. Serves 8–12.",
+        "price": 2200,
+        "_key": "pan",
+        "_type": "productVariant",
+        "active": true
+      }
+    ],
+    "_id": "product-rosemary-olive-black-pepper",
+    "_type": "product",
+    "internalName": "Rosemary, Olive & Black Pepper",
+    "displayName": "Rosemary, Olive & Black Pepper",
+    "displayOrder": 4,
+    "relatedRecipes": [
+      {
+        "_type": "reference",
+        "_key": "0",
+        "_ref": "recipe-bread-salad"
+      }
+    ],
+    "relatedProducts": [
+      {
+        "_type": "reference",
+        "_key": "0",
+        "_ref": "product-classic-focaccia"
+      },
+      {
+        "_type": "reference",
+        "_key": "1",
+        "_ref": "product-pesto-mozzarella"
+      },
+      {
+        "_type": "reference",
+        "_key": "2",
+        "_ref": "product-jalapeno-cheddar"
+      }
+    ],
+    "eyebrow": "specialty focaccia"
+  },
+  {
+    "ingredients": ["Ingredient list awaiting bakery approval."],
+    "allergens": [
+      "Allergen information is not yet approved. Please confirm with the bakery before ordering."
+    ],
+    "dietaryLabels": [],
+    "active": true,
+    "id": "seasonal-flavor",
+    "slug": {
+      "_type": "slug",
+      "current": "seasonal-flavor"
+    },
+    "category": "focaccia",
+    "tier": "specialty",
+    "shortDescription": "Something new is on its way to the oven.",
+    "description": "A place on the menu for a rotating seasonal focaccia. The next flavor and release date are still being decided. This preview product is currently sold out.",
+    "image": {
+      "_type": "imageWithAlt",
+      "migrationSource": "https://placehold.co/800x1000/B8BCE3/393D64/png?text=what%27s%0Anext%3F&font=lora",
+      "alt": "Seasonal focaccia photography placeholder",
+      "caption": "Product photography coming soon"
+    },
+    "variants": [
+      {
+        "id": "round",
+        "label": "6\" Round",
+        "shortLabel": "6\" round",
+        "servingDescription": "Perfect for a personal size or to pair with a meal.",
+        "price": 800,
+        "_key": "round",
+        "_type": "productVariant",
+        "active": true
+      },
+      {
+        "id": "square",
+        "label": "8\" × 8\" Square",
+        "shortLabel": "8\" × 8\"",
+        "servingDescription": "Great for sharing — serves 4–6.",
+        "price": 1500,
+        "_key": "square",
+        "_type": "productVariant",
+        "active": true
+      },
+      {
+        "id": "pan",
+        "label": "9\" × 13\" Pan",
+        "shortLabel": "9\" × 13\"",
+        "servingDescription": "Our full-size focaccia — perfect for gatherings. Serves 8–12.",
+        "price": 2200,
+        "_key": "pan",
+        "_type": "productVariant",
+        "active": true
+      }
+    ],
+    "badge": "Coming soon",
+    "_id": "product-seasonal-flavor",
+    "_type": "product",
+    "internalName": "Seasonal Flavor",
+    "displayName": "Seasonal Flavor",
+    "displayOrder": 5,
+    "relatedRecipes": [],
+    "relatedProducts": [
+      {
+        "_type": "reference",
+        "_key": "0",
+        "_ref": "product-classic-focaccia"
+      },
+      {
+        "_type": "reference",
+        "_key": "1",
+        "_ref": "product-pesto-mozzarella"
+      },
+      {
+        "_type": "reference",
+        "_key": "2",
+        "_ref": "product-jalapeno-cheddar"
+      }
+    ],
+    "eyebrow": "specialty focaccia"
+  },
+  {
+    "ingredients": ["Ingredient list awaiting bakery approval."],
+    "allergens": [
+      "Allergen information is not yet approved. Please confirm with the bakery before ordering."
+    ],
+    "dietaryLabels": [],
+    "active": true,
+    "id": "classic-sourdough",
+    "slug": {
+      "_type": "slug",
+      "current": "classic-sourdough"
+    },
+    "category": "sourdough",
+    "tier": "classic",
+    "shortDescription": "A good loaf for the everyday things.",
+    "description": "A round sourdough loaf made with sourdough starter, organic flour, and sea salt. For toast, sandwiches, and whatever the day brings. Full ingredient and allergen information is awaiting approval.",
+    "image": {
+      "_type": "imageWithAlt",
+      "migrationSource": "https://placehold.co/800x1000/DCCDB9/594735/png?text=your+daily%0Abread.&font=lora",
+      "alt": "Classic sourdough loaf photography placeholder",
+      "caption": "Product photography coming soon"
+    },
+    "variants": [
+      {
+        "id": "loaf",
+        "label": "Round loaf",
+        "shortLabel": "Round loaf",
+        "price": 1200,
+        "servingDescription": "One round sourdough loaf. Final loaf weight to be confirmed.",
+        "_key": "loaf",
+        "_type": "productVariant",
+        "active": true
+      }
+    ],
+    "_id": "product-classic-sourdough",
+    "_type": "product",
+    "internalName": "Classic Sourdough",
+    "displayName": "Classic Sourdough",
+    "displayOrder": 6,
+    "relatedRecipes": [
+      {
+        "_type": "reference",
+        "_key": "0",
+        "_ref": "recipe-tomato-toast"
+      }
+    ],
+    "relatedProducts": [
+      {
+        "_type": "reference",
+        "_key": "0",
+        "_ref": "product-specialty-sourdough"
+      }
+    ],
+    "eyebrow": "classic sourdough"
+  },
+  {
+    "ingredients": ["Ingredient list awaiting bakery approval."],
+    "allergens": [
+      "Allergen information is not yet approved. Please confirm with the bakery before ordering."
+    ],
+    "dietaryLabels": [],
+    "active": true,
+    "id": "specialty-sourdough",
+    "slug": {
+      "_type": "slug",
+      "current": "specialty-sourdough"
+    },
+    "category": "sourdough",
+    "tier": "specialty",
+    "shortDescription": "Your favorite loaf, with a little extra.",
+    "description": "Our rotating specialty sourdough loaf. Final flavors will be shared here when the bakery menu is confirmed. This is a preview of the specialty loaf offering.",
+    "image": {
+      "_type": "imageWithAlt",
+      "migrationSource": "https://placehold.co/800x1000/CEC0AF/594735/png?text=loaf%0Aat+first%0Abite.&font=lora",
+      "alt": "Specialty sourdough loaf photography placeholder",
+      "caption": "Product photography coming soon"
+    },
+    "variants": [
+      {
+        "id": "loaf",
+        "label": "Round loaf",
+        "shortLabel": "Round loaf",
+        "price": 1500,
+        "servingDescription": "One specialty round loaf. Final loaf weight to be confirmed.",
+        "_key": "loaf",
+        "_type": "productVariant",
+        "active": true
+      }
+    ],
+    "badge": "Small batch",
+    "_id": "product-specialty-sourdough",
+    "_type": "product",
+    "internalName": "Specialty Sourdough",
+    "displayName": "Specialty Sourdough",
+    "displayOrder": 7,
+    "relatedRecipes": [],
+    "relatedProducts": [
+      {
+        "_type": "reference",
+        "_key": "0",
+        "_ref": "product-classic-sourdough"
+      }
+    ],
+    "eyebrow": "specialty sourdough"
+  },
+  {
+    "slug": {
+      "_type": "slug",
+      "current": "tomato-burrata-toast"
+    },
+    "description": "A generous slice, ripe tomatoes, and something creamy. A little inspiration for your next slow lunch.",
+    "image": {
+      "_type": "imageWithAlt",
+      "migrationSource": "https://placehold.co/1000x700/D6B79A/594735/png?text=a+very%0Agood+toast.&font=lora",
+      "alt": "Tomato and burrata toast recipe photography placeholder"
+    },
+    "prepMinutes": 10,
+    "cookMinutes": 5,
+    "totalMinutes": 15,
+    "servings": "2",
+    "tags": ["Slow lunches", "Simple things"],
+    "_id": "recipe-tomato-toast",
+    "_type": "recipe",
+    "internalName": "Tomatoes, burrata & a very good toast",
+    "displayTitle": "Tomatoes, burrata & a very good toast",
+    "active": true,
+    "displayOrder": 0,
+    "relatedProducts": [
+      {
+        "_type": "reference",
+        "_key": "0",
+        "_ref": "product-classic-focaccia"
+      },
+      {
+        "_type": "reference",
+        "_key": "1",
+        "_ref": "product-classic-sourdough"
+      }
+    ],
+    "ingredientGroups": [
+      {
+        "_key": "main",
+        "_type": "recipeIngredientGroup",
+        "ingredients": [
+          "2 generous slices of Salted bread",
+          "2 ripe tomatoes, sliced",
+          "1 ball of burrata",
+          "Olive oil, fresh basil, and seasoning to taste"
+        ]
+      }
+    ],
+    "steps": [
+      {
+        "_key": "0",
+        "_type": "recipeStep",
+        "body": "Toast the bread to your liking."
+      },
+      {
+        "_key": "1",
+        "_type": "recipeStep",
+        "body": "Arrange the sliced tomatoes and torn burrata over the toast."
+      },
+      {
+        "_key": "2",
+        "_type": "recipeStep",
+        "body": "Finish with olive oil, basil, and seasoning. Serve immediately."
+      }
+    ]
+  },
+  {
+    "slug": {
+      "_type": "slug",
+      "current": "the-weekend-focaccia-sandwich"
+    },
+    "description": "Your picnic plans, sorted. A generous focaccia sandwich with plenty of room to make it your own.",
+    "image": {
+      "_type": "imageWithAlt",
+      "migrationSource": "https://placehold.co/1000x700/C9CEB7/45513B/png?text=the+weekend%0Asandwich.&font=lora",
+      "alt": "Focaccia picnic sandwich recipe photography placeholder"
+    },
+    "prepMinutes": 15,
+    "cookMinutes": 0,
+    "totalMinutes": 15,
+    "servings": "2–4",
+    "tags": ["Picnic material", "Lunch"],
+    "_id": "recipe-focaccia-sandwich",
+    "_type": "recipe",
+    "internalName": "The take-it-outside focaccia sandwich",
+    "displayTitle": "The take-it-outside focaccia sandwich",
+    "active": true,
+    "displayOrder": 1,
+    "relatedProducts": [
+      {
+        "_type": "reference",
+        "_key": "0",
+        "_ref": "product-pesto-mozzarella"
+      },
+      {
+        "_type": "reference",
+        "_key": "1",
+        "_ref": "product-classic-focaccia"
+      }
+    ],
+    "ingredientGroups": [
+      {
+        "_key": "main",
+        "_type": "recipeIngredientGroup",
+        "ingredients": [
+          "1 focaccia, sized for your table",
+          "A handful of arugula",
+          "Sliced tomato",
+          "Mozzarella and your favorite sandwich spread"
+        ]
+      }
+    ],
+    "steps": [
+      {
+        "_key": "0",
+        "_type": "recipeStep",
+        "body": "Slice the focaccia horizontally."
+      },
+      {
+        "_key": "1",
+        "_type": "recipeStep",
+        "body": "Spread the cut sides with your favorite sandwich spread."
+      },
+      {
+        "_key": "2",
+        "_type": "recipeStep",
+        "body": "Layer in the arugula, tomato, and mozzarella. Close, slice, and share."
+      }
+    ]
+  },
+  {
+    "slug": {
+      "_type": "slug",
+      "current": "the-bread-is-the-best-part-salad"
+    },
+    "description": "A bright, generous bread salad. Because a salad can absolutely be an excuse for more focaccia.",
+    "image": {
+      "_type": "imageWithAlt",
+      "migrationSource": "https://placehold.co/1000x700/CECCB8/4B4B36/png?text=more+bread.%0Amore+salad.&font=lora",
+      "alt": "Focaccia bread salad recipe photography placeholder"
+    },
+    "prepMinutes": 15,
+    "cookMinutes": 10,
+    "totalMinutes": 25,
+    "servings": "4",
+    "tags": ["For the table", "Salads"],
+    "_id": "recipe-bread-salad",
+    "_type": "recipe",
+    "internalName": "The bread-is-the-best-part salad",
+    "displayTitle": "The bread-is-the-best-part salad",
+    "active": true,
+    "displayOrder": 2,
+    "relatedProducts": [
+      {
+        "_type": "reference",
+        "_key": "0",
+        "_ref": "product-rosemary-olive-black-pepper"
+      }
+    ],
+    "ingredientGroups": [
+      {
+        "_key": "main",
+        "_type": "recipeIngredientGroup",
+        "ingredients": [
+          "Focaccia, torn into bite-size pieces",
+          "2 ripe tomatoes",
+          "½ cucumber",
+          "A handful of basil",
+          "Olive oil and red wine vinegar to taste"
+        ]
+      }
+    ],
+    "steps": [
+      {
+        "_key": "0",
+        "_type": "recipeStep",
+        "body": "Toast the torn focaccia until golden."
+      },
+      {
+        "_key": "1",
+        "_type": "recipeStep",
+        "body": "Chop the tomatoes and cucumber and place in a large bowl."
+      },
+      {
+        "_key": "2",
+        "_type": "recipeStep",
+        "body": "Add bread and basil. Dress with olive oil and vinegar, toss, and serve."
+      }
+    ]
+  },
+  {
+    "_id": "review-one",
+    "_type": "review",
+    "internalName": "The dinner guest",
+    "quote": "Brought it to dinner. Left with an empty pan and a request to bring it again.",
+    "customerName": "The dinner guest",
+    "customerDetail": "Illustrative review · not a real customer quote",
+    "active": true,
+    "displayOrder": 0
+  },
+  {
+    "_id": "review-two",
+    "_type": "review",
+    "internalName": "A very happy bread person",
+    "quote": "The plan was to save some for tomorrow. There was no tomorrow focaccia.",
+    "customerName": "A very happy bread person",
+    "customerDetail": "Illustrative review · not a real customer quote",
+    "active": true,
+    "displayOrder": 1
+  },
+  {
+    "_id": "review-three",
+    "_type": "review",
+    "internalName": "The Friday regular",
+    "quote": "Crispy edges, soft middle, and the best part of our Friday.",
+    "customerName": "The Friday regular",
+    "customerDetail": "Illustrative review · not a real customer quote",
+    "active": true,
+    "displayOrder": 2
+  }
+]

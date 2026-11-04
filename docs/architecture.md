@@ -1,31 +1,29 @@
 # Integration boundaries
 
-The typed local catalog is the current read model. Server Component routes read content from `src/data`; commerce rules live in `src/lib`. Future adapters should return the same clear product/recipe models rather than embed CMS queries inside visual components.
+Sanity is authoritative for editorial content. App Router Server Components use centralized generated GROQ query types and `sanityFetch` from `defineLive`. Small mappers preserve the existing product/recipe prop contracts and encoded editorial strings. Shared settings, commerce copy, and catalog content use a request-deduplicated server fetch; interaction boundaries remain small.
+
+The website and embedded Studio have separate root layouts. Only the website renders `SanityLive`; only authenticated Draft Mode renders `VisualEditing`. The official preview-secret handshake protects Draft Mode. Read tokens and compatibility aliases are server-only. Text source maps survive mapping and rendering. Image annotations include document ID, type, and exact field path. Clean strings only when checking presence or crossing structural/metadata/accessibility boundaries.
+
+The CMS is a fixed content model, not a page builder. See [content map](cms-content-map.md) and [README](../README.md). Do not reintroduce local production copy or permanent fallback imagery. Empty editorial content collapses at the appropriate wrapper boundary.
 
 ## One order, one pickup date
 
-An order owns exactly one pickup date. A cart line is `{ productId, variantId, quantity }` and must never gain a pickup-date field. Checkout finds the intersection of available dates for the complete cart, including quantities. Two Fridays require two orders.
+A cart line stays `{productId, variantId, quantity}`. The browser persists no prices or pickup dates. Storage validates shape; the current CMS catalog filters removed products/variants, and totals use catalog integer-cent prices. Browser prices are still previews, never authoritative for future payments.
 
-`validPickupDates` currently operates over typed mock rows. A production endpoint must revalidate the full bag, server-owned prices, cutoffs, and capacity. Browser validation and local storage are convenience features, never authoritative production state.
+The operational calendar and inventory stay in code in this phase. `validPickupDates` checks the complete cart, aggregated quantities, enabled dates, Pacific cutoffs and inventory. Missing inventory means unavailable, including newly added CMS products. Separate pickup dates require separate orders. No capacity is reserved or decremented.
 
-## Editorial ownership
+## Future transactional ownership
 
-Sanity will own products, approved ingredients/allergens, photos, recipes, reviews, policies, homepage blocks, settings, menu publication, and possibly published pickup dates. Draft content must remain identifiable until approved. Sanity will not store authoritative completed orders.
+Postgres will own orders, immutable item snapshots, payment state, inventory, reservations, special-order workflow, and notification delivery state. Production checkout must revalidate prices, availability, cutoffs and quantities on the server, with atomic reservations, expiry, idempotency and concurrency handling. Sanity never stores authoritative transactional state.
 
-## Transactional ownership
+Stripe's verified webhooks will be authoritative for payment completion. `/order/success` remains an explicitly labeled local confirmation preview, preserves the bag, and proves nothing about payment. Tax decisions remain open.
 
-Neon Postgres with a future Drizzle schema will own orders, immutable order-item snapshots, payment status, inventory, reservations, special-order state, and notification delivery state. Production inventory needs atomic capacity checks, reservation expiry, idempotent checkout, and concurrency handling; none is simulated as a guarantee here.
+Resend/React Email and optional-consent Twilio SMS remain deferred. No payment, database, messaging, account, or order integrations were introduced in Phase 2. Special-order form validation remains local; no request is sent or persisted.
 
-## Payment ownership
+## Time and uncertain rules
 
-Stripe session creation will run on the server. Verified, idempotently handled webhook events will be authoritative for payment completion. The success route must eventually read verified server order state and must never infer payment from its URL or browser storage. Today it always displays an explicitly labeled preview and does not clear the bag.
+Pickup dates are Pacific calendar keys. Cutoffs have explicit DST-aware offsets. The same rolling preview schedule is sent from the dynamic site layout to client interactions. The configurable special-order minimum, fee and five-day lead-time rule remain code-owned; their displayed wording is editable and must remain accurate. See [open decisions](open-decisions.md).
 
-## Messaging ownership
+## Editable navigation
 
-React Email and Resend are reserved for future email. Twilio is reserved for optional-consent transactional SMS. The intended email sender is `feedme@saltedfocaccia.com`. No messaging SDK, template, or service is active. Future reminder work must use verified paid orders and explicit SMS consent.
-
-## Time and mock behavior
-
-Pickup date keys are Pacific calendar dates. Cutoffs are explicit offset-bearing instants generated using the configured timezone, including daylight-saving changes. Calendar display uses local date objects constructed from the date key so browsers in other timezones do not shift a Friday to Thursday. Server output carries the same mock schedule to interactive components to avoid mismatched inventory fixtures at hydration.
-
-The root renders dynamically so the schedule follows the actual current Pacific date. A long-open tab still rechecks current cutoffs before proceeding. The future implementation should refresh authoritative availability and display a recoverable message when a date or quantity becomes unavailable.
+Site Settings has independent `headerNavigation` and `footerNavigation` sortable arrays, each capped at seven items. Editors own menu labels, links and order separately. Desktop and mobile use the header array. Storage + reheating is a normal sortable footer item. Schema and runtime URL checks support internal paths, anchors and HTTP(S)/email/phone links; cleared or invalid items are omitted. The website owns responsive layout, link behavior and active states. Cart and privacy/terms labels remain separate utility copy. Empty footer lists do not fall back to header navigation, and no fixed storage link is appended.

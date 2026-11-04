@@ -1,12 +1,21 @@
+import type { CmsPortableText } from "@/sanity/lib/content";
+import type {
+  ImageWithAlt,
+  Product as CmsProduct,
+  Recipe as CmsRecipe,
+} from "../../sanity.types";
+
 export type ProductVariant = {
   id: string;
   label: string;
   shortLabel: string;
   servingDescription: string;
-  price: number; // Integer US cents.
+  price: number;
 };
-
-export type Product = {
+export type Product = Omit<
+  CmsProduct,
+  "slug" | "variants" | "category" | "tier"
+> & {
   id: string;
   name: string;
   slug: string;
@@ -14,34 +23,27 @@ export type Product = {
   tier: "classic" | "specialty";
   shortDescription: string;
   description: string;
-  image: string;
-  imageAlt: string;
+  image?: ImageWithAlt;
   ingredients: string[];
   allergens: string[];
   dietaryLabels: string[];
-  contentStatus: "draft";
   variants: ProductVariant[];
   relatedRecipeIds: string[];
+  relatedProductIds: string[];
   active: boolean;
-  badge?: string;
 };
-
-export type Recipe = {
+export type Recipe = Omit<
+  CmsRecipe,
+  "slug" | "tags" | "introduction" | "notes"
+> & {
+  introduction?: CmsPortableText;
+  notes?: CmsPortableText;
   id: string;
   title: string;
   slug: string;
   description: string;
-  image: string;
-  imageAlt: string;
-  ingredients: string[];
-  instructions: string[];
-  prepMinutes: number;
-  cookMinutes: number;
-  totalMinutes: number;
-  servings: string;
   tags: string[];
   relatedProductIds: string[];
-  contentStatus: "draft";
 };
 
 export type CartItem = {

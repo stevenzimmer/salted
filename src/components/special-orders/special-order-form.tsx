@@ -11,6 +11,11 @@ import {
   type SpecialOrderInput,
 } from "@/lib/special-orders";
 
+import type { SpecialOrdersPage } from "../../../sanity.types";
+import { hasText, clean, interpolate } from "@/sanity/lib/content";
+import { Text } from "@/components/cms/text";
+import { specialOrderConfig } from "@/data/special-order-config";
+
 const initial: SpecialOrderInput = {
   name: "",
   email: "",
@@ -22,7 +27,13 @@ const initial: SpecialOrderInput = {
   notes: "",
 };
 
-export function SpecialOrderForm() {
+export function SpecialOrderForm({
+  copy,
+  validation,
+}: {
+  copy?: SpecialOrdersPage["form"];
+  validation?: SpecialOrdersPage["validation"];
+}) {
   const [errors, setErrors] = useState<SpecialOrderErrors>({});
   const [submitted, setSubmitted] = useState(false);
 
@@ -45,14 +56,26 @@ export function SpecialOrderForm() {
   }
 
   function errorFor(name: keyof SpecialOrderInput) {
-    return errors[name] ? (
+    return errors[name] && hasText(validation?.[errors[name]]) ? (
       <p className="form-error" id={`${name}-error`}>
-        {errors[name]}
+        {interpolate(validation?.[errors[name]], {
+          days: specialOrderConfig.leadTimeDays,
+        })}
       </p>
     ) : null;
   }
 
-  if (submitted)
+  if (submitted) {
+    if (
+      ![
+        copy?.successEyebrow,
+        copy?.successHeading,
+        copy?.successBody,
+        copy?.successNote,
+        copy?.restart,
+      ].some(hasText)
+    )
+      return null;
     return (
       <div
         className="special-success"
@@ -61,38 +84,46 @@ export function SpecialOrderForm() {
         ref={(element) => element?.focus()}
       >
         <span className="confirmation-icon">
-          <Check size={30} />
+          <Check size={30} aria-hidden="true" />
         </span>
-        <p className="eyebrow mt-7">Looking good</p>
-        <h2>
-          Your request preview
-          <br />
-          is ready.
-        </h2>
-        <p>
-          Your details passed the form check. This is a preview, so nothing was
-          sent to the bakery or saved on a server.
-        </p>
-        <p>
-          When special orders launch, the bakery will review each request before
-          approval and payment. Submission won’t guarantee acceptance.
-        </p>
-        <button
-          type="button"
-          className="button-outline mt-7"
-          onClick={() => setSubmitted(false)}
-        >
-          Start another preview <ArrowUpRight size={16} />
-        </button>
+        <Text className="eyebrow mt-7" value={copy?.successEyebrow} />
+        <Text
+          as="h2"
+          className="whitespace-pre-line"
+          value={copy?.successHeading}
+        />
+        <Text value={copy?.successBody} />
+        <Text value={copy?.successNote} />
+        {hasText(copy?.restart) ? (
+          <button
+            type="button"
+            className="button-outline mt-7"
+            onClick={() => setSubmitted(false)}
+          >
+            {copy.restart}
+            <ArrowUpRight size={16} aria-hidden="true" />
+          </button>
+        ) : null}
       </div>
     );
+  }
 
   return (
     <form className="special-order-form" onSubmit={handleSubmit} noValidate>
+      <Text as="h2" value={copy?.heading} />
+      <Text value={copy?.intro} />
       <div className="form-grid">
         <div className="form-field">
-          <label htmlFor="name">
-            Your name <span>*</span>
+          <label
+            htmlFor="name"
+            className={hasText(copy?.nameLabel) ? undefined : "sr-only"}
+          >
+            {hasText(copy?.nameLabel) ? copy?.nameLabel : "Name"}
+            {hasText(copy?.nameLabel) ? (
+              <>
+                <span>*</span>
+              </>
+            ) : null}
           </label>
           <Input
             id="name"
@@ -100,15 +131,27 @@ export function SpecialOrderForm() {
             autoComplete="name"
             required
             maxLength={120}
-            placeholder="First and last name"
+            placeholder={clean(copy?.namePlaceholder)}
             aria-invalid={Boolean(errors.name)}
-            aria-describedby={errors.name ? "name-error" : undefined}
+            aria-describedby={
+              errors.name && hasText(validation?.[errors.name])
+                ? "name-error"
+                : undefined
+            }
           />
           {errorFor("name")}
         </div>
         <div className="form-field">
-          <label htmlFor="email">
-            Email address <span>*</span>
+          <label
+            htmlFor="email"
+            className={hasText(copy?.emailLabel) ? undefined : "sr-only"}
+          >
+            {hasText(copy?.emailLabel) ? copy?.emailLabel : "Email address"}
+            {hasText(copy?.emailLabel) ? (
+              <>
+                <span>*</span>
+              </>
+            ) : null}
           </label>
           <Input
             id="email"
@@ -117,15 +160,27 @@ export function SpecialOrderForm() {
             autoComplete="email"
             required
             maxLength={254}
-            placeholder="you@example.com"
+            placeholder={clean(copy?.emailPlaceholder)}
             aria-invalid={Boolean(errors.email)}
-            aria-describedby={errors.email ? "email-error" : undefined}
+            aria-describedby={
+              errors.email && hasText(validation?.[errors.email])
+                ? "email-error"
+                : undefined
+            }
           />
           {errorFor("email")}
         </div>
         <div className="form-field">
-          <label htmlFor="phone">
-            Phone number <span>*</span>
+          <label
+            htmlFor="phone"
+            className={hasText(copy?.phoneLabel) ? undefined : "sr-only"}
+          >
+            {hasText(copy?.phoneLabel) ? copy?.phoneLabel : "Phone number"}
+            {hasText(copy?.phoneLabel) ? (
+              <>
+                <span>*</span>
+              </>
+            ) : null}
           </label>
           <Input
             id="phone"
@@ -134,15 +189,27 @@ export function SpecialOrderForm() {
             autoComplete="tel"
             required
             maxLength={30}
-            placeholder="(555) 123-4567"
+            placeholder={clean(copy?.phonePlaceholder)}
             aria-invalid={Boolean(errors.phone)}
-            aria-describedby={errors.phone ? "phone-error" : undefined}
+            aria-describedby={
+              errors.phone && hasText(validation?.[errors.phone])
+                ? "phone-error"
+                : undefined
+            }
           />
           {errorFor("phone")}
         </div>
         <div className="form-field">
-          <label htmlFor="date">
-            Your ideal date <span>*</span>
+          <label
+            htmlFor="date"
+            className={hasText(copy?.dateLabel) ? undefined : "sr-only"}
+          >
+            {hasText(copy?.dateLabel) ? copy?.dateLabel : "Requested date"}
+            {hasText(copy?.dateLabel) ? (
+              <>
+                <span>*</span>
+              </>
+            ) : null}
           </label>
           <Input
             id="date"
@@ -151,13 +218,27 @@ export function SpecialOrderForm() {
             min={minimumSpecialOrderDate()}
             required
             aria-invalid={Boolean(errors.date)}
-            aria-describedby={errors.date ? "date-error" : undefined}
+            aria-describedby={
+              errors.date && hasText(validation?.[errors.date])
+                ? "date-error"
+                : undefined
+            }
           />
           {errorFor("date")}
         </div>
         <div className="form-field col-span-full">
-          <label htmlFor="products">
-            What are you dreaming of? <span>*</span>
+          <label
+            htmlFor="products"
+            className={hasText(copy?.productsLabel) ? undefined : "sr-only"}
+          >
+            {hasText(copy?.productsLabel)
+              ? copy?.productsLabel
+              : "Requested products"}
+            {hasText(copy?.productsLabel) ? (
+              <>
+                <span>*</span>
+              </>
+            ) : null}
           </label>
           <Textarea
             id="products"
@@ -165,15 +246,29 @@ export function SpecialOrderForm() {
             required
             maxLength={3000}
             rows={4}
-            placeholder="Tell us about the flavors, sizes, and bread you have in mind."
+            placeholder={clean(copy?.productsPlaceholder)}
             aria-invalid={Boolean(errors.products)}
-            aria-describedby={errors.products ? "products-error" : undefined}
+            aria-describedby={
+              errors.products && hasText(validation?.[errors.products])
+                ? "products-error"
+                : undefined
+            }
           />
           {errorFor("products")}
         </div>
         <div className="form-field">
-          <label htmlFor="quantity">
-            Approximate quantity <span>*</span>
+          <label
+            htmlFor="quantity"
+            className={hasText(copy?.quantityLabel) ? undefined : "sr-only"}
+          >
+            {hasText(copy?.quantityLabel)
+              ? copy?.quantityLabel
+              : "Approximate quantity"}
+            {hasText(copy?.quantityLabel) ? (
+              <>
+                <span>*</span>
+              </>
+            ) : null}
           </label>
           <Input
             id="quantity"
@@ -182,49 +277,70 @@ export function SpecialOrderForm() {
             min={1}
             max={1000}
             required
-            placeholder="How many breads?"
+            placeholder={clean(copy?.quantityPlaceholder)}
             aria-invalid={Boolean(errors.quantity)}
-            aria-describedby={errors.quantity ? "quantity-error" : undefined}
+            aria-describedby={
+              errors.quantity && hasText(validation?.[errors.quantity])
+                ? "quantity-error"
+                : undefined
+            }
           />
           {errorFor("quantity")}
         </div>
         <div className="form-field">
-          <label htmlFor="eventType">
-            What’s the occasion? <span className="optional">Optional</span>
+          <label
+            htmlFor="eventType"
+            className={hasText(copy?.eventTypeLabel) ? undefined : "sr-only"}
+          >
+            {hasText(copy?.eventTypeLabel)
+              ? copy?.eventTypeLabel
+              : "Event type"}
+            {hasText(copy?.eventTypeLabel) ? (
+              <>
+                <Text as="span" className="optional" value={copy?.optional} />
+              </>
+            ) : null}
           </label>
           <Input
             id="eventType"
             name="eventType"
             maxLength={150}
-            placeholder="A gathering, a birthday, just because…"
+            placeholder={clean(copy?.eventTypePlaceholder)}
           />
         </div>
         <div className="form-field col-span-full">
-          <label htmlFor="notes">
-            Anything else? <span className="optional">Optional</span>
+          <label
+            htmlFor="notes"
+            className={hasText(copy?.notesLabel) ? undefined : "sr-only"}
+          >
+            {hasText(copy?.notesLabel) ? copy?.notesLabel : "Additional notes"}
+            {hasText(copy?.notesLabel) ? (
+              <>
+                <Text as="span" className="optional" value={copy?.optional} />
+              </>
+            ) : null}
           </label>
           <Textarea
             id="notes"
             name="notes"
             maxLength={3000}
             rows={3}
-            placeholder="Questions or details we should know."
+            placeholder={clean(copy?.notesPlaceholder)}
           />
         </div>
       </div>
-      <div className="form-bottom">
-        <p>
-          No payment is collected with a request. Every special order needs
-          bakery approval.
-        </p>
-        <button type="submit" className="button-primary">
-          Preview my request <ArrowUpRight size={17} />
-        </button>
-      </div>
-      <p className="draft-note mt-5">
-        Preview form · your information stays in this browser and is not sent or
-        persisted.
-      </p>
+      {hasText(copy?.disclaimer) || hasText(copy?.submit) ? (
+        <div className="form-bottom">
+          <Text value={copy?.disclaimer} />
+          {hasText(copy?.submit) ? (
+            <button type="submit" className="button-primary">
+              {copy.submit}
+              <ArrowUpRight size={17} aria-hidden="true" />
+            </button>
+          ) : null}
+        </div>
+      ) : null}
+      <Text className="draft-note mt-5" value={copy?.note} />
     </form>
   );
 }

@@ -2,7 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { CmsImage } from "@/components/cms/image";
+import { Text } from "@/components/cms/text";
+import { hasText, hasImage, clean, interpolate } from "@/sanity/lib/content";
 import {
   ArrowLeft,
   ArrowRight,
@@ -35,6 +37,8 @@ function focusHeading(element: HTMLHeadingElement | null) {
 export function CartDrawer() {
   const {
     items,
+    products,
+    commerce,
     schedule,
     open,
     setOpen,
@@ -44,8 +48,8 @@ export function CartDrawer() {
   } = useCart();
   const [step, setStep] = useState<CheckoutStep>("bag");
   const [selectedDate, setSelectedDate] = useState<string>();
-  const lines = resolveCart(items);
-  const subtotal = cartSubtotal(items);
+  const lines = resolveCart(items, products);
+  const subtotal = cartSubtotal(items, products);
   const dates = validPickupDates(items, schedule);
   const selected = dates.find((date) => date.date === selectedDate);
   const itemCount = items.reduce((total, item) => total + item.quantity, 0);
@@ -142,6 +146,24 @@ export function CartDrawer() {
       setStep("payment_preview");
   }
 
+  const c = commerce?.cart;
+  const heading =
+    visibleStep === "bag"
+      ? c?.bagHeading
+      : visibleStep === "pickup"
+        ? c?.pickupHeading
+        : c?.paymentHeading;
+  const description =
+    visibleStep === "bag" ? c?.bagDescription : c?.pickupDescription;
+  const visibleHeader = [c?.eyebrow, heading, description].some(hasText);
+  const location = hasText(c?.city) || hasText(c?.hours) || hasText(c?.address);
+  const locationLine = (
+    <>
+      {hasText(c?.hours) ? c.hours : null}
+      {hasText(c?.hours) && hasText(c?.city) ? " · " : null}
+      {hasText(c?.city) ? c.city : null}
+    </>
+  );
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
       <SheetContent
@@ -151,38 +173,41 @@ export function CartDrawer() {
           restoreFocus();
         }}
       >
-        <SheetHeader className="cart-sheet-header">
-          <p className="eyebrow">A little happiness, bagged.</p>
-          <SheetTitle className="cart-title">
-            {step === "bag"
-              ? "Your good stuff."
-              : step === "pickup"
-                ? "Make it a Friday."
-                : "Almost at the table."}
+        <SheetHeader
+          className={visibleHeader ? "cart-sheet-header" : "sr-only"}
+        >
+          <Text className="eyebrow" value={c?.eyebrow} />
+          <SheetTitle className={hasText(heading) ? "cart-title" : "sr-only"}>
+            {hasText(heading) ? heading : "Cart"}
           </SheetTitle>
-          <SheetDescription>
-            {step === "bag"
-              ? "Good bread is better when there’s enough to share."
-              : "One pickup date for your entire order."}
+          <SheetDescription
+            className={hasText(description) ? undefined : "sr-only"}
+          >
+            {hasText(description) ? description : "Order preview"}
           </SheetDescription>
         </SheetHeader>
         {lines.length === 0 ? (
-          <div className="empty-cart">
-            <ShoppingBag size={48} strokeWidth={1} />
-            <h3>
-              A good bag starts
-              <br />
-              with good bread.
-            </h3>
-            <p>Your bag is waiting for something delicious.</p>
-            <Link
-              href="/#products"
-              className="button-primary"
-              onClick={closeForNavigation}
-            >
-              Find your good stuff <ArrowRight size={18} />
-            </Link>
-          </div>
+          [c?.emptyHeading, c?.emptyBody, c?.emptyCta].some(hasText) ? (
+            <div className="empty-cart">
+              <ShoppingBag size={48} strokeWidth={1} aria-hidden="true" />
+              <Text
+                as="h3"
+                className="whitespace-pre-line"
+                value={c?.emptyHeading}
+              />
+              <Text value={c?.emptyBody} />
+              {hasText(c?.emptyCta) ? (
+                <Link
+                  href="/#products"
+                  className="button-primary"
+                  onClick={closeForNavigation}
+                >
+                  {c.emptyCta}
+                  <ArrowRight size={18} aria-hidden="true" />
+                </Link>
+              ) : null}
+            </div>
+          ) : null
         ) : step === "bag" ? (
           <>
             <div className="cart-lines">
@@ -191,46 +216,53 @@ export function CartDrawer() {
                   className="cart-line"
                   key={`${line.productId}:${line.variantId}`}
                 >
-                  <Link
-                    href={`/products/${line.product.slug}`}
-                    onClick={closeForNavigation}
-                    className="cart-line-image"
-                  >
-                    <Image
-                      src={line.product.image}
-                      alt={line.product.imageAlt}
-                      fill
-                      unoptimized
-                      sizes="90px"
-                    />
-                  </Link>
+                  {hasImage(line.product.image) ? (
+                    <Link
+                      href={`/products/${line.product.slug}`}
+                      onClick={closeForNavigation}
+                      className="cart-line-image"
+                      aria-label={`View ${clean(line.product.name) || "product"}`}
+                    >
+                      <CmsImage
+                        image={line.product.image}
+                        aspectRatio={84 / 108}
+                        documentType={line.product._type}
+                        documentId={line.product._id}
+                        path="image"
+                        sizes="90px"
+                      />
+                    </Link>
+                  ) : null}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-2">
-                      <h3>
-                        <Link
-                          href={`/products/${line.product.slug}`}
-                          onClick={closeForNavigation}
-                        >
-                          {line.product.name}
-                        </Link>
-                      </h3>
+                      {hasText(line.product.name) ? (
+                        <h3>
+                          <Link
+                            href={`/products/${line.product.slug}`}
+                            onClick={closeForNavigation}
+                          >
+                            {line.product.name}
+                          </Link>
+                        </h3>
+                      ) : null}
                       <button
                         className="remove-item"
                         type="button"
-                        aria-label={`Remove ${line.product.name}, ${line.variant.label}`}
+                        aria-label={`Remove ${clean(line.product.name) || "product"}, ${clean(line.variant.label)}`}
                         onClick={() =>
                           removeItem(line.productId, line.variantId)
                         }
                       >
-                        <Trash2 size={15} />
+                        <Trash2 size={15} aria-hidden="true" />
                       </button>
                     </div>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {line.variant.label} · {money(line.variant.price)} each
+                      {line.variant.label} · {money(line.variant.price)}{" "}
+                      <Text as="span" value={c?.each} />
                     </p>
                     <div className="mt-4 flex items-center justify-between gap-3">
                       <QuantitySelector
-                        label={`${line.product.name} ${line.variant.label} quantity`}
+                        label={`${clean(line.product.name)} ${clean(line.variant.label)} quantity`}
                         value={line.quantity}
                         onChange={(quantity) =>
                           setQuantity(line.productId, line.variantId, quantity)
@@ -251,153 +283,194 @@ export function CartDrawer() {
             </div>
             <div className="cart-summary">
               <div className="subtotal-row">
-                <span>Subtotal</span>
+                <Text as="span" value={c?.subtotal} />
                 <span>{money(subtotal)}</span>
               </div>
-              <p>Pickup date selected at checkout.</p>
-              <p className="cart-preview-note">
-                Storefront preview · no live payment or order.
-              </p>
-              <button
-                type="button"
-                className="button-primary w-full"
-                onClick={() => setStep("pickup")}
-              >
-                Checkout — {money(subtotal)}
-                <ArrowRight size={17} />
-              </button>
-              <button type="button" className="text-button" onClick={close}>
-                Keep the good stuff coming
-              </button>
+              <Text value={c?.pickupHelper} />
+              <Text className="cart-preview-note" value={c?.previewNote} />
+              {hasText(c?.checkout) ? (
+                <button
+                  type="button"
+                  className="button-primary w-full"
+                  onClick={() => setStep("pickup")}
+                >
+                  {c.checkout} — {money(subtotal)}
+                  <ArrowRight size={17} aria-hidden="true" />
+                </button>
+              ) : null}
+              {hasText(c?.keepShopping) ? (
+                <button type="button" className="text-button" onClick={close}>
+                  {c.keepShopping}
+                </button>
+              ) : null}
             </div>
           </>
         ) : step === "pickup" ? (
           <div className="checkout-scroll" key="pickup">
-            <button type="button" onClick={backToBag} className="back-link m-0">
-              <ArrowLeft size={15} /> Back to your bag
-            </button>
-            <h3 className="checkout-heading" tabIndex={-1} ref={focusHeading}>
-              When do you want
-              <br />
-              your bread?
+            {hasText(c?.backToBag) ? (
+              <button
+                type="button"
+                onClick={backToBag}
+                className="back-link m-0"
+              >
+                <ArrowLeft size={15} aria-hidden="true" />
+                {c.backToBag}
+              </button>
+            ) : null}
+            <h3
+              className={
+                hasText(c?.dateHeading)
+                  ? "checkout-heading whitespace-pre-line"
+                  : "sr-only"
+              }
+              tabIndex={-1}
+              ref={focusHeading}
+            >
+              {hasText(c?.dateHeading) ? c.dateHeading : "Pickup date"}
             </h3>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              Pick a Friday that works for you. Only dates with enough of
-              everything in your bag are available.
-            </p>
+            <Text
+              className="text-sm leading-relaxed text-muted-foreground"
+              value={c?.dateIntro}
+            />
             {dates.length ? (
               <PickupDatePicker
                 dates={dates}
                 selected={selected?.date}
                 onSelect={selectPickupDate}
+                legend={c?.calendarKey}
               />
-            ) : (
+            ) : [c?.unavailableHeading, c?.unavailableBody, c?.editBag].some(
+                hasText,
+              ) ? (
               <div className="checkout-notice" role="status">
-                <h4>No Fridays fit this bag just yet.</h4>
-                <p>
-                  A product, size, or quantity is unavailable across the
-                  upcoming dates. Adjust your bag to find a Friday.
-                </p>
-                <button
-                  type="button"
-                  className="inline-link mt-4"
-                  onClick={backToBag}
-                >
-                  Edit your bag <ArrowRight size={15} />
-                </button>
+                <Text as="h4" value={c?.unavailableHeading} />
+                <Text value={c?.unavailableBody} />
+                {hasText(c?.editBag) ? (
+                  <button
+                    type="button"
+                    className="inline-link mt-4"
+                    onClick={backToBag}
+                  >
+                    {c.editBag}
+                    <ArrowRight size={15} aria-hidden="true" />
+                  </button>
+                ) : null}
               </div>
-            )}
-            <div className="pickup-summary">
-              <MapPin size={20} strokeWidth={1.5} />
-              <div>
-                <strong>
-                  {selected ? pickupLabel(selected.date) : pickupConfig.city}
-                </strong>
-                <p>
-                  {pickupConfig.hoursLabel} · {pickupConfig.city}
-                </p>
-                <p>{pickupConfig.address}</p>
+            ) : null}
+            {location || selected ? (
+              <div className="pickup-summary">
+                <MapPin size={20} strokeWidth={1.5} aria-hidden="true" />
+                <div>
+                  <Text
+                    as="strong"
+                    value={selected ? pickupLabel(selected.date) : c?.city}
+                  />
+                  {hasText(c?.city) || hasText(c?.hours) ? (
+                    <p>{locationLine}</p>
+                  ) : null}
+                  <Text value={c?.address} />
+                </div>
               </div>
-            </div>
+            ) : null}
             {selected ? (
-              <p className="cutoff-note">
-                Orders close{" "}
-                {new Date(selected.orderCutoff).toLocaleDateString("en-US", {
-                  timeZone: pickupConfig.timezone,
-                  weekday: "long",
-                  month: "short",
-                  day: "numeric",
-                })}{" "}
-                at 11:59 pm Pacific.
-              </p>
+              <Text
+                className="cutoff-note"
+                value={interpolate(c?.cutoff, {
+                  date: new Date(selected.orderCutoff).toLocaleDateString(
+                    "en-US",
+                    {
+                      timeZone: pickupConfig.timezone,
+                      weekday: "long",
+                      month: "short",
+                      day: "numeric",
+                    },
+                  ),
+                })}
+              />
             ) : null}
             <div className="subtotal-row mt-7">
-              <span>Subtotal</span>
+              <Text as="span" value={c?.subtotal} />
               <span>{money(subtotal)}</span>
             </div>
-            <button
-              type="button"
-              className="button-primary mt-5 w-full"
-              disabled={!selected}
-              onClick={continueToPayment}
-            >
-              Continue to payment <ArrowRight size={17} />
-            </button>
-            <p className="draft-note mt-4 text-center">
-              Preview only. Payment is coming in a later phase.
-            </p>
+            {hasText(c?.continue) ? (
+              <button
+                type="button"
+                className="button-primary mt-5 w-full"
+                disabled={!selected}
+                onClick={continueToPayment}
+              >
+                {c.continue}
+                <ArrowRight size={17} aria-hidden="true" />
+              </button>
+            ) : null}
+            <Text
+              className="draft-note mt-4 text-center"
+              value={c?.paymentNote}
+            />
           </div>
         ) : (
           <div className="checkout-scroll payment-preview" key="payment">
-            <span className="confirmation-icon">
-              <Check size={30} strokeWidth={1.3} />
-            </span>
-            <h3 className="checkout-heading" tabIndex={-1} ref={focusHeading}>
-              Your Friday looks good.
+            {[c?.paymentPreviewHeading, c?.paymentPreviewBody].some(hasText) ? (
+              <span className="confirmation-icon">
+                <Check size={30} strokeWidth={1.3} aria-hidden="true" />
+              </span>
+            ) : null}
+            <h3
+              className={
+                hasText(c?.paymentPreviewHeading)
+                  ? "checkout-heading"
+                  : "sr-only"
+              }
+              tabIndex={-1}
+              ref={focusHeading}
+            >
+              {hasText(c?.paymentPreviewHeading)
+                ? c.paymentPreviewHeading
+                : "Payment preview"}
             </h3>
-            <p className="text-sm leading-relaxed">
-              This is where secure payment will happen. You won’t be charged and
-              no order has been placed in this preview.
-            </p>
+            <Text
+              className="text-sm leading-relaxed"
+              value={c?.paymentPreviewBody}
+            />
             {selected ? (
               <div className="payment-details">
-                <p className="eyebrow">One pickup for your whole bag</p>
+                <Text className="eyebrow" value={c?.paymentPickupLabel} />
                 <strong>{pickupLabel(selected.date)}</strong>
-                <p>
-                  {pickupConfig.hoursLabel} · {pickupConfig.city}
-                </p>
+                {hasText(c?.city) || hasText(c?.hours) ? (
+                  <p>{locationLine}</p>
+                ) : null}
                 <div className="subtotal-row mt-5">
-                  <span>Product subtotal</span>
+                  <Text as="span" value={c?.productSubtotal} />
                   <span>{money(subtotal)}</span>
                 </div>
-                <p className="draft-note mt-3">
-                  Final tax treatment will be confirmed before checkout
-                  launches.
-                </p>
+                <Text className="draft-note mt-3" value={c?.taxNote} />
               </div>
             ) : (
-              <p role="alert">
-                Your date is no longer available. Please choose another Friday.
-              </p>
+              <Text role="alert" value={c?.expiredDate} />
             )}
-            <Link
-              href={
-                selected
-                  ? `/order/success?pickup=${selected.date}`
-                  : "/order/success"
-              }
-              onClick={closeForNavigation}
-              className="button-primary mt-6 w-full"
-            >
-              Preview the confirmation <ArrowUpRight size={17} />
-            </Link>
-            <button
-              type="button"
-              className="text-button"
-              onClick={backToPickup}
-            >
-              Back to pickup dates
-            </button>
+            {hasText(c?.confirmation) ? (
+              <Link
+                href={
+                  selected
+                    ? `/order/success?pickup=${selected.date}`
+                    : "/order/success"
+                }
+                onClick={closeForNavigation}
+                className="button-primary mt-6 w-full"
+              >
+                {c.confirmation}
+                <ArrowUpRight size={17} aria-hidden="true" />
+              </Link>
+            ) : null}
+            {hasText(c?.backToDates) ? (
+              <button
+                type="button"
+                className="text-button"
+                onClick={backToPickup}
+              >
+                {c.backToDates}
+              </button>
+            ) : null}
           </div>
         )}
       </SheetContent>

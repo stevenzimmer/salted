@@ -1,17 +1,21 @@
+import { Text } from "@/components/cms/text";
+import { hasCopy } from "@/sanity/lib/content";
+
 export function PageIntro({
   eyebrow,
   title,
   description,
 }: {
-  eyebrow: string;
-  title: string;
-  description?: string;
+  eyebrow?: string | null;
+  title?: string | null;
+  description?: string | null;
 }) {
+  if (!hasCopy({ eyebrow, title, description })) return null;
   return (
     <header className="page-intro">
-      <p className="eyebrow">{eyebrow}</p>
-      <h1>{title}</h1>
-      {description ? <p className="page-description">{description}</p> : null}
+      <Text className="eyebrow" value={eyebrow} />
+      <Text as="h1" value={title} />
+      <Text className="page-description" value={description} />
     </header>
   );
 }

@@ -1,98 +1,121 @@
 # Salted Focaccia
 
-A complete Phase 1 frontend for **saltedfocaccia.com**: an editorial bakery storefront with a persistent browser cart, product and recipe pages, Friday pickup selection, and a safe special-order form preview.
+Next.js 16 / React 19 bakery storefront with Sanity 6 editorial content, an embedded Studio, and Visual Editing. The approved Phase 1 layout and browser cart remain in place. Checkout and special orders are still local previews: there are no payments, orders, reservations, or messages.
 
-## Run locally
+## Local setup
 
-Use Node.js 20.9+ (a current LTS release is recommended) and npm.
+Use Node **24 LTS** (staging uses 24.x), or a supported Node 22 release >=22.12, and npm. Sanity 6 raises Phase 1's Node minimum; Next.js, React, TypeScript, and Tailwind were not upgraded for this integration. Node 25 is outside the supported dependency range.
 
 ```sh
-npm install
+npm ci
+cp .env.example .env.local
+```
+
+Configure an existing Sanity project and a **public** dataset (normally `production`) at [Sanity Manage](https://www.sanity.io/manage). Public visitors fetch published editorial content without credentials. Drafts remain authenticated. Never put customer records or transactional state in this dataset.
+
+```dotenv
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+NEXT_PUBLIC_SANITY_PROJECT_ID=your-project-id
+NEXT_PUBLIC_SANITY_DATASET=production
+NEXT_PUBLIC_SANITY_API_VERSION=2026-02-01
+SANITY_API_READ_TOKEN=your-viewer-token
+```
+
+In the project's **API → Tokens**, create a token with the **Viewer** role for `SANITY_API_READ_TOKEN`. It is imported only by server modules. `defineLive` uses `serverToken` and explicitly disables `browserToken`; Presentation uses its authenticated Studio connection for draft updates. The draft-only Visual Editing wrapper explicitly handles mutation refreshes because next-sanity 13’s default handler ignores them. No read/write credential is serialized into the website. Standalone draft tabs can be refreshed manually; live draft editing takes place inside Presentation.
+
+For compatibility, **`SANITY_API_TOKEN` is a server-only fallback** for both reads and seeding. It can be used during setup with an Editor token. Prefer the explicit Viewer token for runtime reads afterward; use `SANITY_API_WRITE_TOKEN` only for the initial import. Never prefix either token with `NEXT_PUBLIC_`, commit `.env.local`, or add a write token to frontend props. The shared alias must remain available until runtime reads have been switched to the Viewer token.
+
+Add credentialed CORS origins in Sanity **API → CORS Origins**:
+
+- `http://localhost:3000`
+- `https://salted-focaccia-stevenzimmers-projects.vercel.app`
+- The exact approved production origin when it is actually connected.
+
+Do not add a wildcard for Vercel preview deployments. Add each needed preview origin explicitly, or use stable staging. Presentation's relative preview URL automatically uses the embedded Studio's origin. Vercel Authentication must also allow the editor to open the preview iframe; sign into the staging deployment first.
+
+Seed before first starting the site, then run:
+
+```sh
+npm run cms:seed -- --dry-run
+npm run cms:seed
 npm run dev
 ```
 
-Open `http://localhost:3000`. No environment file, account, database, or API key is required. `.env.example` documents future integration variables. If needed, copy it to `.env.local` and leave all unused secrets blank. `.env.local` is gitignored.
+Open `http://localhost:3000` and `/studio`. If the server was already running against an empty dataset, restart it after the first seed; stale development fetch caches may also need clearing. A configured CMS fetch failure surfaces as an error; it never silently switches back to hard-coded content. Without project configuration, content slots are empty and Studio shows setup instructions.
+
+## Initial content and images
+
+`scripts/seed/content.json` is an archival migration input containing the actual Phase 1 copy: **10 singletons, 8 products, 3 recipes, 3 illustrative reviews**. It is never imported into the website. Sanity becomes the sole editorial source after import; do not keep editing this file as a parallel production catalog.
+
+`npm run cms:seed` uses `SANITY_API_WRITE_TOKEN` or the setup alias `SANITY_API_TOKEN`. It checks both draft and published IDs, preserves existing documents, uploads local Instagram images and remote placeholders as Sanity assets, and creates missing documents atomically with `createIfNotExists`. Repeated runs preserve editor work and do not re-upload existing documents' images. If an image download fails, the import stops with an error. An explicit `--skip-placeholder-images` imports copy and local photos while leaving placeholder image fields unset. No runtime fallback image exists. Final photography, ingredients, allergens, reviews, recipes, founder copy, care instructions, and policies still require approval.
+
+Only the initial fixture catalog has mock inventory. A new CMS product or variant has **zero** availability until a developer explicitly adds a preview inventory row. Availability, quantities, Pacific cutoffs, pickup dates, fees, and the special-order lead-time rule remain code-owned.
+
+## Editing workflow
+
+1. Visit `/studio` and sign in as a project member.
+2. Select **Presentation**. It opens the real website at `/`.
+3. The official `defineEnableDraftMode` route validates Sanity's preview secret before enabling the session.
+4. Click text or an image overlay to open its field. Edit a draft; the preview updates through Sanity's Presentation/Live integration.
+5. Publish when copy is approved. Ordinary visitors see only published documents.
+6. Outside Presentation, **Exit draft preview** calls `/api/draft-mode/disable`. The link does not prefetch.
+
+In Site Settings, **Announcement bar** groups the **Show announcement bar** toggle with the message text. The group starts expanded so both controls are easy to find.
+
+Clearing text (including whitespace or stega-only text) removes its element and, where appropriate, its wrapper. Empty CTA labels remove the entire CTA. Empty navigation labels or links remove that item. Site Settings → Header navigation and Footer navigation are separate reorderable lists, each capped at seven items with editable menu text and destinations. The desktop and mobile header share Header navigation. Storage + reheating is a regular sortable Footer navigation item. Cart and legal-link wording remains under Utility labels. Removing an image removes its wrapper. Meaningful images require alt text; decorative images use `alt=""`. Studio fields can still be edited through Structure after all visible content has been removed.
+
+Fixed singleton IDs: `homepage`, `pickupPage`, `specialOrdersPage`, `aboutPage`, `storageHeatingPage`, `recipesPage`, `privacyPage`, `termsPage`, `commerceCopy`, `siteSettings`. Structure links directly to these IDs. New-document templates, duplicate, delete, and unpublish actions are disabled for singletons. Products, recipes, and reviews are repeatable. Internal names are required for Studio organization and never substitute for cleared public names.
+
+There is **no page builder**. Homepage order remains Hero → How It Works → Products → Recipes → Reviews → Instagram. The three commented-out Phase 1 homepage sections were not activated. Navigation menu text, destinations and item order are editable (maximum seven). Fonts, colors, grids, page routes, fixed section CTA destinations, component placement, calendar, cart, validation rules, accessibility, animation, and checkout stay in code. Policies use restricted Portable Text. Recipes use ingredient groups and instruction steps.
+
+## Routes and architecture
+
+Existing public routes remain `/`, `/products/[slug]`, `/recipes`, `/recipes/[slug]`, `/pickup`, `/special-orders`, `/about`, `/storage-heating`, `/privacy`, `/terms`, `/order/success`. Checkout stays inside the cart Sheet. `/studio/[[...tool]]` replaces the placeholder. The only new API routes enable/disable Draft Mode. A site catch-all renders the CMS-controlled 404.
+
+- `src/app/(site)`: dynamic website root layout, metadata, server pages, `SanityLive`, and draft-only `VisualEditing`.
+- `src/app/(studio)`: separate root layout and `NextStudio`; no storefront, analytics, cart, `SanityLive`, or Visual Editing overlays.
+- `src/sanity/schema`: fixed content slots, reusable objects, repeatable documents, validation.
+- `src/sanity/lib/queries.ts`: all 12 organized `defineQuery` queries. `sanityFetch` from `defineLive` supplies live content and source maps. Shared settings, commerce copy, and the current catalog are fetched once per React request through `getGlobalContent`.
+- `schema.json`, `sanity.types.ts`: committed generated schema and query types. Small mappers adapt generated content to existing commerce props without stripping editorial source maps.
+- `src/components/cms`: conditional text, restricted Portable Text, image rendering and `createDataAttribute` image annotations.
+- `src/data`: operational preview schedule/inventory and special-order rules only.
+- `src/lib/cart.ts`: validates browser records against the current CMS catalog, resolves integer-cent prices, and preserves the versioned local-storage cart shape.
+
+Metadata is cleaned with Sanity's stega utility. Canonical paths are code-owned. The entire staging website remains `noindex, nofollow`; Studio is also non-indexable. Set the approved site URL and resolve [open decisions](docs/open-decisions.md) before a launch.
+
+## TypeGen and quality checks
 
 ```sh
+npm run typegen
 npm run lint
 npm run typecheck
 npm test
 npm run build
-npm start
 ```
 
-The production build uses Next.js’s supported webpack compiler because the local managed environment blocks Turbopack’s build worker port. Development still uses Turbopack. Both compile the same App Router application.
+`sanity.cli.ts` configures TypeGen; there is no deprecated `sanity-typegen.json`. The `typegen` script extracts required structural fields and generates all query types. `prebuild` runs it automatically. Regenerate after schema/query changes and commit both artifacts. Extraction uses a non-existent project-ID placeholder only when unconfigured, allowing offline schema validation; runtime fetches are explicitly guarded.
 
-## Stack
+The existing webpack production build is retained. Tests cover complete-cart availability, DST/cutoff rules, catalog pricing, analytics, stega-aware removals, Portable Text, image annotations, missing images, deleted catalog identities, and blank variant labels. The optional `npm run cms:qa -- prepare|long|clear|cleanup` workflow creates only a clearly identified temporary draft and a short-lived preview session, for authenticated browser QA. Always run cleanup. It does not publish or alter real content. See [Phase 2 QA/report](docs/phase-2-report.md) for performed checks and remaining editor acceptance steps.
 
-Next.js 16, React 19, strict TypeScript, App Router, Tailwind CSS 4, and official shadcn/ui Sheet, Calendar, Button, Input, and Textarea primitives. Radix supplies accessible modal behavior; React Day Picker supplies the calendar. `lucide-react` supplies icons. `tsx` runs the focused Node test suite. The npm lockfile records installed versions.
+Google Analytics (`G-FF1JFYJLTV`) remains on website routes. It records preview activity, never purchases. See [analytics](docs/analytics.md).
 
-Google Analytics 4 uses `@next/third-parties/google` in the root layout with measurement ID `G-FF1JFYJLTV`. It loads after hydration on every route, including local development. For client-side pageviews, keep Enhanced Measurement and “Page changes based on browser history events” enabled in the Google Analytics web stream. After deployment, verify visits in the property's Realtime report.
+## Deployment and future work
 
-Custom cart and checkout events track quantity limits, unavailable pickup dates, date selection, visible steps, back navigation, drawer closure, and confirmation previews. All are labeled as preview activity; none reports a purchase. See [checkout analytics](docs/analytics.md) for triggers, payloads, verification, and GA4 custom dimension setup.
+See [deployment](docs/deployment.md) before any push or deployment. This phase does not push or deploy. Add Sanity environment values to the appropriate Vercel environments before a future authorized deployment, using the explicit Viewer token for reads. The temporary seed token is not needed in Vercel.
 
-Successful Add to bag actions also send GA4's standard `add_to_cart` event with catalog product details, the quantity added, and its value in USD. Blocked attempts send only the custom `add_to_cart_blocked` event.
+See [CMS content map](docs/cms-content-map.md), [architecture](docs/architecture.md), and [open decisions](docs/open-decisions.md). Phase 3 is not started: Postgres owns future orders/inventory/reservations, Stripe webhooks will own payment completion, and messaging remains deferred.
 
-## Routes
+## Header and footer navigation
 
-| Route                | Purpose                                                                                                                                    |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `/`                  | Primary storefront, all eight products, seasonal editorial, how it works, about preview, mock testimonials, bread care, recipes, Instagram |
-| `/products/[slug]`   | Eight product detail pages with size, quantity, pricing, ingredients/allergen draft notices, serving notes, care, related recipes/products |
-| `/recipes`           | Editorial recipe index                                                                                                                     |
-| `/recipes/[slug]`    | Three recipes with time, servings, ingredients, instructions, related products                                                             |
-| `/special-orders`    | Validated local request preview                                                                                                            |
-| `/pickup`            | Friday timing, Rocklin location, draft policies                                                                                            |
-| `/about`             | Draft brand story and reserved imagery                                                                                                     |
-| `/storage-heating`   | Structured draft bread-care guide                                                                                                          |
-| `/order/success`     | Explicitly labeled confirmation preview, never proof of purchase                                                                           |
-| `/privacy`, `/terms` | Draft legal pages                                                                                                                          |
-| `/studio`            | Future CMS placeholder, no CMS installed                                                                                                   |
+Site Settings has separate **Header navigation** and **Footer navigation** arrays of `navigationItem` objects (`label` / Menu text and `href` / Link). Each is capped at seven items in schema validation and website rendering. Editors can add/remove/reorder either menu independently. The desktop and mobile menus both use Header navigation. Footer navigation contains **Storage + reheating** as a normal sortable item; there is no fixed extra storage link.
 
-There is deliberately no `/order`, `/order/[date]`, `/cart`, or `/reviews` page. Checkout lives inside the cart Sheet. The order CTA points to `/#products`.
+Links accept site paths, same-page anchors, HTTP(S), `mailto:` and `tel:`. Blank or invalid items do not render. Empty footer navigation remains empty and does not fall back to the header. Cart and privacy/terms wording remains in `utilityLabels`.
 
-## Architecture
+Datasets with the earlier shared Navigation array need this one-time migration (already applied to the configured dataset):
 
-- `src/app`: Server Component pages, layouts, route metadata, and not-found page. The root is dynamic so the rolling mock schedule is never frozen at build time.
-- `src/components/brand`, `layout`, `home`, `commerce`, `recipes`, `content`, `special-orders`: reusable visual components. Interactive leaves handle filtering, sizes, quantity, cart, calendar, and form behavior.
-- `src/components/ui`: official shadcn components, themed for Salted. Registry helper imports point to `src/lib/utils.ts`.
-- `src/types/content.ts`: explicit product, variant, recipe, cart, pickup, and inventory contracts.
-- `src/data`: typed product catalog, separate cents-based pricing, relationships, recipes, reviews, site content, pickup config, special-order config, and draft policies.
-- `src/lib/availability.ts`: pure complete-cart date intersection and inventory checks. Replace these at a future server/database boundary.
-- `src/lib/cart.ts`: cart normalization and computed totals. `cart-store.ts` integrates local storage through `useSyncExternalStore`, supporting hydration, tab synchronization, validation, and an in-memory fallback.
+```sh
+npm run cms:split-navigation -- --dry-run
+npm run cms:split-navigation
+```
 
-### Mock schedule and inventory
-
-The schedule is generated per request around the current **Pacific** date: recent closed/past Fridays plus upcoming Fridays. The next 10 weeks are represented, including a disabled bakery week. Cutoffs are Wednesday at 11:59:59 pm Pacific with daylight-saving offsets. Pickup is Friday, 2–6 pm.
-
-Inventory records are separate `{ productId, variantId, pickupDateId, inventory }` rows. Seasonal focaccia is sold out, jalapeño pans are unavailable, specialty sourdough has low stock, and parmesan chili crisp is available on alternating mock Fridays. Other quantities are mock capacity examples. Nothing is reserved, decremented, or guaranteed. These rolling fixtures intentionally change with the weekly window; they are not production inventory semantics.
-
-### Cart and checkout
-
-Cart lines contain **only product ID, variant ID, and quantity**. The versioned `salted:cart:v1` local-storage key stores no prices, customer information, or dates. Duplicate lines merge; invalid stored data is rejected. Prices and totals are resolved from the typed catalog. Quantity limits reflect the maximum mock stock across upcoming open dates.
-
-Checkout computes dates for which **every cart line has enough inventory**. Past, closed, disabled, missing-inventory, and insufficient-stock dates are unavailable. One selected date applies to the whole future order. Changing the cart invalidates a date that no longer fits, and continuing rechecks against the current cutoff time.
-
-“Continue to payment” opens a clearly marked future-payment preview. No checkout session or order is created. The confirmation preview leaves the cart intact. A direct visit or query string is not evidence of payment. Tax calculation is deferred pending the actual requirements.
-
-### Special orders
-
-The configurable minimum is **$40 in products plus a separate $10 fee**. The fee never counts toward the minimum. The temporary lead time is five Pacific calendar days. Validation checks required contact information, the real calendar date and lead time, product description, and positive approximate quantity. Success is a safe local preview; nothing is sent, saved to a server, approved, or paid.
-
-## Design assets
-
-Tokens live in `src/app/globals.css`: cream, charcoal, copper, and restrained lavender, with butter and rose available for later content. The exact brand copper `#9D643F` is retained, with a darker `--copper-ink: #945C39` for small text and controls: it provides a 4.95:1 contrast ratio against cream. Images currently use `https://placehold.co/` with intentional portrait and landscape proportions; they are explicitly labeled photography placeholders. Remote image configuration is in `next.config.ts`. These placeholders use `unoptimized` to avoid a runtime image proxy dependency during development. Replace the image URLs and descriptive alt text in data files with final approved photography, add any new remote host to the config, and enable normal Next image optimization when appropriate.
-
-Lora is loaded with `next/font/google`. The display configuration is isolated in `src/lib/fonts.ts`: Barlow Condensed is the temporary licensed Google font fallback. When licensed Balgin Condensed `.woff2` files are supplied, add them under `src/assets/fonts/` and replace only `displayFont` with `next/font/local`, retaining `variable: "--font-display"`. No unofficial Balgin files are downloaded. The simple text wordmark stays in the header; a temporary typographic seal reserves footer/brand space for the actual circular logo.
-
-## Content and SEO
-
-Ingredients, allergens, dietary classifications, founder copy, policies, recipes, reviews, and care instructions require approval. Data has explicit draft/mock status; visible notices keep the preview honest. Titles, descriptions, canonical paths, Open Graph defaults, semantic articles, and a favicon are included. The preview is `noindex, nofollow`; remove that setting only after content approval and launch preparation. Set `NEXT_PUBLIC_SITE_URL=https://saltedfocaccia.com` at production launch.
-
-## Phase boundaries and next phase
-
-No Sanity, Neon/Postgres, Drizzle, Stripe, Resend, React Email, Twilio, cron, authentication, real orders, real form submissions, or production inventory is implemented. Environment placeholders do not activate integrations.
-
-Start Phase 2 only when requested: approve the content and open business decisions; add Sanity content adapters; design Postgres/Drizzle transactional inventory and reservations; add server-validated Stripe sessions and authoritative webhooks; then transactional email and optional-consent SMS. Keep editorial content separate from transactional state.
-
-See `docs/open-decisions.md` for outstanding approvals, `docs/architecture.md` for integration boundaries, and `docs/phase-1-report.md` for the delivery and validation report.
+The migration copies the old shared menu into each list, adds the existing Storage + reheating wording to the footer list, and removes the obsolete shared field and storage utility label. Published and draft versions are migrated independently, with revision guards and no draft publishing. Existing separate arrays, including intentionally empty ones, are preserved on reruns. A migration that would exceed seven items stops without discarding content. Fresh seeds already use the separate arrays. For datasets still on the original named-field Navigation object, run `npm run cms:migrate-navigation` first. Regenerate and commit `schema.json` and `sanity.types.ts` after schema changes.

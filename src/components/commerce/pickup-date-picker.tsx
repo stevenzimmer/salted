@@ -1,5 +1,6 @@
 "use client";
 
+import { hasText } from "@/sanity/lib/content";
 import { Calendar } from "@/components/ui/calendar";
 import { calendarDate, dateKey, pickupLabel } from "@/lib/format";
 import type { PickupDate } from "@/types/content";
@@ -8,7 +9,9 @@ export function PickupDatePicker({
   dates,
   selected,
   onSelect,
+  legend,
 }: {
+  legend?: string;
   dates: PickupDate[];
   selected?: string;
   onSelect: (date: string | undefined) => void;
@@ -28,10 +31,12 @@ export function PickupDatePicker({
         showOutsideDays={false}
         className="salted-calendar"
       />
-      <div className="calendar-key">
-        <span />
-        <p>Available for your whole bag</p>
-      </div>
+      {hasText(legend) ? (
+        <div className="calendar-key">
+          <span />
+          <p>{legend}</p>
+        </div>
+      ) : null}
       <p className="sr-only" role="status">
         {selected
           ? `Selected ${pickupLabel(selected)}`
