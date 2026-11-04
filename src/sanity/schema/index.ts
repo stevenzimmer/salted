@@ -212,16 +212,41 @@ const singletons = Object.entries(copyFields).map(([name, groups]) =>
     name,
     title: singletonTitles[name as keyof typeof singletonTitles],
     type: "document",
+    fieldsets:
+      name === "siteSettings"
+        ? [
+            {
+              name: "announcementBar",
+              title: "Announcement bar",
+              options: { collapsible: true, collapsed: false },
+            },
+          ]
+        : undefined,
     fields: [
       internalName,
-      ...Object.entries(groups).map(([group, fields]) =>
-        defineField({
+      ...Object.entries(groups).flatMap(([group, fields]) => {
+        const isAnnouncement =
+          name === "siteSettings" && group === "announcement";
+        const content = defineField({
           name: group,
-          title: title(group),
+          title: isAnnouncement ? "Message" : title(group),
           type: "object",
+          fieldset: isAnnouncement ? "announcementBar" : undefined,
           fields: fields.map(text),
-        }),
-      ),
+        });
+        return isAnnouncement
+          ? [
+              defineField({
+                name: "announcementEnabled",
+                title: "Show announcement bar",
+                type: "boolean",
+                fieldset: "announcementBar",
+                initialValue: true,
+              }),
+              content,
+            ]
+          : [content];
+      }),
       ...(name === "siteSettings"
         ? [
             defineField({
@@ -236,11 +261,6 @@ const singletons = Object.entries(copyFields).map(([name, groups]) =>
                 rule
                   .max(MAX_NAVIGATION_ITEMS)
                   .error("Navigation can contain at most seven items."),
-            }),
-            defineField({
-              name: "announcementEnabled",
-              type: "boolean",
-              initialValue: true,
             }),
             image("footerImage"),
           ]

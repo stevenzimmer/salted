@@ -3559,6 +3559,13 @@
         },
         "optional": true
       },
+      "announcementEnabled": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "boolean"
+        },
+        "optional": true
+      },
       "announcement": {
         "type": "objectAttribute",
         "value": {
@@ -3631,13 +3638,6 @@
               "name": "navigationItem"
             }
           }
-        },
-        "optional": true
-      },
-      "announcementEnabled": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "boolean"
         },
         "optional": true
       },

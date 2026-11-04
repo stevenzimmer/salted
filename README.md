@@ -60,6 +60,8 @@ Only the initial fixture catalog has mock inventory. A new CMS product or varian
 5. Publish when copy is approved. Ordinary visitors see only published documents.
 6. Outside Presentation, **Exit draft preview** calls `/api/draft-mode/disable`. The link does not prefetch.
 
+In Site Settings, **Announcement bar** groups the **Show announcement bar** toggle with the message text. The group starts expanded so both controls are easy to find.
+
 Clearing text (including whitespace or stega-only text) removes its element and, where appropriate, its wrapper. Empty CTA labels remove the entire CTA. Empty navigation labels or links remove that item. Site Settings → Navigation is a reorderable list of up to seven items with editable menu text and destinations, shared by the desktop, mobile and footer menus. Cart and supplemental footer wording is under Utility labels. Removing an image removes its wrapper. Meaningful images require alt text; decorative images use `alt=""`. Studio fields can still be edited through Structure after all visible content has been removed.
 
 Fixed singleton IDs: `homepage`, `pickupPage`, `specialOrdersPage`, `aboutPage`, `storageHeatingPage`, `recipesPage`, `privacyPage`, `termsPage`, `commerceCopy`, `siteSettings`. Structure links directly to these IDs. New-document templates, duplicate, delete, and unpublish actions are disabled for singletons. Products, recipes, and reviews are repeatable. Internal names are required for Studio organization and never substitute for cleared public names.

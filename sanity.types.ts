@@ -599,6 +599,7 @@ export type SiteSettings = {
     email?: string;
     shortLocation?: string;
   };
+  announcementEnabled?: boolean;
   announcement?: {
     text?: string;
   };
@@ -613,7 +614,6 @@ export type SiteSettings = {
       _key: string;
     } & NavigationItem
   >;
-  announcementEnabled?: boolean;
   footerImage?: ImageWithAlt;
   seo?: Seo;
 };
@@ -848,6 +848,7 @@ export type GLOBAL_QUERY_RESULT = {
       email?: string;
       shortLocation?: string;
     };
+    announcementEnabled?: boolean;
     announcement?: {
       text?: string;
     };
@@ -862,7 +863,6 @@ export type GLOBAL_QUERY_RESULT = {
         _key: string;
       } & NavigationItem
     >;
-    announcementEnabled?: boolean;
     footerImage?: ImageWithAlt;
     seo?: Seo;
   } | null;
