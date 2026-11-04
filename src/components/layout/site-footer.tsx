@@ -10,7 +10,7 @@ import type { SiteSettings } from "../../../sanity.types";
 export function SiteFooter({ settings }: { settings: SiteSettings | null }) {
   if (!settings) return null;
   const b = settings.brand,
-    n = settings.navigation,
+    n = settings.utilityLabels,
     c = settings.contact;
   const links = navigation(settings),
     instagram = safeUrl(c?.instagramUrl);
@@ -47,16 +47,20 @@ export function SiteFooter({ settings }: { settings: SiteSettings | null }) {
             </div>
           ) : null}
           {links.length || hasText(n?.storage) ? (
-            <nav className="footer-nav" aria-label="Footer navigation">
-              {links.map((link) => (
-                <Link key={link.href} href={link.href}>
-                  {link.label}
-                </Link>
-              ))}
+            <div className="footer-nav">
+              {links.length ? (
+                <nav className="footer-nav" aria-label="Footer navigation">
+                  {links.map((link) => (
+                    <Link key={link.key} href={link.href}>
+                      {link.label}
+                    </Link>
+                  ))}
+                </nav>
+              ) : null}
               {hasText(n?.storage) ? (
                 <Link href="/storage-heating">{n.storage}</Link>
               ) : null}
-            </nav>
+            </div>
           ) : null}
           {social ? (
             <div className="footer-social flex flex-col items-end gap-2 text-right">

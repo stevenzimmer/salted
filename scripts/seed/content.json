@@ -16,17 +16,38 @@
       "mobileDescription": "A little salty. A lot to love.",
       "mobileNote": "Made for your Friday."
     },
-    "navigation": {
-      "products": "Feed me",
-      "recipes": "Recipes",
-      "pickup": "Pickup info",
-      "specialOrders": "Special orders",
-      "about": "About",
-      "storage": "Storage + reheating",
-      "privacy": "Privacy",
-      "terms": "Terms",
-      "cart": "Your bag"
-    },
+    "navigation": [
+      {
+        "_key": "nav-1",
+        "_type": "navigationItem",
+        "label": "Feed me",
+        "href": "/#products"
+      },
+      {
+        "_key": "nav-2",
+        "_type": "navigationItem",
+        "label": "Recipes",
+        "href": "/recipes"
+      },
+      {
+        "_key": "nav-3",
+        "_type": "navigationItem",
+        "label": "Pickup info",
+        "href": "/pickup"
+      },
+      {
+        "_key": "nav-4",
+        "_type": "navigationItem",
+        "label": "Special orders",
+        "href": "/special-orders"
+      },
+      {
+        "_key": "nav-5",
+        "_type": "navigationItem",
+        "label": "About",
+        "href": "/about"
+      }
+    ],
     "contact": {
       "instagramLabel": "@saltedfocaccia",
       "instagramHeading": "Fresh from the oven. And the feed.",
@@ -48,6 +69,12 @@
       "_type": "seo",
       "title": "Salted Focaccia · A little salty. A lot to love.",
       "description": "Sourdough focaccia, a little extra olive oil, and something worth sharing. Browse the Salted Focaccia menu for Friday pickup in Rocklin, California."
+    },
+    "utilityLabels": {
+      "storage": "Storage + reheating",
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "cart": "Your bag"
     }
   },
   {

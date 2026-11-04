@@ -60,11 +60,11 @@ Only the initial fixture catalog has mock inventory. A new CMS product or varian
 5. Publish when copy is approved. Ordinary visitors see only published documents.
 6. Outside Presentation, **Exit draft preview** calls `/api/draft-mode/disable`. The link does not prefetch.
 
-Clearing text (including whitespace or stega-only text) removes its element and, where appropriate, its wrapper. Empty CTA labels remove the entire CTA. Empty navigation labels remove the item while destinations stay code-owned. Removing an image removes its wrapper. Meaningful images require alt text; decorative images use `alt=""`. Studio fields can still be edited through Structure after all visible content has been removed.
+Clearing text (including whitespace or stega-only text) removes its element and, where appropriate, its wrapper. Empty CTA labels remove the entire CTA. Empty navigation labels or links remove that item. Site Settings → Navigation is a reorderable list of up to seven items with editable menu text and destinations, shared by the desktop, mobile and footer menus. Cart and supplemental footer wording is under Utility labels. Removing an image removes its wrapper. Meaningful images require alt text; decorative images use `alt=""`. Studio fields can still be edited through Structure after all visible content has been removed.
 
 Fixed singleton IDs: `homepage`, `pickupPage`, `specialOrdersPage`, `aboutPage`, `storageHeatingPage`, `recipesPage`, `privacyPage`, `termsPage`, `commerceCopy`, `siteSettings`. Structure links directly to these IDs. New-document templates, duplicate, delete, and unpublish actions are disabled for singletons. Products, recipes, and reviews are repeatable. Internal names are required for Studio organization and never substitute for cleared public names.
 
-There is **no page builder**. Homepage order remains Hero → How It Works → Products → Recipes → Reviews → Instagram. The three commented-out Phase 1 homepage sections were not activated. Fonts, colors, grids, routes, CTA destinations, component placement, calendar, cart, validation rules, accessibility, animation, and checkout stay in code. Policies use restricted Portable Text. Recipes use ingredient groups and instruction steps.
+There is **no page builder**. Homepage order remains Hero → How It Works → Products → Recipes → Reviews → Instagram. The three commented-out Phase 1 homepage sections were not activated. Navigation menu text, destinations and item order are editable (maximum seven). Fonts, colors, grids, page routes, fixed section CTA destinations, component placement, calendar, cart, validation rules, accessibility, animation, and checkout stay in code. Policies use restricted Portable Text. Recipes use ingredient groups and instruction steps.
 
 ## Routes and architecture
 
@@ -102,3 +102,16 @@ Google Analytics (`G-FF1JFYJLTV`) remains on website routes. It records preview 
 See [deployment](docs/deployment.md) before any push or deployment. This phase does not push or deploy. Add Sanity environment values to the appropriate Vercel environments before a future authorized deployment, using the explicit Viewer token for reads. The temporary seed token is not needed in Vercel.
 
 See [CMS content map](docs/cms-content-map.md), [architecture](docs/architecture.md), and [open decisions](docs/open-decisions.md). Phase 3 is not started: Postgres owns future orders/inventory/reservations, Stripe webhooks will own payment completion, and messaging remains deferred.
+
+## Navigation field migration
+
+The Navigation field is a sortable array of `navigationItem` objects (`label` / Menu text and `href` / Link), capped at seven items in both schema validation and website rendering. Editors can add/remove/reorder items without choosing named menu slots. Links accept site paths, same-page anchors, HTTP(S), `mailto:` and `tel:`. Invalid or blank links/labels do not render. Cart and supplemental footer labels live in `utilityLabels`; their controls/destinations stay code-owned.
+
+Existing Phase 2 datasets need this one-time migration (already applied to the local configured dataset):
+
+```sh
+npm run cms:migrate-navigation -- --dry-run
+npm run cms:migrate-navigation
+```
+
+The migration preserves published and draft labels separately, moves utility wording, retains unrelated fields, and does not publish drafts. Revision guards prevent concurrent edits from being overwritten. Reruns leave existing arrays (including intentionally empty ones) unchanged. Fresh seeds already use the new structure. Regenerate `schema.json` and `sanity.types.ts` after schema changes.

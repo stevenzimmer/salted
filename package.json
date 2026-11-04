@@ -13,7 +13,8 @@
     "typegen": "sanity schema extract --enforce-required-fields --force && sanity typegen generate",
     "prebuild": "npm run typegen",
     "cms:seed": "node --env-file-if-exists=.env.local --import tsx scripts/seed.ts",
-    "cms:qa": "node --env-file-if-exists=.env.local --import tsx scripts/cms-qa.ts"
+    "cms:qa": "node --env-file-if-exists=.env.local --import tsx scripts/cms-qa.ts",
+    "cms:migrate-navigation": "node --env-file-if-exists=.env.local --import tsx scripts/migrate-navigation.ts"
   },
   "engines": {
     "node": "^22.12.0 || ^24.0.0 || >=26.0.0"

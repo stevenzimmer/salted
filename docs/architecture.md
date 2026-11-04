@@ -23,3 +23,7 @@ Resend/React Email and optional-consent Twilio SMS remain deferred. No payment, 
 ## Time and uncertain rules
 
 Pickup dates are Pacific calendar keys. Cutoffs have explicit DST-aware offsets. The same rolling preview schedule is sent from the dynamic site layout to client interactions. The configurable special-order minimum, fee and five-day lead-time rule remain code-owned; their displayed wording is editable and must remain accurate. See [open decisions](open-decisions.md).
+
+## Editable navigation
+
+Site Settings navigation is a sortable array, capped at seven items. Editors own menu labels and links. The same order is used by desktop, mobile and footer navigation. Schema and runtime URL checks support internal paths, anchors and HTTP(S)/email/phone links; cleared or invalid items are omitted. The website owns responsive layout, link behavior and active states. Cart and supplemental footer labels are separate from the repeatable menu.

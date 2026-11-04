@@ -1,5 +1,7 @@
 import { defineArrayMember, defineField, defineType } from "sanity";
 import { copyFields, singletonTitles } from "./copy-fields";
+import { MAX_NAVIGATION_ITEMS, navigationHref } from "../../lib/navigation";
+import { hasText } from "../lib/content";
 
 const title = (value: string) =>
   value.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase());
@@ -51,6 +53,28 @@ const slug = defineField({
 });
 
 const objects = [
+  defineType({
+    name: "navigationItem",
+    title: "Navigation item",
+    type: "object",
+    fields: [
+      defineField({ name: "label", title: "Menu text", type: "string" }),
+      defineField({
+        name: "href",
+        title: "Link",
+        type: "string",
+        description:
+          "Use a page path (/recipes), an anchor (/#products or #products), a full https:// link, mailto: or tel:.",
+        validation: (rule) =>
+          rule.custom((value) =>
+            !hasText(value) || navigationHref(value)
+              ? true
+              : "Enter a valid page path, anchor, web, email or telephone link.",
+          ),
+      }),
+    ],
+    preview: { select: { title: "label", subtitle: "href" } },
+  }),
   defineType({
     name: "imageWithAlt",
     title: "Image",
@@ -200,6 +224,19 @@ const singletons = Object.entries(copyFields).map(([name, groups]) =>
       ),
       ...(name === "siteSettings"
         ? [
+            defineField({
+              name: "navigation",
+              title: "Navigation",
+              type: "array",
+              of: [{ type: "navigationItem" }],
+              options: { sortable: true },
+              description:
+                "Add up to seven menu items. Drag to change their order. The same menu appears in the desktop header, mobile menu and footer.",
+              validation: (rule) =>
+                rule
+                  .max(MAX_NAVIGATION_ITEMS)
+                  .error("Navigation can contain at most seven items."),
+            }),
             defineField({
               name: "announcementEnabled",
               type: "boolean",

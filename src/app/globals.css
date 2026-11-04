@@ -176,6 +176,8 @@ img {
   border-bottom: 1px solid #29252124;
 }
 .nav-link {
+  max-width: 100%;
+  overflow-wrap: anywhere;
   display: inline-flex;
   min-height: 44px;
   align-items: center;
@@ -219,6 +221,7 @@ img {
   place-items: center;
 }
 .mobile-menu {
+  overflow-y: auto;
   width: 100%;
   max-width: 440px;
   padding: 32px;
@@ -1983,8 +1986,8 @@ img {
   .section-pad {
     padding-block: 40px;
   }
-  .site-header .h-24 {
-    height: 78px;
+  .site-header .min-h-24 {
+    min-height: 78px;
   }
   .announcement {
     min-height: 37px;

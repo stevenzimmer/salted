@@ -586,12 +586,7 @@ export type SiteSettings = {
     mobileDescription?: string;
     mobileNote?: string;
   };
-  navigation?: {
-    products?: string;
-    recipes?: string;
-    pickup?: string;
-    specialOrders?: string;
-    about?: string;
+  utilityLabels?: {
     storage?: string;
     privacy?: string;
     terms?: string;
@@ -613,6 +608,11 @@ export type SiteSettings = {
     description?: string;
     cta?: string;
   };
+  navigation?: Array<
+    {
+      _key: string;
+    } & NavigationItem
+  >;
   announcementEnabled?: boolean;
   footerImage?: ImageWithAlt;
   seo?: Seo;
@@ -668,6 +668,12 @@ export type SanityImageHotspot = {
   y: number;
   height: number;
   width: number;
+};
+
+export type NavigationItem = {
+  _type: "navigationItem";
+  label?: string;
+  href?: string;
 };
 
 export type SanityImagePaletteSwatch = {
@@ -795,6 +801,7 @@ export type AllSanitySchemaTypes =
   | ProductVariant
   | SanityImageCrop
   | SanityImageHotspot
+  | NavigationItem
   | SanityImagePaletteSwatch
   | SanityImagePalette
   | SanityImageDimensions
@@ -828,12 +835,7 @@ export type GLOBAL_QUERY_RESULT = {
       mobileDescription?: string;
       mobileNote?: string;
     };
-    navigation?: {
-      products?: string;
-      recipes?: string;
-      pickup?: string;
-      specialOrders?: string;
-      about?: string;
+    utilityLabels?: {
       storage?: string;
       privacy?: string;
       terms?: string;
@@ -855,6 +857,11 @@ export type GLOBAL_QUERY_RESULT = {
       description?: string;
       cta?: string;
     };
+    navigation?: Array<
+      {
+        _key: string;
+      } & NavigationItem
+    >;
     announcementEnabled?: boolean;
     footerImage?: ImageWithAlt;
     seo?: Seo;
