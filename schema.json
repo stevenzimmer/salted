@@ -3483,13 +3483,6 @@
         "value": {
           "type": "object",
           "attributes": {
-            "storage": {
-              "type": "objectAttribute",
-              "value": {
-                "type": "string"
-              },
-              "optional": true
-            },
             "privacy": {
               "type": "objectAttribute",
               "value": {
@@ -3619,7 +3612,29 @@
         },
         "optional": true
       },
-      "navigation": {
+      "headerNavigation": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "array",
+          "of": {
+            "type": "object",
+            "attributes": {
+              "_key": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "string"
+                }
+              }
+            },
+            "rest": {
+              "type": "inline",
+              "name": "navigationItem"
+            }
+          }
+        },
+        "optional": true
+      },
+      "footerNavigation": {
         "type": "objectAttribute",
         "value": {
           "type": "array",

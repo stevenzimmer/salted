@@ -12,7 +12,7 @@ export function SiteFooter({ settings }: { settings: SiteSettings | null }) {
   const b = settings.brand,
     n = settings.utilityLabels,
     c = settings.contact;
-  const links = navigation(settings),
+  const links = navigation(settings, "footerNavigation"),
     instagram = safeUrl(c?.instagramUrl);
   const brand = [b?.wordmark, b?.tagline, b?.footerCopy].some(hasText);
   const social =
@@ -23,14 +23,14 @@ export function SiteFooter({ settings }: { settings: SiteSettings | null }) {
     !brand &&
     !social &&
     !links.length &&
-    ![n?.storage, n?.privacy, n?.terms].some(hasText) &&
+    ![n?.privacy, n?.terms].some(hasText) &&
     !hasText(b?.copyright) &&
     !hasText(b?.previewLabel)
   )
     return null;
   return (
     <footer className="site-footer">
-      {brand || links.length || hasText(n?.storage) || social ? (
+      {brand || links.length || social ? (
         <div className="shell footer-grid">
           {brand ? (
             <div>
@@ -46,21 +46,14 @@ export function SiteFooter({ settings }: { settings: SiteSettings | null }) {
               <Text className="mt-4 text-sm opacity-75" value={b?.footerCopy} />
             </div>
           ) : null}
-          {links.length || hasText(n?.storage) ? (
-            <div className="footer-nav">
-              {links.length ? (
-                <nav className="footer-nav" aria-label="Footer navigation">
-                  {links.map((link) => (
-                    <Link key={link.key} href={link.href}>
-                      {link.label}
-                    </Link>
-                  ))}
-                </nav>
-              ) : null}
-              {hasText(n?.storage) ? (
-                <Link href="/storage-heating">{n.storage}</Link>
-              ) : null}
-            </div>
+          {links.length ? (
+            <nav className="footer-nav" aria-label="Footer navigation">
+              {links.map((link) => (
+                <Link key={link.key} href={link.href}>
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
           ) : null}
           {social ? (
             <div className="footer-social flex flex-col items-end gap-2 text-right">

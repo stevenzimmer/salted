@@ -587,7 +587,6 @@ export type SiteSettings = {
     mobileNote?: string;
   };
   utilityLabels?: {
-    storage?: string;
     privacy?: string;
     terms?: string;
     cart?: string;
@@ -609,7 +608,12 @@ export type SiteSettings = {
     description?: string;
     cta?: string;
   };
-  navigation?: Array<
+  headerNavigation?: Array<
+    {
+      _key: string;
+    } & NavigationItem
+  >;
+  footerNavigation?: Array<
     {
       _key: string;
     } & NavigationItem
@@ -836,7 +840,6 @@ export type GLOBAL_QUERY_RESULT = {
       mobileNote?: string;
     };
     utilityLabels?: {
-      storage?: string;
       privacy?: string;
       terms?: string;
       cart?: string;
@@ -858,7 +861,12 @@ export type GLOBAL_QUERY_RESULT = {
       description?: string;
       cta?: string;
     };
-    navigation?: Array<
+    headerNavigation?: Array<
+      {
+        _key: string;
+      } & NavigationItem
+    >;
+    footerNavigation?: Array<
       {
         _key: string;
       } & NavigationItem

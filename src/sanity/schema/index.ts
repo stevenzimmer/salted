@@ -249,19 +249,27 @@ const singletons = Object.entries(copyFields).map(([name, groups]) =>
       }),
       ...(name === "siteSettings"
         ? [
-            defineField({
-              name: "navigation",
-              title: "Navigation",
-              type: "array",
-              of: [{ type: "navigationItem" }],
-              options: { sortable: true },
-              description:
-                "Add up to seven menu items. Drag to change their order. The same menu appears in the desktop header, mobile menu and footer.",
-              validation: (rule) =>
-                rule
-                  .max(MAX_NAVIGATION_ITEMS)
-                  .error("Navigation can contain at most seven items."),
-            }),
+            ...(["headerNavigation", "footerNavigation"] as const).map(
+              (field) =>
+                defineField({
+                  name: field,
+                  title:
+                    field === "headerNavigation"
+                      ? "Header navigation"
+                      : "Footer navigation",
+                  type: "array",
+                  of: [{ type: "navigationItem" }],
+                  options: { sortable: true },
+                  description:
+                    field === "headerNavigation"
+                      ? "Add up to seven items for the desktop header and mobile menu. Drag to change their order."
+                      : "Add up to seven footer menu items, including Storage + reheating. Drag to change their order independently of the header.",
+                  validation: (rule) =>
+                    rule
+                      .max(MAX_NAVIGATION_ITEMS)
+                      .error("Navigation can contain at most seven items."),
+                }),
+            ),
             image("footerImage"),
           ]
         : []),

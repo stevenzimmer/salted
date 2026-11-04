@@ -62,7 +62,7 @@ Only the initial fixture catalog has mock inventory. A new CMS product or varian
 
 In Site Settings, **Announcement bar** groups the **Show announcement bar** toggle with the message text. The group starts expanded so both controls are easy to find.
 
-Clearing text (including whitespace or stega-only text) removes its element and, where appropriate, its wrapper. Empty CTA labels remove the entire CTA. Empty navigation labels or links remove that item. Site Settings → Navigation is a reorderable list of up to seven items with editable menu text and destinations, shared by the desktop, mobile and footer menus. Cart and supplemental footer wording is under Utility labels. Removing an image removes its wrapper. Meaningful images require alt text; decorative images use `alt=""`. Studio fields can still be edited through Structure after all visible content has been removed.
+Clearing text (including whitespace or stega-only text) removes its element and, where appropriate, its wrapper. Empty CTA labels remove the entire CTA. Empty navigation labels or links remove that item. Site Settings → Header navigation and Footer navigation are separate reorderable lists, each capped at seven items with editable menu text and destinations. The desktop and mobile header share Header navigation. Storage + reheating is a regular sortable Footer navigation item. Cart and legal-link wording remains under Utility labels. Removing an image removes its wrapper. Meaningful images require alt text; decorative images use `alt=""`. Studio fields can still be edited through Structure after all visible content has been removed.
 
 Fixed singleton IDs: `homepage`, `pickupPage`, `specialOrdersPage`, `aboutPage`, `storageHeatingPage`, `recipesPage`, `privacyPage`, `termsPage`, `commerceCopy`, `siteSettings`. Structure links directly to these IDs. New-document templates, duplicate, delete, and unpublish actions are disabled for singletons. Products, recipes, and reviews are repeatable. Internal names are required for Studio organization and never substitute for cleared public names.
 
@@ -105,15 +105,17 @@ See [deployment](docs/deployment.md) before any push or deployment. This phase d
 
 See [CMS content map](docs/cms-content-map.md), [architecture](docs/architecture.md), and [open decisions](docs/open-decisions.md). Phase 3 is not started: Postgres owns future orders/inventory/reservations, Stripe webhooks will own payment completion, and messaging remains deferred.
 
-## Navigation field migration
+## Header and footer navigation
 
-The Navigation field is a sortable array of `navigationItem` objects (`label` / Menu text and `href` / Link), capped at seven items in both schema validation and website rendering. Editors can add/remove/reorder items without choosing named menu slots. Links accept site paths, same-page anchors, HTTP(S), `mailto:` and `tel:`. Invalid or blank links/labels do not render. Cart and supplemental footer labels live in `utilityLabels`; their controls/destinations stay code-owned.
+Site Settings has separate **Header navigation** and **Footer navigation** arrays of `navigationItem` objects (`label` / Menu text and `href` / Link). Each is capped at seven items in schema validation and website rendering. Editors can add/remove/reorder either menu independently. The desktop and mobile menus both use Header navigation. Footer navigation contains **Storage + reheating** as a normal sortable item; there is no fixed extra storage link.
 
-Existing Phase 2 datasets need this one-time migration (already applied to the local configured dataset):
+Links accept site paths, same-page anchors, HTTP(S), `mailto:` and `tel:`. Blank or invalid items do not render. Empty footer navigation remains empty and does not fall back to the header. Cart and privacy/terms wording remains in `utilityLabels`.
+
+Datasets with the earlier shared Navigation array need this one-time migration (already applied to the configured dataset):
 
 ```sh
-npm run cms:migrate-navigation -- --dry-run
-npm run cms:migrate-navigation
+npm run cms:split-navigation -- --dry-run
+npm run cms:split-navigation
 ```
 
-The migration preserves published and draft labels separately, moves utility wording, retains unrelated fields, and does not publish drafts. Revision guards prevent concurrent edits from being overwritten. Reruns leave existing arrays (including intentionally empty ones) unchanged. Fresh seeds already use the new structure. Regenerate `schema.json` and `sanity.types.ts` after schema changes.
+The migration copies the old shared menu into each list, adds the existing Storage + reheating wording to the footer list, and removes the obsolete shared field and storage utility label. Published and draft versions are migrated independently, with revision guards and no draft publishing. Existing separate arrays, including intentionally empty ones, are preserved on reruns. A migration that would exceed seven items stops without discarding content. Fresh seeds already use the separate arrays. For datasets still on the original named-field Navigation object, run `npm run cms:migrate-navigation` first. Regenerate and commit `schema.json` and `sanity.types.ts` after schema changes.

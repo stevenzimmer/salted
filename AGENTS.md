@@ -20,7 +20,7 @@
 
 ## Sanity CMS conventions
 
-- Model fixed editorial slots and curated singleton documents. Never introduce a generic page builder or reorderable page sections. Layout, page route patterns, fixed section CTA destinations, styling, and application behavior remain code-owned. Site navigation is the explicit exception: editors own its labels, links, and item order, with a maximum of seven items.
+- Model fixed editorial slots and curated singleton documents. Never introduce a generic page builder or reorderable page sections. Layout, page route patterns, fixed section CTA destinations, styling, and application behavior remain code-owned. Site navigation is the explicit exception: editors own separate header and footer lists with editable labels, links, and item order, with a maximum of seven items per menu. Storage + reheating is a regular sortable footer item.
 - Use centralized `defineQuery` GROQ queries, `sanityFetch` from `defineLive`, and generated query types. Regenerate and commit `schema.json` and `sanity.types.ts` after schema/query changes.
 - Preserve Visual Editing source mapping in displayed text. Use stega-aware `hasText`, `hasCopy`, `hasPortableTextContent`, `hasImage`, and item checks. Clean only for presence checks, structural comparisons, metadata, URLs, analytics, and accessible names.
 - Visible CMS fields remain optional. Cleared text removes the element, empty optional sections remove their wrappers, and removed images leave no empty aspect box or hard-coded fallback. Keep accessible programmatic labels when visible form/control labels are cleared.

@@ -26,4 +26,4 @@ Pickup dates are Pacific calendar keys. Cutoffs have explicit DST-aware offsets.
 
 ## Editable navigation
 
-Site Settings navigation is a sortable array, capped at seven items. Editors own menu labels and links. The same order is used by desktop, mobile and footer navigation. Schema and runtime URL checks support internal paths, anchors and HTTP(S)/email/phone links; cleared or invalid items are omitted. The website owns responsive layout, link behavior and active states. Cart and supplemental footer labels are separate from the repeatable menu.
+Site Settings has independent `headerNavigation` and `footerNavigation` sortable arrays, each capped at seven items. Editors own menu labels, links and order separately. Desktop and mobile use the header array. Storage + reheating is a normal sortable footer item. Schema and runtime URL checks support internal paths, anchors and HTTP(S)/email/phone links; cleared or invalid items are omitted. The website owns responsive layout, link behavior and active states. Cart and privacy/terms labels remain separate utility copy. Empty footer lists do not fall back to header navigation, and no fixed storage link is appended.

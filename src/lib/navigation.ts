@@ -26,10 +26,14 @@ export function navigationHref(value: unknown): string | undefined {
   }
 }
 
-export function navigation(settings: SiteSettings | null) {
+export function navigation(
+  settings: SiteSettings | null,
+  field: "headerNavigation" | "footerNavigation",
+) {
   // Also guard old/unmigrated data and externally imported arrays at runtime.
-  if (!Array.isArray(settings?.navigation)) return [];
-  return settings.navigation.slice(0, MAX_NAVIGATION_ITEMS).flatMap((item) => {
+  const items = settings?.[field];
+  if (!Array.isArray(items)) return [];
+  return items.slice(0, MAX_NAVIGATION_ITEMS).flatMap((item) => {
     const href = navigationHref(item?.href);
     return hasText(item?.label) && href
       ? [{ key: item._key, label: item.label, href }]

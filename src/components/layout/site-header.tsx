@@ -25,7 +25,7 @@ import { Text } from "@/components/cms/text";
 import { cn } from "@/lib/utils";
 
 export function SiteHeader({ settings }: { settings: SiteSettings | null }) {
-  const links = navigation(settings);
+  const links = navigation(settings, "headerNavigation");
   const pathname = usePathname();
   const { items, setOpen } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);

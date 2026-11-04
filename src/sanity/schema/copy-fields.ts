@@ -14,7 +14,7 @@ export const copyFields = {
       "mobileDescription",
       "mobileNote",
     ],
-    utilityLabels: ["storage", "privacy", "terms", "cart"],
+    utilityLabels: ["privacy", "terms", "cart"],
     contact: [
       "instagramLabel",
       "instagramHeading",
