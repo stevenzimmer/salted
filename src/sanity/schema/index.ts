@@ -235,6 +235,7 @@ const objects = [
       text("shortLabel"),
       text("dimensions"),
       text("servingDescription"),
+      image("image", "1200 × 1500 px (4:5 portrait)"),
       defineField({
         name: "price",
         title: "Price (US cents)",
@@ -243,7 +244,7 @@ const objects = [
       }),
       active,
     ],
-    preview: { select: { title: "label", subtitle: "id" } },
+    preview: { select: { title: "label", subtitle: "id", media: "image" } },
   }),
   defineType({
     name: "recipeIngredientGroup",

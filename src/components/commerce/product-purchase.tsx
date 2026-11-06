@@ -1,5 +1,5 @@
 "use client";
-import { useId, useState } from "react";
+import { useId, useState, type ChangeEvent } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { QuantitySelector } from "./quantity-selector";
 import { useCart } from "./cart-provider";
@@ -7,30 +7,14 @@ import { maximumInventory } from "@/lib/availability";
 import { money } from "@/lib/format";
 import { hasText, clean, interpolate } from "@/sanity/lib/content";
 import { Text } from "@/components/cms/text";
-import type { Product } from "@/types/content";
-export function ProductPurchase({
-  product,
-  detailed = false,
-}: {
-  product: Product;
-  detailed?: boolean;
-}) {
+import { useProductSelection } from "./product-selection";
+export function ProductPurchase({ detailed = false }: { detailed?: boolean }) {
   const { schedule, addItem, commerce } = useCart();
+  const { product, options, variant, setVariantId } = useProductSelection();
   const copy = commerce?.product;
-  const options = product.variants.filter((option) => hasText(option.label));
-  const firstAvailable = options.find(
-    (variant) => maximumInventory(schedule, product.id, variant.id) > 0,
-  );
-  const [variantId, setVariantId] = useState(
-    firstAvailable?.id ?? options[0]?.id,
-  );
   const [quantity, setQuantity] = useState(1);
   const [outcome, setOutcome] = useState<"added" | "blocked" | null>(null);
   const id = useId();
-  const variant =
-    options.find((variant) => variant.id === variantId) ??
-    firstAvailable ??
-    options[0];
   if (!variant) return null;
   const inventory = maximumInventory(schedule, product.id, variant.id);
   const soldOut = inventory === 0;
@@ -43,6 +27,11 @@ export function ProductPurchase({
       : outcome === "blocked"
         ? copy?.quantityLimit
         : undefined;
+  function handleVariantChange(event: ChangeEvent<HTMLInputElement>) {
+    setVariantId(event.currentTarget.value);
+    setQuantity(1);
+    setOutcome(null);
+  }
   function handleAdd() {
     if (!variant) return;
     setOutcome(
@@ -79,11 +68,7 @@ export function ProductPurchase({
                   value={option.id}
                   checked={option.id === variant.id}
                   disabled={unavailable}
-                  onChange={() => {
-                    setVariantId(option.id);
-                    setQuantity(1);
-                    setOutcome(null);
-                  }}
+                  onChange={handleVariantChange}
                 />
                 <span>
                   {hasText(option.shortLabel)

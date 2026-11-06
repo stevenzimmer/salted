@@ -227,6 +227,17 @@ test("empty variant labels are removed; valid labels and integer cent prices are
         _type: "productVariant",
         id: "square",
         label: encoded("Square"),
+        image: {
+          ...image,
+          alt: encoded("Square focaccia"),
+          crop: {
+            _type: "sanity.imageCrop",
+            top: 0.1,
+            bottom: 0.1,
+            left: 0,
+            right: 0,
+          },
+        },
         price: 1500,
         active: true,
       },
@@ -244,6 +255,9 @@ test("empty variant labels are removed; valid labels and integer cent prices are
   assert.equal(mapped?.variants[0].id, "square");
   assert.equal(mapped?.variants[0].price, 1500);
   assert.ok(mapped?.variants[0].label.includes(encoded("Square")));
+  assert.equal(mapped?.variants[0]._key, "two");
+  assert.equal(mapped?.variants[0].image?.alt, encoded("Square focaccia"));
+  assert.equal(mapped?.variants[0].image?.crop?.top, 0.1);
 });
 test("catalog changes remove unavailable/deleted identities from resolved persisted carts", () => {
   const items = [

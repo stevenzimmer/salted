@@ -6,11 +6,13 @@ import type {
 } from "../../sanity.types";
 
 export type ProductVariant = {
+  _key: string;
   id: string;
   label: string;
   shortLabel: string;
   servingDescription: string;
   price: number;
+  image?: ImageWithAlt;
 };
 export type Product = Omit<
   CmsProduct,

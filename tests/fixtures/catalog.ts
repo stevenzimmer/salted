@@ -21,6 +21,7 @@ function product(id: string, name: string, prices: number[]): Product {
     relatedRecipeIds: [],
     relatedProductIds: [],
     variants: ["round", "square", "pan"].map((id, i) => ({
+      _key: id,
       id,
       label: id,
       shortLabel: id,

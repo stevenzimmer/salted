@@ -3,10 +3,11 @@ import { ArrowUpRight } from "lucide-react";
 import type { Product } from "@/types/content";
 import type { CommerceCopy } from "../../../sanity.types";
 import { money } from "@/lib/format";
-import { hasImage, hasText, clean } from "@/sanity/lib/content";
-import { CmsImage } from "@/components/cms/image";
+import { hasImage, hasText } from "@/sanity/lib/content";
 import { Text } from "@/components/cms/text";
 import { ProductPurchase } from "./product-purchase";
+import { ProductCardImage } from "./product-images";
+import { ProductSelectionProvider } from "./product-selection";
 type ProductCardProps = {
   product: Product;
   copy?: CommerceCopy["product"];
@@ -22,8 +23,7 @@ export function ProductCard({
   showDetailsLink = true,
 }: ProductCardProps) {
   const Heading = variant === "preview" ? "h2" : "h3";
-  const image = hasImage(product.image),
-    price = product.variants[0]?.price;
+  const price = product.variants[0]?.price;
   const copyVisible =
     [
       product.name,
@@ -31,39 +31,21 @@ export function ProductCard({
       product.shortDescription,
       showDetailsLink ? copy?.details : undefined,
     ].some(hasText) || price !== undefined;
-  if (!image && !copyVisible && !product.variants.length) return null;
+  if (!hasImage(product.image) && !copyVisible && !product.variants.length)
+    return null;
   return (
-    <article className="product-card" data-variant={variant}>
-      {image || copyVisible ? (
-        <div className={image ? "product-image" : "cms-product-no-image"}>
-          {image ? (
-            <>
-              <CmsImage
-                image={product.image}
-                aspectRatio={4 / 5}
-                documentType={product._type}
-                documentId={product._id}
-                path="image"
-                preload={preload}
-                sizes={
-                  variant === "preview"
-                    ? "(max-width: 767px) 100vw, 45vw"
-                    : "(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 25vw"
-                }
-              />
-              <Link
-                href={`/products/${product.slug}`}
-                className="product-image-link absolute inset-0 z-10"
-                aria-label={`View ${clean(product.name) || "product"}`}
-              />
-            </>
-          ) : null}
-          <Text as="span" className="product-badge" value={product.badge} />
+    <ProductSelectionProvider product={product}>
+      <article className="product-card" data-variant={variant}>
+        <ProductCardImage
+          preload={preload}
+          sizes={
+            variant === "preview"
+              ? "(max-width: 767px) 100vw, 45vw"
+              : "(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 25vw"
+          }
+        >
           {copyVisible ? (
-            <div className="product-overlay absolute inset-x-0 bottom-0 z-20">
-              {image ? (
-                <span className="product-scrim" aria-hidden="true" />
-              ) : null}
+            <>
               {hasText(product.name) || price !== undefined ? (
                 <div className="product-heading">
                   {hasText(product.name) ? (
@@ -103,11 +85,11 @@ export function ProductCard({
                   </div>
                 </div>
               ) : null}
-            </div>
+            </>
           ) : null}
-        </div>
-      ) : null}
-      {variant === "default" ? <ProductPurchase product={product} /> : null}
-    </article>
+        </ProductCardImage>
+        {variant === "default" ? <ProductPurchase /> : null}
+      </article>
+    </ProductSelectionProvider>
   );
 }

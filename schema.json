@@ -3957,6 +3957,14 @@
           },
           "optional": true
         },
+        "image": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "inline",
+            "name": "imageWithAlt"
+          },
+          "optional": true
+        },
         "price": {
           "type": "objectAttribute",
           "value": {

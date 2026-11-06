@@ -6,6 +6,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { ProductPurchase } from "@/components/commerce/product-purchase";
+import { ProductDetailLayout } from "@/components/commerce/product-images";
+import { ProductSelectionProvider } from "@/components/commerce/product-selection";
 import { ProductCard } from "@/components/commerce/product-card";
 import { RecipeCard } from "@/components/recipes/recipe-card";
 import { Text } from "@/components/cms/text";
@@ -81,28 +83,8 @@ export default async function ProductPage({ params }: Props) {
           {c.back}
         </Link>
       ) : null}
-      {copy || hasImage(product.image) ? (
-        <article
-          className={`product-detail-grid ${!hasImage(product.image) || !copy ? "cms-single-column" : ""}`}
-        >
-          {hasImage(product.image) ? (
-            <div className="product-detail-image">
-              <CmsImage
-                image={product.image}
-                aspectRatio={4 / 5}
-                documentType={product._type}
-                documentId={product._id}
-                path="image"
-                preload
-                sizes="(max-width: 767px) 100vw, 50vw"
-              />
-              <Text
-                as="span"
-                className="photo-label"
-                value={product.image?.caption}
-              />
-            </div>
-          ) : null}
+      <ProductSelectionProvider product={product}>
+        <ProductDetailLayout>
           {copy ? (
             <div className="product-detail-copy">
               {hasText(product.eyebrow) || hasText(product.badge) ? (
@@ -132,7 +114,7 @@ export default async function ProductPage({ params }: Props) {
                 value={product.description}
               />
               <Text value={product.servingDescription} />
-              <ProductPurchase product={product} detailed />
+              <ProductPurchase detailed />
               {(food && hasText(c?.foodSummary)) ||
               (storage && hasText(c?.storageHeading)) ||
               (pickup && hasText(c?.pickupHeading)) ? (
@@ -210,8 +192,8 @@ export default async function ProductPage({ params }: Props) {
               ) : null}
             </div>
           ) : null}
-        </article>
-      ) : null}
+        </ProductDetailLayout>
+      </ProductSelectionProvider>
       {gallery.length ? (
         <div className="recipe-grid py-8">
           {gallery.map((image) => (

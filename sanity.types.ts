@@ -675,6 +675,7 @@ export type ProductVariant = {
   shortLabel?: string;
   dimensions?: string;
   servingDescription?: string;
+  image?: ImageWithAlt;
   price: number;
   active?: boolean;
 };
