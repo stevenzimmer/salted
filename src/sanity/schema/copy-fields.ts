@@ -148,9 +148,7 @@ export const copyFields = {
   termsPage: { intro: ["eyebrow", "title", "description"] },
   commerceCopy: {
     product: [
-      "focacciaFilter",
-      "sourdoughFilter",
-      "allFilter",
+      "filters",
       "menuNote",
       "details",
       "chooseSize",

@@ -2,6 +2,12 @@ import { defineArrayMember, defineField, defineType } from "sanity";
 import { copyFields, singletonTitles } from "./copy-fields";
 import { MAX_NAVIGATION_ITEMS, navigationHref } from "../../lib/navigation";
 import { hasText } from "../lib/content";
+import { apiVersion } from "../env";
+import { imageDescription, validateImageAssetSize } from "./image-rules";
+import {
+  LimitedImageArrayInput,
+  LimitedImageInput,
+} from "../components/image-upload-input";
 
 const title = (value: string) =>
   value.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase());
@@ -14,8 +20,13 @@ const strings = (name: string) =>
     type: "array",
     of: [{ type: "string" }],
   });
-const image = (name: string) =>
-  defineField({ name, title: title(name), type: "imageWithAlt" });
+const image = (name: string, dimensions: string) =>
+  defineField({
+    name,
+    title: title(name),
+    type: "imageWithAlt",
+    description: imageDescription(dimensions),
+  });
 const references = (name: string, type: string) =>
   defineField({
     name,
@@ -52,6 +63,46 @@ const slug = defineField({
   validation: (r) => r.required(),
 });
 
+const productFilters = defineField({
+  name: "filters",
+  title: "Product filters",
+  type: "array",
+  options: { sortable: true },
+  description:
+    "Add, remove or drag to reorder filters. The first visible filter is selected by default. An empty list shows all products.",
+  of: [
+    defineArrayMember({
+      name: "productFilter",
+      title: "Product filter",
+      type: "object",
+      fields: [
+        defineField({ name: "label", title: "Label", type: "string" }),
+        defineField({
+          name: "showAll",
+          title: "Show all products",
+          type: "boolean",
+          initialValue: false,
+        }),
+        defineField({
+          name: "category",
+          title: "Category",
+          type: "reference",
+          to: [{ type: "productCategory" }],
+          hidden: ({ parent }) => parent?.showAll === true,
+          validation: (rule) =>
+            rule.custom((value, context) =>
+              (context.parent as { showAll?: boolean } | undefined)?.showAll ===
+                true || value?._ref
+                ? true
+                : "Choose a category or show all products.",
+            ),
+        }),
+      ],
+      preview: { select: { title: "label", subtitle: "category.title" } },
+    }),
+  ],
+});
+
 const objects = [
   defineType({
     name: "navigationItem",
@@ -80,6 +131,8 @@ const objects = [
     title: "Image",
     type: "image",
     options: { hotspot: true },
+    description: imageDescription("1600 × 1200 px (4:3)"),
+    components: { input: LimitedImageInput },
     fields: [
       defineField({
         name: "alt",
@@ -95,7 +148,7 @@ const objects = [
       }),
       text("caption"),
     ],
-    validation: (r) =>
+    validation: (r) => [
       r.custom((value) =>
         !value?.asset ||
         value.decorative ||
@@ -103,12 +156,25 @@ const objects = [
           ? true
           : "Add useful alternative text or mark this image decorative.",
       ),
+      r.custom((value, context) =>
+        validateImageAssetSize(value, (ref) =>
+          context
+            .getClient({ apiVersion })
+            .withConfig({ useCdn: false })
+            .getDocument<{ size?: number }>(ref),
+        ),
+      ),
+    ],
   }),
   defineType({
     name: "seo",
     title: "Search & social",
     type: "object",
-    fields: [text("title"), text("description"), image("image")],
+    fields: [
+      text("title"),
+      text("description"),
+      image("image", "1200 × 630 px for social sharing"),
+    ],
   }),
   defineType({
     name: "portableText",
@@ -196,7 +262,7 @@ const objects = [
     title: "Instagram photo",
     type: "object",
     fields: [
-      image("image"),
+      image("image", "1200 × 1200 px (1:1 square)"),
       defineField({
         name: "permalink",
         type: "url",
@@ -232,7 +298,13 @@ const singletons = Object.entries(copyFields).map(([name, groups]) =>
           title: isAnnouncement ? "Message" : title(group),
           type: "object",
           fieldset: isAnnouncement ? "announcementBar" : undefined,
-          fields: fields.map(text),
+          fields: fields.map((field: string) =>
+            name === "commerceCopy" &&
+            group === "product" &&
+            field === "filters"
+              ? productFilters
+              : text(field),
+          ),
         });
         return isAnnouncement
           ? [
@@ -270,12 +342,12 @@ const singletons = Object.entries(copyFields).map(([name, groups]) =>
                       .error("Navigation can contain at most seven items."),
                 }),
             ),
-            image("footerImage"),
+            image("footerImage", "400 × 400 px (1:1 square)"),
           ]
         : []),
       ...(name === "homepage"
         ? [
-            image("heroImage"),
+            image("heroImage", "1600 × 1200 px (4:3)"),
             references("featuredRecipes", "recipe"),
             references("featuredReviews", "review"),
             defineField({
@@ -285,7 +357,9 @@ const singletons = Object.entries(copyFields).map(([name, groups]) =>
             }),
           ]
         : []),
-      ...(name === "aboutPage" ? [image("image")] : []),
+      ...(name === "aboutPage"
+        ? [image("image", "1200 × 1440 px (5:6 portrait)")]
+        : []),
       ...(name === "privacyPage" || name === "termsPage"
         ? [
             text("updatedText"),
@@ -301,6 +375,21 @@ const singletons = Object.entries(copyFields).map(([name, groups]) =>
 export const schemaTypes = [
   ...objects,
   ...singletons,
+  defineType({
+    name: "productCategory",
+    title: "Product category",
+    type: "document",
+    description:
+      "Create and rename categories here. Reassign products and remove filter references before deleting a category.",
+    fields: [
+      internalName,
+      defineField({ name: "title", title: "Category name", type: "string" }),
+    ],
+    preview: {
+      select: { title: "title", internal: "internalName" },
+      prepare: ({ title, internal }) => ({ title: title || internal }),
+    },
+  }),
   defineType({
     name: "product",
     title: "Product",
@@ -318,8 +407,8 @@ export const schemaTypes = [
       slug,
       defineField({
         name: "category",
-        type: "string",
-        options: { list: ["focaccia", "sourdough"] },
+        type: "reference",
+        to: [{ type: "productCategory" }],
         validation: (r) => r.required(),
       }),
       defineField({
@@ -339,11 +428,18 @@ export const schemaTypes = [
       text("servingDescription"),
       text("storageSummary"),
       text("reheatingSummary"),
-      image("image"),
+      image("image", "1200 × 1500 px (4:5 portrait)"),
       defineField({
         name: "gallery",
         type: "array",
-        of: [{ type: "imageWithAlt" }],
+        description: imageDescription("1200 × 1200 px (1:1 square)"),
+        components: { input: LimitedImageArrayInput },
+        of: [
+          defineArrayMember({
+            type: "imageWithAlt",
+            description: imageDescription("1200 × 1200 px (1:1 square)"),
+          }),
+        ],
       }),
       strings("ingredients"),
       strings("allergens"),
@@ -372,7 +468,7 @@ export const schemaTypes = [
       select: {
         displayed: "displayName",
         internal: "internalName",
-        subtitle: "category",
+        subtitle: "category.title",
         media: "image",
       },
       prepare: ({ displayed, internal, subtitle, media }) => ({
@@ -393,7 +489,10 @@ export const schemaTypes = [
       order,
       text("displayTitle"),
       text("description"),
-      image("image"),
+      image(
+        "image",
+        "1600 × 800 px (2:1 landscape); keep the subject centered for cropped recipe cards",
+      ),
       defineField({ name: "introduction", type: "portableText" }),
       ...["prepMinutes", "cookMinutes", "totalMinutes"].map((name) =>
         defineField({

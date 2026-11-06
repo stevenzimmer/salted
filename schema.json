@@ -590,6 +590,36 @@
   },
   {
     "type": "type",
+    "name": "productCategory.reference",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_ref": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          }
+        },
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "reference"
+          }
+        },
+        "_weak": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "boolean"
+          },
+          "optional": true
+        }
+      },
+      "dereferencesTo": "productCategory"
+    }
+  },
+  {
+    "type": "type",
     "name": "recipe.reference",
     "value": {
       "type": "object",
@@ -678,17 +708,8 @@
       "category": {
         "type": "objectAttribute",
         "value": {
-          "type": "union",
-          "of": [
-            {
-              "type": "string",
-              "value": "focaccia"
-            },
-            {
-              "type": "string",
-              "value": "sourdough"
-            }
-          ]
+          "type": "inline",
+          "name": "productCategory.reference"
         },
         "optional": false
       },
@@ -992,24 +1013,55 @@
         "value": {
           "type": "object",
           "attributes": {
-            "focacciaFilter": {
+            "filters": {
               "type": "objectAttribute",
               "value": {
-                "type": "string"
-              },
-              "optional": true
-            },
-            "sourdoughFilter": {
-              "type": "objectAttribute",
-              "value": {
-                "type": "string"
-              },
-              "optional": true
-            },
-            "allFilter": {
-              "type": "objectAttribute",
-              "value": {
-                "type": "string"
+                "type": "array",
+                "of": {
+                  "type": "object",
+                  "attributes": {
+                    "label": {
+                      "type": "objectAttribute",
+                      "value": {
+                        "type": "string"
+                      },
+                      "optional": true
+                    },
+                    "showAll": {
+                      "type": "objectAttribute",
+                      "value": {
+                        "type": "boolean"
+                      },
+                      "optional": true
+                    },
+                    "category": {
+                      "type": "objectAttribute",
+                      "value": {
+                        "type": "inline",
+                        "name": "productCategory.reference"
+                      },
+                      "optional": true
+                    },
+                    "_type": {
+                      "type": "objectAttribute",
+                      "value": {
+                        "type": "string",
+                        "value": "productFilter"
+                      }
+                    }
+                  },
+                  "rest": {
+                    "type": "object",
+                    "attributes": {
+                      "_key": {
+                        "type": "objectAttribute",
+                        "value": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
               },
               "optional": true
             },
@@ -1651,6 +1703,57 @@
         "value": {
           "type": "inline",
           "name": "seo"
+        },
+        "optional": true
+      }
+    }
+  },
+  {
+    "name": "productCategory",
+    "type": "document",
+    "attributes": {
+      "_id": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_type": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string",
+          "value": "productCategory"
+        }
+      },
+      "_createdAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_updatedAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_rev": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "internalName": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      },
+      "title": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
         },
         "optional": true
       }

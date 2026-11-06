@@ -9,6 +9,7 @@ export const structure: StructureResolver = (S) =>
         [
           "homepage",
           "product",
+          "productCategory",
           "recipe",
           "review",
           "pickupPage",
@@ -22,9 +23,19 @@ export const structure: StructureResolver = (S) =>
           "siteSettings",
         ] as const
       ).map((type) => {
-        if (type === "product" || type === "recipe" || type === "review")
+        if (
+          type === "product" ||
+          type === "productCategory" ||
+          type === "recipe" ||
+          type === "review"
+        )
           return S.documentTypeListItem(type).title(
-            { product: "Products", recipe: "Recipes", review: "Reviews" }[type],
+            {
+              product: "Products",
+              productCategory: "Product categories",
+              recipe: "Recipes",
+              review: "Reviews",
+            }[type],
           );
         return S.listItem()
           .title(singletonTitles[type])

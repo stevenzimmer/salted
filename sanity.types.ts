@@ -112,6 +112,13 @@ export type ImageWithAlt = {
   caption?: string;
 };
 
+export type ProductCategoryReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "productCategory";
+};
+
 export type RecipeReference = {
   _ref: string;
   _type: "reference";
@@ -128,7 +135,7 @@ export type Product = {
   internalName: string;
   id: string;
   slug: Slug;
-  category: "focaccia" | "sourdough";
+  category: ProductCategoryReference;
   tier: "classic" | "specialty";
   active?: boolean;
   displayOrder?: number;
@@ -181,9 +188,13 @@ export type CommerceCopy = {
   _rev: string;
   internalName: string;
   product?: {
-    focacciaFilter?: string;
-    sourdoughFilter?: string;
-    allFilter?: string;
+    filters?: Array<{
+      label?: string;
+      showAll?: boolean;
+      category?: ProductCategoryReference;
+      _type: "productFilter";
+      _key: string;
+    }>;
     menuNote?: string;
     details?: string;
     chooseSize?: string;
@@ -278,6 +289,16 @@ export type CommerceCopy = {
     seoTitle?: string;
   };
   seo?: Seo;
+};
+
+export type ProductCategory = {
+  _id: string;
+  _type: "productCategory";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  internalName: string;
+  title?: string;
 };
 
 export type TermsPage = {
@@ -784,10 +805,12 @@ export type AllSanitySchemaTypes =
   | PortableText
   | SanityImageAssetReference
   | ImageWithAlt
+  | ProductCategoryReference
   | RecipeReference
   | Product
   | Slug
   | CommerceCopy
+  | ProductCategory
   | TermsPage
   | PrivacyPage
   | RecipesPage
@@ -882,9 +905,13 @@ export type GLOBAL_QUERY_RESULT = {
     _rev: string;
     internalName: string;
     product?: {
-      focacciaFilter?: string;
-      sourdoughFilter?: string;
-      allFilter?: string;
+      filters?: Array<{
+        label?: string;
+        showAll?: boolean;
+        category?: ProductCategoryReference;
+        _type: "productFilter";
+        _key: string;
+      }>;
       menuNote?: string;
       details?: string;
       chooseSize?: string;
@@ -989,7 +1016,7 @@ export type GLOBAL_QUERY_RESULT = {
     internalName: string;
     id: string;
     slug: Slug;
-    category: "focaccia" | "sourdough";
+    category: ProductCategoryReference;
     tier: "classic" | "specialty";
     active: true;
     displayOrder?: number;
@@ -1252,7 +1279,7 @@ export type PRODUCT_QUERY_RESULT = {
   internalName: string;
   id: string;
   slug: Slug;
-  category: "focaccia" | "sourdough";
+  category: ProductCategoryReference;
   tier: "classic" | "specialty";
   active?: boolean;
   displayOrder?: number;

@@ -1,5 +1,17 @@
 [
   {
+    "_id": "product-category-focaccia",
+    "_type": "productCategory",
+    "internalName": "focaccia",
+    "title": "Focaccia"
+  },
+  {
+    "_id": "product-category-sourdough",
+    "_type": "productCategory",
+    "internalName": "sourdough",
+    "title": "Sourdough"
+  },
+  {
     "_id": "siteSettings",
     "_type": "siteSettings",
     "internalName": "siteSettings",
@@ -577,9 +589,34 @@
     "_type": "commerceCopy",
     "internalName": "commerceCopy",
     "product": {
-      "focacciaFilter": "Focaccia",
-      "sourdoughFilter": "Sourdough",
-      "allFilter": "All the good stuff",
+      "filters": [
+        {
+          "_key": "focaccia",
+          "_type": "productFilter",
+          "label": "Focaccia",
+          "showAll": false,
+          "category": {
+            "_type": "reference",
+            "_ref": "product-category-focaccia"
+          }
+        },
+        {
+          "_key": "sourdough",
+          "_type": "productFilter",
+          "label": "Sourdough",
+          "showAll": false,
+          "category": {
+            "_type": "reference",
+            "_ref": "product-category-sourdough"
+          }
+        },
+        {
+          "_key": "all",
+          "_type": "productFilter",
+          "label": "All the good stuff",
+          "showAll": true
+        }
+      ],
       "menuNote": "Small batches. Big bread energy.",
       "details": "The delicious details",
       "chooseSize": "Choose your size",
@@ -686,7 +723,10 @@
       "_type": "slug",
       "current": "classic-focaccia"
     },
-    "category": "focaccia",
+    "category": {
+      "_type": "reference",
+      "_ref": "product-category-focaccia"
+    },
     "tier": "classic",
     "shortDescription": "The golden, olive-oil-kissed original.",
     "description": "A crisp, golden outside. A soft, airy middle. Our classic sourdough focaccia is the starting point for a very good meal. Temporary tasting copy, subject to bakery approval.",
@@ -777,7 +817,10 @@
       "_type": "slug",
       "current": "pesto-mozzarella"
     },
-    "category": "focaccia",
+    "category": {
+      "_type": "reference",
+      "_ref": "product-category-focaccia"
+    },
     "tier": "specialty",
     "shortDescription": "A little herby. A little melty. A favorite.",
     "description": "Our sourdough focaccia meets the familiar pairing of pesto and mozzarella. Made for the center of the table — if it makes it that far. Temporary description; final recipe and ingredient details are pending.",
@@ -863,7 +906,10 @@
       "_type": "slug",
       "current": "jalapeno-cheddar"
     },
-    "category": "focaccia",
+    "category": {
+      "_type": "reference",
+      "_ref": "product-category-focaccia"
+    },
     "tier": "specialty",
     "shortDescription": "For the ones who like a little kick.",
     "description": "A savory, slightly spirited take on sourdough focaccia. Jalapeño and cheddar bring a little extra personality to the table. Temporary tasting copy awaiting bakery approval.",
@@ -948,7 +994,10 @@
       "_type": "slug",
       "current": "parmesan-chili-crisp"
     },
-    "category": "focaccia",
+    "category": {
+      "_type": "reference",
+      "_ref": "product-category-focaccia"
+    },
     "tier": "specialty",
     "shortDescription": "Savory, crispy, and just a bit fiery.",
     "description": "Parmesan and chili crisp, on a sourdough focaccia foundation. A flavor for anyone who reaches for the spicy stuff. Temporary description, pending final recipe and ingredient approval.",
@@ -1033,7 +1082,10 @@
       "_type": "slug",
       "current": "rosemary-olive-black-pepper"
     },
-    "category": "focaccia",
+    "category": {
+      "_type": "reference",
+      "_ref": "product-category-focaccia"
+    },
     "tier": "specialty",
     "shortDescription": "Big Mediterranean energy. Pass the olive oil.",
     "description": "Rosemary, olive, and black pepper come together in our sourdough focaccia. A good companion for a generous salad or a slow lunch. Temporary tasting copy awaiting bakery approval.",
@@ -1118,7 +1170,10 @@
       "_type": "slug",
       "current": "seasonal-flavor"
     },
-    "category": "focaccia",
+    "category": {
+      "_type": "reference",
+      "_ref": "product-category-focaccia"
+    },
     "tier": "specialty",
     "shortDescription": "Something new is on its way to the oven.",
     "description": "A place on the menu for a rotating seasonal focaccia. The next flavor and release date are still being decided. This preview product is currently sold out.",
@@ -1198,7 +1253,10 @@
       "_type": "slug",
       "current": "classic-sourdough"
     },
-    "category": "sourdough",
+    "category": {
+      "_type": "reference",
+      "_ref": "product-category-sourdough"
+    },
     "tier": "classic",
     "shortDescription": "A good loaf for the everyday things.",
     "description": "A round sourdough loaf made with sourdough starter, organic flour, and sea salt. For toast, sandwiches, and whatever the day brings. Full ingredient and allergen information is awaiting approval.",
@@ -1253,7 +1311,10 @@
       "_type": "slug",
       "current": "specialty-sourdough"
     },
-    "category": "sourdough",
+    "category": {
+      "_type": "reference",
+      "_ref": "product-category-sourdough"
+    },
     "tier": "specialty",
     "shortDescription": "Your favorite loaf, with a little extra.",
     "description": "Our rotating specialty sourdough loaf. Final flavors will be shared here when the bakery menu is confirmed. This is a preview of the specialty loaf offering.",

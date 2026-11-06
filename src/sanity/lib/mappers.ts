@@ -13,20 +13,15 @@ export function mapProduct(
 ): Product | null {
   const id = clean(doc.id);
   const slug = clean(doc.slug?.current);
-  const category = clean(doc.category);
+  const category = clean(doc.category?._ref);
   const tier = clean(doc.tier);
-  if (
-    !id ||
-    !slug ||
-    !["focaccia", "sourdough"].includes(category) ||
-    !["classic", "specialty"].includes(tier)
-  )
+  if (!id || !slug || !category || !["classic", "specialty"].includes(tier))
     return null;
   return {
     ...doc,
     id,
     slug,
-    category: category as Product["category"],
+    category,
     tier: tier as Product["tier"],
     name: doc.displayName ?? "",
     shortDescription: doc.shortDescription ?? "",

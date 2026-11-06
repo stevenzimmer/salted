@@ -40,7 +40,7 @@ async function main() {
       internalName: label,
       id,
       slug: { _type: "slug", current: "phase2-cms-qa" },
-      category: "focaccia",
+      category: { _type: "reference", _ref: "product-category-focaccia" },
       tier: "classic",
       active: true,
       displayOrder: 999,

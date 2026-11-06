@@ -19,7 +19,7 @@ export type Product = Omit<
   id: string;
   name: string;
   slug: string;
-  category: "focaccia" | "sourdough";
+  category: string;
   tier: "classic" | "specialty";
   shortDescription: string;
   description: string;

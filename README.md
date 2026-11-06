@@ -45,7 +45,7 @@ Open `http://localhost:3000` and `/studio`. If the server was already running ag
 
 ## Initial content and images
 
-`scripts/seed/content.json` is an archival migration input containing the actual Phase 1 copy: **10 singletons, 8 products, 3 recipes, 3 illustrative reviews**. It is never imported into the website. Sanity becomes the sole editorial source after import; do not keep editing this file as a parallel production catalog.
+`scripts/seed/content.json` is an archival migration input containing the actual Phase 1 copy: **10 singletons, 2 product categories, 8 products, 3 recipes, 3 illustrative reviews**. It is never imported into the website. Sanity becomes the sole editorial source after import; do not keep editing this file as a parallel production catalog.
 
 `npm run cms:seed` uses `SANITY_API_WRITE_TOKEN` or the setup alias `SANITY_API_TOKEN`. It checks both draft and published IDs, preserves existing documents, uploads local Instagram images and remote placeholders as Sanity assets, and creates missing documents atomically with `createIfNotExists`. Repeated runs preserve editor work and do not re-upload existing documents' images. If an image download fails, the import stops with an error. An explicit `--skip-placeholder-images` imports copy and local photos while leaving placeholder image fields unset. No runtime fallback image exists. Final photography, ingredients, allergens, reviews, recipes, founder copy, care instructions, and policies still require approval.
 
@@ -119,3 +119,29 @@ npm run cms:split-navigation
 ```
 
 The migration copies the old shared menu into each list, adds the existing Storage + reheating wording to the footer list, and removes the obsolete shared field and storage utility label. Published and draft versions are migrated independently, with revision guards and no draft publishing. Existing separate arrays, including intentionally empty ones, are preserved on reruns. A migration that would exceed seven items stops without discarding content. Fresh seeds already use the separate arrays. For datasets still on the original named-field Navigation object, run `npm run cms:migrate-navigation` first. Regenerate and commit `schema.json` and `sanity.types.ts` after schema changes.
+
+Product categories are editable documents in Studio → Product categories. Create
+or revise a category there, assign it in each product's Category field, and select
+it in Commerce Copy → Product → Product filters. Filter labels and order remain
+independently editable; enable Show all products for an unfiltered entry. The
+first labeled entry with a valid target is selected initially; clearing the list
+shows all products without filter buttons. Category names can change without
+breaking product/filter matches. Reassign products and remove filter references
+before deleting a category; Sanity protects referenced categories from deletion.
+Product size selection uses the shared Choose size copy for every category.
+
+Existing datasets need this one-time migration before using the new schema:
+
+```sh
+npm run cms:migrate-product-filters -- --dry-run
+npm run cms:migrate-product-filters
+```
+
+It creates missing category documents from existing category strings, converts
+product categories and filter targets to references, and handles either the
+original three label fields or the earlier string-based filter array. Published
+and draft versions are migrated independently with revision guards, preserving
+labels, product inventory identities, unrelated copy, existing category documents,
+and deliberately empty filter lists. Drafts are not published. Reruns do not
+overwrite revised categories or lists. Fresh seeds contain category documents and
+references already.

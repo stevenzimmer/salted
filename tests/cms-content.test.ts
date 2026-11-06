@@ -211,7 +211,7 @@ test("empty variant labels are removed; valid labels and integer cent prices are
   const mapped = mapProduct({
     ...fixture,
     slug: { _type: "slug", current: fixture.slug },
-    category: "focaccia",
+    category: { _type: "reference", _ref: "product-category-focaccia" },
     tier: "specialty",
     variants: [
       {
@@ -280,4 +280,21 @@ test("external URLs are cleaned and unsafe schemes are rejected", () => {
     "/\\example.com",
   ])
     assert.equal(safeUrl(url), undefined);
+});
+
+test("new and revised category references do not reject products or change inventory identities", () => {
+  const fixture = products[0];
+  const doc = {
+    ...fixture,
+    slug: { _type: "slug" as const, current: fixture.slug },
+    category: { _type: "reference" as const, _ref: "editor-created-pastries" },
+    variants: [],
+  };
+  const mapped = mapProduct(doc);
+  assert.equal(mapped?.category, "editor-created-pastries");
+  assert.equal(mapped?.id, fixture.id);
+  assert.equal(
+    mapProduct({ ...doc, category: { ...doc.category, _ref: "" } }),
+    null,
+  );
 });

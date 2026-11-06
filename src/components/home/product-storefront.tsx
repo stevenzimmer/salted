@@ -1,12 +1,11 @@
 "use client";
 
 import type { CommerceCopy } from "../../../sanity.types";
-import { hasText } from "@/sanity/lib/content";
+import { clean, hasText } from "@/sanity/lib/content";
 import { Text } from "@/components/cms/text";
 import { useState } from "react";
 import type { ReactNode } from "react";
 
-type Category = "all" | "focaccia" | "sourdough";
 export function ProductStorefront({
   items,
   copy,
@@ -14,19 +13,27 @@ export function ProductStorefront({
   copy?: CommerceCopy["product"];
   items: {
     id: string;
-    category: "focaccia" | "sourdough";
+    category: string;
     content: ReactNode;
   }[];
 }) {
-  const [category, setCategory] = useState<Category>("focaccia");
-  const filters = [
-    { value: "focaccia" as const, label: copy?.focacciaFilter },
-    { value: "sourdough" as const, label: copy?.sourdoughFilter },
-    { value: "all" as const, label: copy?.allFilter },
-  ].filter((filter) => hasText(filter.label));
-  const currentCategory = filters.some((filter) => filter.value === category)
-    ? category
-    : (filters[0]?.value ?? "all");
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
+  const filters = (copy?.filters ?? []).flatMap((filter) => {
+    const category = clean(filter.category?._ref);
+    return hasText(filter.label) &&
+      (filter.showAll === true || hasText(category))
+      ? [
+          {
+            key: filter._key,
+            label: filter.label,
+            category,
+            showAll: filter.showAll === true,
+          },
+        ]
+      : [];
+  });
+  const currentFilter =
+    filters.find((filter) => filter.key === selectedKey) ?? filters[0];
   if (!items.length) return null;
   return (
     <>
@@ -40,10 +47,10 @@ export function ProductStorefront({
             >
               {filters.map((filter) => (
                 <button
-                  key={filter.value}
+                  key={filter.key}
                   type="button"
-                  aria-pressed={currentCategory === filter.value}
-                  onClick={() => setCategory(filter.value)}
+                  aria-pressed={currentFilter?.key === filter.key}
+                  onClick={() => setSelectedKey(filter.key)}
                 >
                   {filter.label}
                 </button>
@@ -57,7 +64,9 @@ export function ProductStorefront({
         {items
           .filter(
             (item) =>
-              currentCategory === "all" || item.category === currentCategory,
+              !currentFilter ||
+              currentFilter.showAll ||
+              item.category === currentFilter.category,
           )
           .map((item) => (
             <div key={item.id}>{item.content}</div>

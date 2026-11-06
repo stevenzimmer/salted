@@ -36,8 +36,7 @@ export function ProductPurchase({
   const soldOut = inventory === 0;
   const safeQuantity = Math.min(quantity, Math.max(1, inventory));
   const button = soldOut ? copy?.soldOut : copy?.add;
-  const legend =
-    product.category === "focaccia" ? copy?.chooseSize : copy?.yourLoaf;
+  const legend = copy?.chooseSize;
   const message =
     outcome === "added"
       ? interpolate(copy?.added, { product: product.name })

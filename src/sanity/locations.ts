@@ -9,6 +9,7 @@ export const resolve: PresentationPluginOptions["resolve"] = {
   locations: {
     homepage: page("Homepage", "/"),
     siteSettings: page("Site settings", "/"),
+    productCategory: page("Storefront", "/#products"),
     review: page("Reviews", "/"),
     pickupPage: page("Pickup", "/pickup"),
     specialOrdersPage: page("Special orders", "/special-orders"),
