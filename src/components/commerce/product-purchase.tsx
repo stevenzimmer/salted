@@ -15,7 +15,7 @@ export function ProductPurchase({ detailed = false }: { detailed?: boolean }) {
   const [quantity, setQuantity] = useState(1);
   const [outcome, setOutcome] = useState<"added" | "blocked" | null>(null);
   const id = useId();
-  if (!variant) return null;
+  if (!product.active || !variant) return null;
   const inventory = maximumInventory(schedule, product.id, variant.id);
   const soldOut = inventory === 0;
   const safeQuantity = Math.min(quantity, Math.max(1, inventory));

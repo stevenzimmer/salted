@@ -187,6 +187,11 @@ export type CommerceCopy = {
   _updatedAt: string;
   _rev: string;
   internalName: string;
+  inactiveProduct?: {
+    heading?: string;
+    body?: string;
+    cta?: string;
+  };
   product?: {
     filters?: Array<{
       label?: string;
@@ -905,6 +910,11 @@ export type GLOBAL_QUERY_RESULT = {
     _updatedAt: string;
     _rev: string;
     internalName: string;
+    inactiveProduct?: {
+      heading?: string;
+      body?: string;
+      cta?: string;
+    };
     product?: {
       filters?: Array<{
         label?: string;
@@ -1270,7 +1280,7 @@ export type RECIPE_QUERY_RESULT = {
 
 // Source: src/sanity/lib/queries.ts
 // Variable: PRODUCT_QUERY
-// Query: *[_type == "product" && active == true && slug.current == $slug][0]
+// Query: *[_type == "product" && slug.current == $slug][0]
 export type PRODUCT_QUERY_RESULT = {
   _id: string;
   _type: "product";
@@ -1553,7 +1563,7 @@ declare global {
     '{\n  "page": *[_type == "homepage" && _id == "homepage"][0]{..., "recipes": featuredRecipes[]->, "reviews": featuredReviews[]->}\n}': HOME_QUERY_RESULT;
     '*[_type == "recipe" && active == true] | order(displayOrder asc, _id asc)': RECIPES_QUERY_RESULT;
     '*[_type == "recipe" && active == true && slug.current == $slug][0]': RECIPE_QUERY_RESULT;
-    '*[_type == "product" && active == true && slug.current == $slug][0]': PRODUCT_QUERY_RESULT;
+    '*[_type == "product" && slug.current == $slug][0]': PRODUCT_QUERY_RESULT;
     '*[_type == "aboutPage" && _id == "aboutPage"][0]': ABOUT_QUERY_RESULT;
     '*[_type == "pickupPage" && _id == "pickupPage"][0]': PICKUP_QUERY_RESULT;
     '*[_type == "specialOrdersPage" && _id == "specialOrdersPage"][0]': SPECIAL_ORDERS_QUERY_RESULT;

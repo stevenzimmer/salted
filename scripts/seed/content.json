@@ -588,6 +588,11 @@
     "_id": "commerceCopy",
     "_type": "commerceCopy",
     "internalName": "commerceCopy",
+    "inactiveProduct": {
+      "heading": "Taking a little dough break.",
+      "body": "This one's unavailable for now, but never say never. Check back later for future availability. Planning something special in the meantime?",
+      "cta": "Let's talk special orders"
+    },
     "product": {
       "filters": [
         {

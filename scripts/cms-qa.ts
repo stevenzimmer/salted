@@ -108,6 +108,12 @@ async function main() {
     console.log("Cleared optional product content in the isolated draft.");
     return;
   }
+  if (action === "inactive") {
+    if (!existing) throw new Error("Run prepare first.");
+    await client.patch(`drafts.${id}`).set({ active: false }).commit();
+    console.log("Deactivated only the isolated product draft.");
+    return;
+  }
   if (action === "long") {
     if (!existing) throw new Error("Run prepare first.");
     await client
@@ -133,7 +139,7 @@ async function main() {
     console.log("Removed only the temporary QA draft and preview session.");
     return;
   }
-  throw new Error("Use check, prepare, clear, long, or cleanup.");
+  throw new Error("Use check, prepare, clear, inactive, long, or cleanup.");
 }
 main().catch((error) => {
   console.error(error instanceof Error ? error.message : "CMS QA failed");

@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { ProductPurchase } from "@/components/commerce/product-purchase";
+import { ProductUnavailable } from "@/components/commerce/product-unavailable";
 import { ProductDetailLayout } from "@/components/commerce/product-images";
 import { ProductSelectionProvider } from "@/components/commerce/product-selection";
 import { ProductCard } from "@/components/commerce/product-card";
@@ -19,7 +20,7 @@ import { PRODUCT_QUERY, RECIPES_QUERY } from "@/sanity/lib/queries";
 import { getGlobalContent } from "@/sanity/lib/data";
 import { mapProduct, mapRecipe } from "@/sanity/lib/mappers";
 import { contentMetadata } from "@/sanity/lib/metadata";
-import { hasImage, hasText } from "@/sanity/lib/content";
+import { hasCopy, hasImage, hasText } from "@/sanity/lib/content";
 
 type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props) {
@@ -72,6 +73,7 @@ export default async function ProductPage({ params }: Props) {
       product.description,
     ].some(hasText) ||
     product.variants.length ||
+    (!product.active && hasCopy(commerce?.inactiveProduct)) ||
     food ||
     (hasText(c?.storageHeading) && storage) ||
     (hasText(c?.pickupHeading) && pickup);
@@ -114,7 +116,11 @@ export default async function ProductPage({ params }: Props) {
                 value={product.description}
               />
               <Text value={product.servingDescription} />
-              <ProductPurchase detailed />
+              {product.active ? (
+                <ProductPurchase detailed />
+              ) : (
+                <ProductUnavailable copy={commerce?.inactiveProduct} />
+              )}
               {(food && hasText(c?.foodSummary)) ||
               (storage && hasText(c?.storageHeading)) ||
               (pickup && hasText(c?.pickupHeading)) ? (

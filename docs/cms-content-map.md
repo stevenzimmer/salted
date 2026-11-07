@@ -61,6 +61,12 @@ The exact editable string-field inventory is `src/sanity/schema/copy-fields.ts`.
 
 ## Removed sources and inactive content
 
+Inactive products are excluded from the storefront catalog and ordering, while
+their `/products/[slug]` pages and metadata remain available. Commerce Copy →
+Inactive product owns the optional heading, body and special-order CTA label;
+the destination `/special-orders` remains code-owned. An active product with no
+inventory continues to use the existing sold-out controls.
+
 `src/data/products.ts`, `pricing.ts`, `recipes.ts`, `reviews.ts`, `site-config.ts`, `instagram.ts`, and `content-pages.ts` were removed. Pickup/special-order configuration now contains only operational values. `scripts/seed/content.json` is migration-only; the frontend never imports it. Existing local Instagram files remain available as migration input, not as runtime image fallbacks.
 
 The seasonal feature, About preview, and storage callout were commented out in the actual approved homepage. They remain absent. No new sections or page-builder controls were introduced. Dimensions, contact email, and some optional SEO/media fields support future approved editorial use without introducing new visible architecture.

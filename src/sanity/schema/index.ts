@@ -419,7 +419,11 @@ export const schemaTypes = [
         options: { list: ["classic", "specialty"] },
         validation: (r) => r.required(),
       }),
-      active,
+      defineField({
+        ...active,
+        description:
+          "Inactive products are hidden from the storefront and cannot be added to a bag. Their product pages remain available with the inactive product message from Commerce copy.",
+      }),
       order,
       text("displayName"),
       text("eyebrow"),

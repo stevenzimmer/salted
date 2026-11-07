@@ -147,6 +147,7 @@ export const copyFields = {
   privacyPage: { intro: ["eyebrow", "title", "description"] },
   termsPage: { intro: ["eyebrow", "title", "description"] },
   commerceCopy: {
+    inactiveProduct: ["heading", "body", "cta"],
     product: [
       "filters",
       "menuNote",

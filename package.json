@@ -16,6 +16,7 @@
     "cms:qa": "node --env-file-if-exists=.env.local --import tsx scripts/cms-qa.ts",
     "cms:migrate-navigation": "node --env-file-if-exists=.env.local --import tsx scripts/migrate-navigation.ts",
     "cms:migrate-product-filters": "node --env-file-if-exists=.env.local --import tsx scripts/migrate-product-filters.ts",
+    "cms:migrate-inactive-products": "node --env-file-if-exists=.env.local --import tsx scripts/migrate-inactive-products.ts",
     "cms:split-navigation": "node --env-file-if-exists=.env.local --import tsx scripts/split-navigation.ts"
   },
   "engines": {

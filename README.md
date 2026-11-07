@@ -95,7 +95,7 @@ npm run build
 
 `sanity.cli.ts` configures TypeGen; there is no deprecated `sanity-typegen.json`. The `typegen` script extracts required structural fields and generates all query types. `prebuild` runs it automatically. Regenerate after schema/query changes and commit both artifacts. Extraction uses a non-existent project-ID placeholder only when unconfigured, allowing offline schema validation; runtime fetches are explicitly guarded.
 
-The existing webpack production build is retained. Tests cover complete-cart availability, DST/cutoff rules, catalog pricing, analytics, stega-aware removals, Portable Text, image annotations, missing images, deleted catalog identities, and blank variant labels. The optional `npm run cms:qa -- prepare|long|clear|cleanup` workflow creates only a clearly identified temporary draft and a short-lived preview session, for authenticated browser QA. Always run cleanup. It does not publish or alter real content. See [Phase 2 QA/report](docs/phase-2-report.md) for performed checks and remaining editor acceptance steps.
+The existing webpack production build is retained. Tests cover complete-cart availability, DST/cutoff rules, catalog pricing, analytics, stega-aware removals, Portable Text, image annotations, missing images, deleted catalog identities, and blank variant labels. The optional `npm run cms:qa -- prepare|long|clear|inactive|cleanup` workflow creates only a clearly identified temporary draft and a short-lived preview session, for authenticated browser QA. Always run cleanup. It does not publish or alter real content. See [Phase 2 QA/report](docs/phase-2-report.md) for performed checks and remaining editor acceptance steps.
 
 Google Analytics (`G-FF1JFYJLTV`) remains on website routes. It records preview activity, never purchases. See [analytics](docs/analytics.md).
 
@@ -145,3 +145,20 @@ labels, product inventory identities, unrelated copy, existing category document
 and deliberately empty filter lists. Drafts are not published. Reruns do not
 overwrite revised categories or lists. Fresh seeds contain category documents and
 references already.
+
+Inactive products stay accessible at their existing product URLs and keep their
+editorial details, but disappear from the storefront and cannot be added to a bag.
+Their purchase controls are replaced by Commerce Copy → Inactive product, with
+optional heading, body and CTA text. The CTA always links to `/special-orders`.
+Clearing these fields removes their elements without restoring default text.
+
+Existing datasets need the new copy slots initialized once:
+
+```sh
+npm run cms:migrate-inactive-products -- --dry-run
+npm run cms:migrate-inactive-products
+```
+
+This adds the new group only where absent, preserving existing groups, unrelated
+copy and draft status. Fresh seeds already include it. Product activation and
+inventory remain separate: active products without stock retain their sold-out UI.

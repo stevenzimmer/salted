@@ -15,7 +15,7 @@ export const RECIPE_QUERY = defineQuery(
   `*[_type == "recipe" && active == true && slug.current == $slug][0]`,
 );
 export const PRODUCT_QUERY = defineQuery(
-  `*[_type == "product" && active == true && slug.current == $slug][0]`,
+  `*[_type == "product" && slug.current == $slug][0]`,
 );
 export const ABOUT_QUERY = defineQuery(
   `*[_type == "aboutPage" && _id == "aboutPage"][0]`,
