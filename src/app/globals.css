@@ -307,12 +307,11 @@ img {
 .hero-spark {
   position: absolute;
   top: 10px;
-  right: -24px;
+  right: -10px;
+  /* width: 0.833333em; */
+  height: 1em;
   color: var(--copper-ink);
-  font-family: Georgia, serif;
-  font-variant-emoji: text;
-  font-size: 52px;
-  transform: rotate(15deg);
+  font-size: 40px;
 }
 .hero-tagline {
   letter-spacing: 0.23em;
@@ -2008,8 +2007,8 @@ img {
   }
   .hero-spark {
     top: 10px;
-    right: -22px;
-    font-size: 38px;
+    right: -12px;
+    font-size: 28px;
   }
   .hero-tagline {
     font-size: 14px;
