@@ -48,7 +48,7 @@ Future delivery must use `canSendMarketingEmail` immediately before sending, not
 
 `npm test` covers boolean validation/defaults, stale/missing wording, retry identities, checkbox semantics/empty-label removal and migration preservation. `npm run test:integration` on a separate QA database covers false/no-evidence defaults, the database constraint, actual verified-email association, unchanged consent evidence across retries/events and abandoned opt-in orders without stored email.
 
-With a sandbox-enabled local app, a manually opened Friday, active published products/sizes and official Stripe CLI forwarding running, execute:
+With a sandbox-enabled local app, a future Friday outside the published blackout list, active published products/sizes and official Stripe CLI forwarding running, execute:
 
 ```sh
 npm run test:e2e -- tests/e2e/marketing-consent.spec.ts

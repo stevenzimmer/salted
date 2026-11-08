@@ -267,7 +267,6 @@ export const copyFields = {
       "expiredDate",
       "confirmation",
       "backToDates",
-      "calendarKey",
     ],
     confirmation: [
       "eyebrow",

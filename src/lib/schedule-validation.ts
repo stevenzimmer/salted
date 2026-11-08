@@ -1,5 +1,19 @@
 import { z } from "zod";
+import { blackoutDatesInput } from "./pickup-policy";
 export const scheduleInput = z.object({
+  recurring: z
+    .object({
+      blackoutDates: blackoutDatesInput,
+      offerings: z
+        .array(
+          z.object({
+            productId: z.string().min(1).max(100),
+            variantId: z.string().min(1).max(100),
+          }),
+        )
+        .max(10000),
+    })
+    .optional(),
   dates: z
     .array(
       z.object({

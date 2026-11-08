@@ -2,7 +2,7 @@
 
 Phase 3 commerce implementation and current launch gates are documented in [Phase 3 open decisions](phase-3-open-decisions.md). The table below preserves the earlier phase treatments and outstanding business approvals.
 
-The approved launch revision uses published active products/sizes without stock caps and manually opened/closed Fridays in Postgres. CMS weekly menus and allocations are retired; future capacity/menu automation is deferred. See [manual launch operations](manual-menu-launch.md). This supersedes the historical inventory/date-ownership treatments below.
+The approved launch revision uses published active products/sizes without stock caps and default-open future Fridays with published blackout dates in Sanity. Manual date opening, CMS weekly menus and allocations are retired; future capacity/menu automation is deferred. See [manual launch operations](manual-menu-launch.md). This supersedes the historical inventory/date-ownership treatments below.
 
 These business decisions were recorded after Phase 2. Draft editorial content is now in Sanity; operational preview rules remain in `src/data`. The migration preserves existing approval notices.
 

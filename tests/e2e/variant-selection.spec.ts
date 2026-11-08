@@ -1,7 +1,9 @@
 import { test, expect } from "@playwright/test";
 import { fetchCatalog } from "../../src/commerce/catalog";
+import { createPickupDates } from "../../src/data/pickup-dates";
+import type { MockSchedule } from "../../src/types/content";
 
-test("active sizes can be selected, added and updated without an open Friday; checkout stays unavailable", async ({
+test("active sizes can be selected, added and updated without an open Friday; the pickup calendar stays visible", async ({
   page,
 }) => {
   const product = (await fetchCatalog()).find(
@@ -23,8 +25,9 @@ test("active sizes can be selected, added and updated without an open Friday; ch
   const active = variants.filter((variant) => variant.active !== false);
   expect(active.length).toBeGreaterThan(1);
   // Only the date response is simulated. Product/size activation and UI are real.
+  let schedule: MockSchedule = { dates: [], availability: [] };
   await page.route("**/api/commerce/availability", (route) =>
-    route.fulfill({ json: { dates: [], availability: [] } }),
+    route.fulfill({ json: schedule }),
   );
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
@@ -73,12 +76,58 @@ test("active sizes can be selected, added and updated without an open Friday; ch
     { productId: "classic-focaccia", variantId: active[1].id, quantity: 3 },
   ]);
   await dialog.getByRole("button", { name: /^Checkout/ }).click();
+  await expect(dialog.getByRole("grid")).toBeVisible();
+  await expect(
+    dialog.getByRole("grid").locator("button:not([disabled])"),
+  ).toHaveCount(0);
   await expect(
     dialog.getByRole("heading", {
       name: "No Fridays fit this bag just yet.",
       exact: true,
     }),
   ).toBeVisible();
+  await expect(
+    dialog.getByRole("button", { name: "Continue to Stripe", exact: true }),
+  ).toHaveCount(0);
+
+  // A later opening must appear without closing and reopening the drawer.
+  const friday = createPickupDates().at(-1);
+  if (!friday) throw new Error("A future Friday is required for this test.");
+  schedule = {
+    dates: [friday],
+    availability: [
+      {
+        pickupDateId: friday.id,
+        productId: "classic-focaccia",
+        variantId: active[1].id,
+        inventory: null,
+      },
+    ],
+  };
+  const refreshed = page.waitForResponse((response) =>
+    response.url().endsWith("/api/commerce/availability"),
+  );
+  await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+  await refreshed;
+  const available = dialog.getByRole("grid").locator("button:not([disabled])");
+  await expect(available).toHaveCount(1);
+  await available.click();
+  await expect(
+    dialog.getByRole("status").filter({ hasText: /^Selected / }),
+  ).toBeVisible();
+  await expect(dialog.locator(".checkout-notice")).toHaveCount(0);
+
+  schedule = { dates: [], availability: [] };
+  const closed = page.waitForResponse((response) =>
+    response.url().endsWith("/api/commerce/availability"),
+  );
+  await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+  await closed;
+  await expect(dialog.getByRole("grid")).toBeVisible();
+  await expect(available).toHaveCount(0);
+  await expect(
+    dialog.getByRole("status").filter({ hasText: /^Selected / }),
+  ).toHaveCount(0);
   await expect(
     dialog.getByRole("button", { name: "Continue to Stripe", exact: true }),
   ).toHaveCount(0);

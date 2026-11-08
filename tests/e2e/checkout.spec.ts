@@ -1,4 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
+import { scheduleInput } from "../../src/lib/schedule-validation";
+import { validPickupDates } from "../../src/lib/availability";
 
 async function selectPickup(page: Page) {
   await page.goto("/");
@@ -138,14 +140,20 @@ test("checkout rejects empty carts, changed client prices and invalid webhook si
   expect(invalid.status()).toBe(400);
   const availability = await request.get("/api/commerce/availability");
   expect(availability.status()).toBe(200);
-  const schedule = await availability.json();
+  const schedule = scheduleInput.parse(await availability.json());
+  const pickup = validPickupDates(
+    [{ productId: "classic-focaccia", variantId: "square", quantity: 1 }],
+    schedule,
+  )[0];
+  if (!pickup)
+    throw new Error("An active QA offering and eligible Friday are required.");
   const changed = await request.post("/api/commerce/checkout", {
     headers,
     data: {
       items: [
         { productId: "classic-focaccia", variantId: "square", quantity: 1 },
       ],
-      pickupDate: schedule.dates[0].date,
+      pickupDate: pickup.date,
       requestKey: crypto.randomUUID(),
       reviewedPrices: [
         { productId: "classic-focaccia", variantId: "square", unitPrice: 1 },

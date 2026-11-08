@@ -74,4 +74,8 @@ export type ProductAvailability = {
 export type MockSchedule = {
   dates: PickupDate[];
   availability: ProductAvailability[];
+  recurring?: {
+    blackoutDates: string[];
+    offerings: { productId: string; variantId: string }[];
+  };
 };

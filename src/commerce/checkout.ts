@@ -2,7 +2,12 @@ import Stripe from "stripe";
 import { and, eq, inArray, lte, sql } from "drizzle-orm";
 import { withDatabase } from "../db/client";
 import { checkoutAttempts, orders } from "../db/schema";
-import { fetchCatalog, fetchMarketingConsentLabel, priceCart } from "./catalog";
+import {
+  fetchCatalog,
+  fetchMarketingConsentLabel,
+  fetchPickupBlackoutDates,
+  priceCart,
+} from "./catalog";
 import { resolveMarketingConsent } from "./marketing-consent";
 import {
   CommerceError,
@@ -125,9 +130,10 @@ export async function beginCheckout(input: CheckoutInput, ownerHash: string) {
       );
     return { session: await createOrRecoverSession(existing[0]) };
   }
-  const [catalog, marketingLabel] = await Promise.all([
+  const [catalog, marketingLabel, blackoutDates] = await Promise.all([
     fetchCatalog(),
     input.marketingOptIn ? fetchMarketingConsentLabel() : Promise.resolve(null),
+    fetchPickupBlackoutDates(),
   ]);
   const lines = priceCart(input, catalog);
   if (!pricesMatch(lines, input.reviewedPrices)) return { prices: lines };
@@ -140,6 +146,7 @@ export async function beginCheckout(input: CheckoutInput, ownerHash: string) {
       lines,
       (orderId, expiresAt) => sessionParams(input, lines, orderId, expiresAt),
       marketingConsent,
+      blackoutDates,
     ),
   );
   return { session: await createOrRecoverSession(attempt) };

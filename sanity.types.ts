@@ -319,7 +319,6 @@ export type CommerceCopy = {
     expiredDate?: string;
     confirmation?: string;
     backToDates?: string;
-    calendarKey?: string;
   };
   confirmation?: {
     eyebrow?: string;
@@ -496,6 +495,7 @@ export type PickupPage = {
   _updatedAt: string;
   _rev: string;
   internalName: string;
+  blackoutDates?: Array<string>;
   intro?: {
     eyebrow?: string;
     title?: string;
@@ -1081,7 +1081,6 @@ export type GLOBAL_QUERY_RESULT = {
       expiredDate?: string;
       confirmation?: string;
       backToDates?: string;
-      calendarKey?: string;
     };
     confirmation?: {
       eyebrow?: string;
@@ -1442,6 +1441,7 @@ export type PICKUP_QUERY_RESULT = {
   _updatedAt: string;
   _rev: string;
   internalName: string;
+  blackoutDates?: Array<string>;
   intro?: {
     eyebrow?: string;
     title?: string;
@@ -1655,6 +1655,11 @@ export type COMMERCE_CATALOG_QUERY_RESULT = Array<{
 // Query: *[_type == "commerceCopy" && _id == "commerceCopy"][0].marketingConsent.label
 export type MARKETING_CONSENT_QUERY_RESULT = string | null;
 
+// Source: src/sanity/lib/queries.ts
+// Variable: PICKUP_BLACKOUT_DATES_QUERY
+// Query: *[_type == "pickupPage" && _id == "pickupPage"][0].blackoutDates
+export type PICKUP_BLACKOUT_DATES_QUERY_RESULT = Array<string> | null;
+
 // Query TypeMap
 declare global {
   interface SanityQueries {
@@ -1672,6 +1677,7 @@ declare global {
     '*[_type == "termsPage" && _id == "termsPage"][0]': TERMS_QUERY_RESULT;
     '*[_type == "product"]{_id, id, active, displayName, variants[]{id, active, label, price}}': COMMERCE_CATALOG_QUERY_RESULT;
     '*[_type == "commerceCopy" && _id == "commerceCopy"][0].marketingConsent.label': MARKETING_CONSENT_QUERY_RESULT;
+    '*[_type == "pickupPage" && _id == "pickupPage"][0].blackoutDates': PICKUP_BLACKOUT_DATES_QUERY_RESULT;
   }
 }
 // Lets @sanity/client releases that predate the global registry read it too

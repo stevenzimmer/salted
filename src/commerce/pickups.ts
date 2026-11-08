@@ -2,16 +2,11 @@ import { and, eq, sql } from "drizzle-orm";
 import type { Database } from "../db/client";
 import { pickupDates } from "../db/schema";
 import { pickupConfig } from "../data/pickup-config";
-import { pacificCutoff } from "../data/pickup-dates";
+import { pickupCutoff } from "../lib/pickup-policy";
 import { calendarDay, CommerceError } from "./validation";
 import { isPickupOpen } from "../lib/availability";
 
-export function pickupCutoff(day: string): Date {
-  calendarDay.parse(day);
-  const cutoff = new Date(`${day}T12:00:00Z`);
-  cutoff.setUTCDate(cutoff.getUTCDate() - pickupConfig.cutoffDaysBefore);
-  return new Date(pacificCutoff(cutoff.toISOString().slice(0, 10)));
-}
+export { pickupCutoff } from "../lib/pickup-policy";
 export async function openPickupDate(
   db: Database,
   day: string,

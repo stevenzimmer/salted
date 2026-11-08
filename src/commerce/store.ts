@@ -19,9 +19,8 @@ import {
   type PriceLine,
 } from "./validation";
 import { isPickupOpen } from "../lib/availability";
-import { activeOfferings, type Catalog } from "./catalog";
-import { pacificToday } from "../data/pickup-dates";
-import type { MockSchedule } from "../types/content";
+import { fridayPickup } from "../lib/pickup-policy";
+import { pickupConfig } from "../data/pickup-config";
 import { recordPaidMarketingConsent } from "../marketing/preferences";
 import {
   noMarketingConsent,
@@ -64,6 +63,7 @@ export async function createCheckoutAttempt(
   lines: PriceLine[],
   params: SessionParamsFactory,
   marketingConsent: MarketingConsentSnapshot = noMarketingConsent,
+  blackoutDates: readonly string[] = [],
 ): Promise<Attempt> {
   if ((input.marketingOptIn === true) !== marketingConsent.optIn)
     throw new CommerceError(
@@ -105,6 +105,26 @@ export async function createCheckoutAttempt(
         "checkout_active",
         "A checkout is already open. Resume it or end it before starting another.",
       );
+    const expectedPickup = fridayPickup(input.pickupDate, blackoutDates);
+    if (!expectedPickup || !isPickupOpen(expectedPickup))
+      throw new CommerceError(
+        "pickup_closed",
+        "This Friday is closed. Choose another date.",
+      );
+    // Persist only the chosen order date, never a pre-opened calendar or stock rows.
+    // The legacy source/enabled columns no longer determine date eligibility.
+    await tx
+      .insert(pickupDates)
+      .values({
+        date: expectedPickup.date,
+        startTime: expectedPickup.pickupStart,
+        endTime: expectedPickup.pickupEnd,
+        cutoffAt: new Date(expectedPickup.orderCutoff),
+        timezone: pickupConfig.timezone,
+        configurationSource: "manual",
+        enabled: true,
+      })
+      .onConflictDoNothing({ target: pickupDates.date });
     const [pickup] = await tx
       .select()
       .from(pickupDates)
@@ -112,19 +132,15 @@ export async function createCheckoutAttempt(
       .for("share");
     if (
       !pickup ||
-      pickup.configurationSource !== "manual" ||
-      !isPickupOpen({
-        id: pickup.id,
-        date: pickup.date,
-        pickupStart: pickup.startTime,
-        pickupEnd: pickup.endTime,
-        orderCutoff: pickup.cutoffAt.toISOString(),
-        enabled: pickup.enabled,
-      })
+      pickup.timezone !== pickupConfig.timezone ||
+      pickup.startTime !== `${expectedPickup.pickupStart}:00` ||
+      pickup.endTime !== `${expectedPickup.pickupEnd}:00` ||
+      pickup.cutoffAt.getTime() !==
+        new Date(expectedPickup.orderCutoff).getTime()
     )
       throw new CommerceError(
-        "pickup_closed",
-        "This Friday is closed. Choose another date.",
+        "pickup_configuration_conflict",
+        "This Friday's existing pickup details need review. Choose another date.",
       );
     const orderId = randomUUID(),
       expiresAt = new Date(Date.now() + 32 * 60 * 1000);
@@ -407,40 +423,4 @@ export async function recordRefund(
         })
         .where(eq(orders.id, order.id));
   });
-}
-export async function readSchedule(
-  db: Database,
-  catalog: Catalog,
-): Promise<MockSchedule> {
-  const dates = await db
-    .select()
-    .from(pickupDates)
-    .where(
-      and(
-        eq(pickupDates.enabled, true),
-        eq(pickupDates.configurationSource, "manual"),
-        sql`${pickupDates.date}>${pacificToday()}`,
-        sql`${pickupDates.cutoffAt}>now()`,
-      ),
-    )
-    .orderBy(pickupDates.date)
-    .limit(500);
-  const offerings = activeOfferings(catalog);
-  return {
-    dates: dates.map((d) => ({
-      id: d.id,
-      date: d.date,
-      pickupStart: d.startTime,
-      pickupEnd: d.endTime,
-      orderCutoff: d.cutoffAt.toISOString(),
-      enabled: d.enabled,
-    })),
-    availability: dates.flatMap((d) =>
-      offerings.map((offering) => ({
-        pickupDateId: d.id,
-        ...offering,
-        inventory: null,
-      })),
-    ),
-  };
 }

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { createHash } from "node:crypto";
+import { pickupDayInput } from "../lib/pickup-policy";
 
 export class CommerceError extends Error {
   constructor(
@@ -10,12 +11,7 @@ export class CommerceError extends Error {
     super(message);
   }
 }
-export const calendarDay = z.iso
-  .date()
-  .refine(
-    (day) => new Date(`${day}T12:00:00Z`).getUTCDay() === 5,
-    "Choose a Friday.",
-  );
+export const calendarDay = pickupDayInput;
 const identity = z
   .string()
   .min(1)

@@ -27,7 +27,7 @@ import { CheckoutPayment } from "./checkout-payment";
 import { CheckoutReturn } from "./checkout-return";
 import { PickupDatePicker } from "./pickup-date-picker";
 import { resolveCart, cartSubtotal } from "@/lib/cart";
-import { validPickupDates } from "@/lib/availability";
+import { pickupDateForCart, validPickupDates } from "@/lib/availability";
 import { money, pickupLabel } from "@/lib/format";
 import { pickupConfig } from "@/data/pickup-config";
 import { trackCheckoutEvent, type CheckoutStep } from "@/lib/analytics";
@@ -54,7 +54,9 @@ export function CartDrawer() {
   const lines = resolveCart(items, products);
   const subtotal = cartSubtotal(items, products);
   const dates = validPickupDates(items, schedule);
-  const selected = dates.find((date) => date.date === selectedDate);
+  const selected = selectedDate
+    ? pickupDateForCart(items, schedule, selectedDate)
+    : undefined;
   const itemCount = items.reduce((total, item) => total + item.quantity, 0);
   const visibleStep = items.length === 0 ? "bag" : step;
   const lastViewedStep = useRef<CheckoutStep | null>(null);
@@ -131,7 +133,7 @@ export function CartDrawer() {
     if (
       date &&
       date !== selected?.date &&
-      dates.some((option) => option.date === date)
+      pickupDateForCart(items, schedule, date)
     ) {
       trackCheckoutEvent("pickup_date_selected", {
         pickup_date: date,
@@ -142,10 +144,7 @@ export function CartDrawer() {
   }
 
   function continueToPayment() {
-    if (
-      selected &&
-      validPickupDates(items, schedule).some((date) => date.id === selected.id)
-    )
+    if (selected && pickupDateForCart(items, schedule, selected.date))
       setStep("payment_preview");
   }
 
@@ -357,16 +356,20 @@ export function CartDrawer() {
               className="text-sm leading-relaxed text-muted-foreground"
               value={c?.dateIntro}
             />
-            {dates.length ? (
-              <PickupDatePicker
-                dates={dates}
-                selected={selected?.date}
-                onSelect={selectPickupDate}
-                legend={c?.calendarKey}
-              />
-            ) : [c?.unavailableHeading, c?.unavailableBody, c?.editBag].some(
-                hasText,
-              ) ? (
+            <PickupDatePicker
+              dates={dates}
+              selected={selected?.date}
+              onSelect={selectPickupDate}
+              isAvailable={
+                schedule.recurring
+                  ? (day) => Boolean(pickupDateForCart(items, schedule, day))
+                  : undefined
+              }
+            />
+            {dates.length === 0 &&
+            [c?.unavailableHeading, c?.unavailableBody, c?.editBag].some(
+              hasText,
+            ) ? (
               <div className="checkout-notice" role="status">
                 <Text as="h4" value={c?.unavailableHeading} />
                 <Text value={c?.unavailableBody} />

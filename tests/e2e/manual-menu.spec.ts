@@ -2,7 +2,6 @@ import { test, expect } from "@playwright/test";
 import { eq, inArray, and } from "drizzle-orm";
 import { withDatabase, type Database } from "../../src/db/client";
 import {
-  pickupDates,
   orders,
   orderItems,
   checkoutAttempts,
@@ -10,12 +9,11 @@ import {
   reservations,
   processedStripeEvents,
 } from "../../src/db/schema";
-import { openPickupDate, closePickupDate } from "../../src/commerce/pickups";
 import { stripeClient } from "../../src/commerce/config";
 import { createOrRecoverSession } from "../../src/commerce/checkout";
 import { applySession } from "../../src/commerce/store";
-import { fetchCatalog } from "../../src/commerce/catalog";
-test.describe("manual menu with real sandbox payments", () => {
+import { checkoutInput } from "../../src/commerce/validation";
+test.describe("default Friday menu with real sandbox payments", () => {
   test.skip(
     process.env.MANUAL_MENU_QA !== "true",
     "Run against the isolated commerce test server and actual Stripe CLI forwarding.",
@@ -28,41 +26,16 @@ test.describe("manual menu with real sandbox payments", () => {
       throw new Error("Use a separate QA database.");
     return withDatabase(fn, process.env.TEST_DATABASE_URL);
   };
-  const days: string[] = [];
-  test.beforeAll(async () => {
-    const day = new Date();
-    day.setUTCDate(day.getUTCDate() + 8);
-    while (day.getUTCDay() !== 5) day.setUTCDate(day.getUTCDate() + 1);
-    // Explicit temporary QA dates only; preserve any pre-existing operator dates.
-    for (let i = 0; i < 2; i++) {
-      while (
-        (
-          await dbQA((db) =>
-            db
-              .select()
-              .from(pickupDates)
-              .where(eq(pickupDates.date, day.toISOString().slice(0, 10))),
-          )
-        ).length
-      )
-        day.setUTCDate(day.getUTCDate() + 7);
-      const date = day.toISOString().slice(0, 10);
-      await dbQA((db) => openPickupDate(db, date));
-      days.push(date);
-      day.setUTCDate(day.getUTCDate() + 7);
-    }
-  });
+  const attemptIds: string[] = [];
   test.afterAll(async () => {
-    if (!days.length) return;
+    if (!attemptIds.length) return;
     const attempts = await dbQA((db) =>
       db
         .select({ attempt: checkoutAttempts })
         .from(checkoutAttempts)
-        .innerJoin(orders, eq(checkoutAttempts.orderId, orders.id))
-        .innerJoin(pickupDates, eq(orders.pickupDateId, pickupDates.id))
         .where(
           and(
-            inArray(pickupDates.date, days),
+            inArray(checkoutAttempts.id, attemptIds),
             inArray(checkoutAttempts.status, ["creating", "open"]),
           ),
         ),
@@ -75,7 +48,6 @@ test.describe("manual menu with real sandbox payments", () => {
           : session;
       await dbQA((db) => applySession(db, final));
     }
-    for (const day of days) await dbQA((db) => closePickupDate(db, day));
     // Keep real sandbox paid orders and their date references for audit.
   });
   test("active size accepts 20 units without stock rows, pays, receives a real webhook and confirms", async ({
@@ -85,12 +57,7 @@ test.describe("manual menu with real sandbox payments", () => {
     const response = await request.get("/api/commerce/availability");
     expect(response.status()).toBe(200);
     const schedule = await response.json();
-    expect(schedule.availability.length).toBeGreaterThan(0);
-    expect(
-      schedule.availability.every(
-        (row: { inventory: unknown }) => row.inventory === null,
-      ),
-    ).toBe(true);
+    expect(schedule.recurring.offerings.length).toBeGreaterThan(0);
     await page.goto("/");
     const card = page.locator("article").filter({
       has: page.getByRole("link", {
@@ -107,14 +74,22 @@ test.describe("manual menu with real sandbox payments", () => {
     await card.getByRole("button", { name: /Add to bag/ }).click();
     const dialog = page.getByRole("dialog");
     await dialog.getByRole("button", { name: /^Checkout/ }).click();
-    await dialog
+    const firstFriday = dialog
       .getByRole("grid")
       .locator("button:not([disabled])")
-      .first()
-      .click();
+      .first();
+    await firstFriday.click();
+    const checkoutRequest = page.waitForRequest(
+      (request) =>
+        request.method() === "POST" &&
+        request.url().endsWith("/api/commerce/checkout"),
+    );
     await dialog
       .getByRole("button", { name: "Continue to Stripe", exact: true })
       .click();
+    attemptIds.push(
+      checkoutInput.parse((await checkoutRequest).postDataJSON()).requestKey,
+    );
     await expect(page).toHaveURL(/^https:\/\/checkout\.stripe\.com\//, {
       timeout: 45000,
     });
@@ -218,67 +193,5 @@ test.describe("manual menu with real sandbox payments", () => {
       page.getByRole("button", { name: "Open cart, 0 items", exact: true }),
     ).toBeVisible();
     await expect(page.getByText(/2–6pm PT/)).toBeVisible();
-  });
-  test("a manual closure refreshes the calendar and prevents checkout without clearing the bag", async ({
-    page,
-    request,
-    baseURL,
-  }) => {
-    await page.goto("/");
-    const card = page.locator("article").filter({
-      has: page.getByRole("link", {
-        name: "View Classic Focaccia",
-        exact: true,
-      }),
-    });
-    await card.getByRole("button", { name: /Add to bag/ }).click();
-    const dialog = page.getByRole("dialog");
-    await dialog.getByRole("button", { name: /^Checkout/ }).click();
-    await dialog
-      .getByRole("grid")
-      .locator("button:not([disabled])")
-      .first()
-      .click();
-    for (const day of days) await dbQA((db) => closePickupDate(db, day));
-    const refreshed = page.waitForResponse((response) =>
-      response.url().endsWith("/api/commerce/availability"),
-    );
-    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
-    await refreshed;
-    await expect(
-      dialog.getByRole("button", { name: "Continue to Stripe", exact: true }),
-    ).toHaveCount(0);
-    await expect(
-      dialog.getByRole("heading", {
-        name: "No Fridays fit this bag just yet.",
-        exact: true,
-      }),
-    ).toBeVisible();
-    const unitPrice = (await fetchCatalog())
-      .find((p) => p.id === "classic-focaccia")
-      ?.variants?.find((v) => v.id === "round")?.price;
-    expect(typeof unitPrice).toBe("number");
-    const result = await request.post("/api/commerce/checkout", {
-      headers: { Origin: baseURL ?? "http://localhost:3001" },
-      data: {
-        items: [
-          { productId: "classic-focaccia", variantId: "round", quantity: 1 },
-        ],
-        pickupDate: days[0],
-        requestKey: crypto.randomUUID(),
-        reviewedPrices: [
-          { productId: "classic-focaccia", variantId: "round", unitPrice },
-        ],
-      },
-    });
-    expect(result.status()).toBe(409);
-    expect((await result.json()).code).toBe("pickup_closed");
-    await expect(
-      page.getByRole("button", {
-        name: "Open cart, 1 item",
-        exact: true,
-        includeHidden: true,
-      }),
-    ).toBeAttached();
   });
 });

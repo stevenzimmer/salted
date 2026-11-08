@@ -7,7 +7,7 @@
 - Keep uncertain rules configurable. See `docs/open-decisions.md` before introducing business assumptions.
 - Prices are integer US cents. Never derive prices from browser-provided amounts in future production flows.
 - A pickup date belongs to an entire order, never a cart line. One order has exactly one pickup date. Separate pickup dates require separate orders.
-- Check complete-cart availability against published active products/sizes, manually enabled Fridays and Pacific cutoffs. Launch stock is uncapped; an explicit uncapped offering is distinct from a missing/unavailable offering.
+- Check complete-cart availability against published active products/sizes, default-open future Fridays, published CMS blackout dates and Pacific cutoffs. Launch stock is uncapped; an explicit uncapped offering is distinct from a missing/unavailable offering.
 - Phase 1 must not create real orders, payments, inventory reservations, messages, or special-order submissions.
 - Sanity owns editorial content. Postgres owns transactional orders, inventory, reservations, and delivery state. Never use Sanity as transactional order storage.
 - Verified Stripe webhook events and server-side reconciliation are authoritative for payment completion. A redirect or local confirmation is never proof of payment.
@@ -27,7 +27,7 @@
 - Meaningful images require editable alt text; decorative images use empty alt. Annotate images with document ID, document type and exact field path through the supported Visual Editing API.
 - Keep Studio in its separate root layout. Do not mount website `SanityLive` or `VisualEditing` there. Mount Visual Editing on website routes only in Draft Mode.
 - Protect Draft Mode with `defineEnableDraftMode`; never add an arbitrary public enable route. Keep `SANITY_API_READ_TOKEN` and the `SANITY_API_TOKEN` compatibility alias server-only. Do not pass an Editor token as a browser token.
-- Sanity must never own transactional orders, inventory, reservations, payments, or delivery state. Active product/size switches define the launch menu on every manually opened Friday; do not introduce mock stock as a storefront fallback.
+- Sanity must never own transactional orders, inventory, reservations, payments, or delivery state. Active product/size switches define the launch menu on every eligible future Friday; do not introduce mock stock as a storefront fallback.
 - Seed data is a migration artifact only, never a frontend fallback. Preserve existing documents and editor drafts on reruns. Temporary QA drafts must be cleaned up without modifying editorial documents.
 
 <!-- BEGIN:nextjs-agent-rules -->
@@ -43,11 +43,11 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## Phase 3 commerce conventions
 
 - Read `docs/commerce-architecture.md`, `docs/inventory-lifecycle.md` and `docs/phase-3-open-decisions.md` before changing checkout or inventory.
-- Launch uses active published products/sizes with no stock caps. Fridays are opened/closed only through the private commerce:pickup operator command. Do not reintroduce CMS weekly menus, planned allocations or automatic date opening; see docs/manual-menu-launch.md.
+- Launch uses active published products/sizes with no stock caps. All future Fridays open by default before their Pacific cutoff. Editors publish blackout dates in Pickup Info → Pickup blackout dates; cleared/missing lists mean no blackouts. Do not reintroduce manual date opening, CMS weekly menus or planned allocations; see docs/manual-menu-launch.md.
 - Size radios are disabled only when that variant's CMS active flag is false. Keep size selection/defaults independent of pickup-date availability; retain inactive sizes for disabled display but exclude them from cart acceptance and starting prices.
-- Add-to-bag and cart quantity controls follow active products/sizes and the per-line quantity guard, not pickup availability or legacy stock. Customers can build a bag before a Friday is opened; the calendar and server checkout still require complete-cart availability and cutoff validation.
+- Add-to-bag and cart quantity controls follow active products/sizes and the per-line quantity guard, not pickup availability or legacy stock. Customers can build a bag independently of pickup eligibility; the calendar and server checkout still require complete-cart availability and cutoff validation.
 - Persist validated catalog price/name snapshots. Browser prices are review hints only; never a source for Stripe amounts.
-- Lock the selected manual Friday during new checkout creation and serialize guest retries. New attempts explicitly use inventory_mode=uncapped and create no holds. Preserve the inventory lifecycle of legacy reserved attempts, including deterministic inventory locks. Keep Stripe/network calls outside transactions; persist Session parameters and reuse idempotency keys.
+- Create the selected pickup row lazily and lock its immutable details during new checkout creation and serialize guest retries. New attempts explicitly use inventory_mode=uncapped and create no holds. Preserve the inventory lifecycle of legacy reserved attempts, including deterministic inventory locks. Keep Stripe/network calls outside transactions; persist Session parameters and reuse idempotency keys.
 - Never release holds by timestamp or navigation alone. Confirm Stripe expiration or definitive creation failure/absence; paid orders never release inventory.
 - Payment recovery and expired request-bucket cleanup run only through private operator commands. Do not add scheduled jobs or public maintenance endpoints without an explicit request; verified webhooks handle normal payment notifications.
 - Success redirects are read-only. Require the browser capability and verified local/Stripe paid state; never expose contact details or clear a different/newer cart.

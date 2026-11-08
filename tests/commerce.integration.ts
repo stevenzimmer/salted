@@ -21,10 +21,11 @@ import {
   createCheckoutAttempt,
   releaseUncreatedAttempt,
   recordRefund,
-  readSchedule,
   type Attempt,
   type PaymentSession,
 } from "../src/commerce/store";
+import { buildPickupSchedule } from "../src/commerce/schedule-model";
+import { pickupDateForCart } from "../src/lib/availability";
 import { openPickupDate, closePickupDate } from "../src/commerce/pickups";
 import { priceCart, type Catalog } from "../src/commerce/catalog";
 import { resolveMarketingConsent } from "../src/commerce/marketing-consent";
@@ -72,7 +73,11 @@ async function fixture() {
   };
   const lines = priceCart(input, catalog);
   const eventIds: string[] = [];
-  const create = (request = input, owner: string = randomUUID()) =>
+  const create = (
+    request = input,
+    owner: string = randomUUID(),
+    blackoutDates: string[] = [],
+  ) =>
     dbTest((db) =>
       createCheckoutAttempt(
         db,
@@ -89,6 +94,7 @@ async function fixture() {
           expires_at: Math.floor(expiresAt.getTime() / 1000),
         }),
         resolveMarketingConsent(request, request.marketingConsentText),
+        blackoutDates,
       ),
     );
   const savedOrder = (attempt: Attempt) =>
@@ -341,15 +347,22 @@ test("concurrent retries create one order; a failed database transaction leaves 
     await f.cleanup();
   }
 });
-test("manual open is idempotent; closing prevents new orders while preserving an existing payable checkout", async () => {
+test("a published blackout prevents new orders while preserving an existing payable checkout", async () => {
   const f = await fixture();
   try {
     const reopened = await dbTest((db) => openPickupDate(db, f.pickup.date));
     assert.equal(reopened.id, f.pickup.id);
     const a = await f.create();
-    await dbTest((db) => closePickupDate(db, f.pickup.date));
-    await assert.rejects(f.create({ ...f.input, requestKey: randomUUID() }));
-    assert.equal((await f.create(f.input, a.ownerHash)).id, a.id);
+    await assert.rejects(
+      f.create({ ...f.input, requestKey: randomUUID() }, undefined, [
+        f.pickup.date,
+      ]),
+      { code: "pickup_closed" },
+    );
+    assert.equal(
+      (await f.create(f.input, a.ownerHash, [f.pickup.date])).id,
+      a.id,
+    );
     await dbTest((db) => applySession(db, session(a)));
     assert.equal((await f.savedOrder(a)).paymentStatus, "paid");
     assert.deepEqual(await f.counts(), { orders: 1, inventory: 0, holds: 0 });
@@ -357,7 +370,7 @@ test("manual open is idempotent; closing prevents new orders while preserving an
     await f.cleanup();
   }
 });
-test("the pickup row lock serializes manual closure with checkout creation", async () => {
+test("checkout locks the stored pickup details and rejects a concurrent configuration conflict", async () => {
   const f = await fixture();
   try {
     let locked: () => void = () => {},
@@ -379,7 +392,7 @@ test("the pickup row lock serializes manual closure with checkout creation", asy
         await releasePromise;
         await tx
           .update(pickupDates)
-          .set({ enabled: false })
+          .set({ cutoffAt: new Date(0) })
           .where(eq(pickupDates.id, f.pickup.id));
       }),
     );
@@ -394,7 +407,7 @@ test("the pickup row lock serializes manual closure with checkout creation", asy
     await f.cleanup();
   }
 });
-test("past cutoffs, legacy-owned dates and disabled Fridays are rejected", async () => {
+test("legacy disabled/source flags do not close future Fridays, while invalid days and conflicting commitments are rejected", async () => {
   const f = await fixture();
   try {
     await assert.rejects(dbTest((db) => openPickupDate(db, "2026-11-19")));
@@ -402,10 +415,11 @@ test("past cutoffs, legacy-owned dates and disabled Fridays are rejected", async
     await dbTest((db) =>
       db
         .update(pickupDates)
-        .set({ configurationSource: "sanity_legacy" })
+        .set({ configurationSource: "sanity_legacy", enabled: false })
         .where(eq(pickupDates.id, f.pickup.id)),
     );
-    await assert.rejects(f.create());
+    const attempt = await f.create();
+    await dbTest((db) => releaseUncreatedAttempt(db, attempt.id));
     await dbTest((db) => openPickupDate(db, f.pickup.date));
     await dbTest((db) =>
       db
@@ -413,56 +427,40 @@ test("past cutoffs, legacy-owned dates and disabled Fridays are rejected", async
         .set({ cutoffAt: new Date(0) })
         .where(eq(pickupDates.id, f.pickup.id)),
     );
-    await assert.rejects(f.create());
+    await assert.rejects(f.create({ ...f.input, requestKey: randomUUID() }), {
+      code: "pickup_configuration_conflict",
+    });
     await assert.rejects(dbTest((db) => openPickupDate(db, f.pickup.date)));
-    assert.equal((await f.counts()).orders, 0);
+    assert.equal((await f.counts()).orders, 1);
   } finally {
     await f.cleanup();
   }
 });
-test("published active products and sizes are offered on each manual Friday without inventory rows or CMS menus", async () => {
+test("a future Friday needs no pre-existing row; concurrent first checkouts share one date without stock", async () => {
   const f = await fixture();
+  await dbTest((db) =>
+    db.delete(pickupDates).where(eq(pickupDates.id, f.pickup.id)),
+  );
   try {
-    const schedule = await dbTest((db) => readSchedule(db, catalog));
-    assert.ok(schedule.dates.some((d) => d.id === f.pickup.id));
-    assert.deepEqual(
-      schedule.availability.filter((r) => r.pickupDateId === f.pickup.id),
-      [
-        {
-          pickupDateId: f.pickup.id,
-          productId: "qa-bread",
-          variantId: "loaf",
-          inventory: null,
-        },
-      ],
+    const schedule = buildPickupSchedule(catalog, []);
+    assert.ok(pickupDateForCart(f.input.items, schedule, f.pickup.date));
+    const attempts = await Promise.all(
+      Array.from({ length: 4 }, () =>
+        f.create({ ...f.input, requestKey: randomUUID() }),
+      ),
     );
-    const changed: Catalog = [
-      {
-        ...catalog[0],
-        variants: [
-          ...(catalog[0].variants ?? []),
-          { id: "new-size", active: true, label: "New size", price: 2500 },
-          { id: "off", active: false, label: "Off", price: 1200 },
-        ],
-      },
-    ];
-    const updated = await dbTest((db) => readSchedule(db, changed));
-    assert.deepEqual(
-      updated.availability
-        .filter((r) => r.pickupDateId === f.pickup.id)
-        .map((r) => r.variantId),
-      ["loaf", "new-size"],
+    assert.equal(attempts.length, 4);
+    const dates = await dbTest((db) =>
+      db.select().from(pickupDates).where(eq(pickupDates.date, f.pickup.date)),
     );
-    const disabled = await dbTest((db) =>
-      readSchedule(db, [{ ...catalog[0], active: false }]),
-    );
-    assert.ok(
-      !disabled.availability.some((r) => r.pickupDateId === f.pickup.id),
-    );
-    await dbTest((db) => closePickupDate(db, f.pickup.date));
-    const closed = await dbTest((db) => readSchedule(db, catalog));
-    assert.ok(!closed.dates.some((d) => d.id === f.pickup.id));
+    assert.equal(dates.length, 1);
+    f.pickup.id = dates[0].id;
+    assert.deepEqual(await f.counts(), { orders: 4, inventory: 0, holds: 0 });
   } finally {
+    const [saved] = await dbTest((db) =>
+      db.select().from(pickupDates).where(eq(pickupDates.date, f.pickup.date)),
+    );
+    if (saved) f.pickup.id = saved.id;
     await f.cleanup();
   }
 });

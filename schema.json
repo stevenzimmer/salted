@@ -1902,13 +1902,6 @@
                 "type": "string"
               },
               "optional": true
-            },
-            "calendarKey": {
-              "type": "objectAttribute",
-              "value": {
-                "type": "string"
-              },
-              "optional": true
             }
           }
         },
@@ -2958,6 +2951,16 @@
           "type": "string"
         },
         "optional": false
+      },
+      "blackoutDates": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "array",
+          "of": {
+            "type": "string"
+          }
+        },
+        "optional": true
       },
       "intro": {
         "type": "objectAttribute",

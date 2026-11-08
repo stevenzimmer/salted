@@ -1,6 +1,6 @@
 # Salted Focaccia
 
-Next.js 16 / React 19 bakery storefront with Sanity 6 editorial content, an embedded Studio, and Visual Editing. The approved Phase 1 layout and browser cart remain in place. Phase 3 adds Neon/Drizzle orders and manual pickup Fridays, guest Stripe-hosted Checkout and verified webhook orders behind `COMMERCE_ENABLED=false`. Stripe is test-only; special orders remain a local preview and messaging is deferred.
+Next.js 16 / React 19 bakery storefront with Sanity 6 editorial content, an embedded Studio, and Visual Editing. The approved Phase 1 layout and browser cart remain in place. Phase 3 adds Neon/Drizzle orders and default-open pickup Fridays with CMS blackouts, guest Stripe-hosted Checkout and verified webhook orders behind `COMMERCE_ENABLED=false`. Stripe is test-only; special orders remain a local preview and messaging is deferred.
 
 ## Local setup
 
@@ -49,7 +49,7 @@ Open `http://localhost:3000` and `/studio`. If the server was already running ag
 
 `npm run cms:seed` uses `SANITY_API_WRITE_TOKEN` or the setup alias `SANITY_API_TOKEN`. It checks both draft and published IDs, preserves existing documents, uploads local Instagram images and remote placeholders as Sanity assets, and creates missing documents atomically with `createIfNotExists`. Repeated runs preserve editor work and do not re-upload existing documents' images. If an image download fails, the import stops with an error. An explicit `--skip-placeholder-images` imports copy and local photos while leaving placeholder image fields unset. No runtime fallback image exists. Final photography, ingredients, allergens, reviews, recipes, founder copy, care instructions, and policies still require approval.
 
-The launch menu uses active published products and active sizes on every manually opened Friday, without stock quantity caps. New active sizes need no inventory row. Pickup dates are opened/closed with the private operator command; Pacific cutoffs, input limits and special-order rules remain code-owned. No mock availability is used by the storefront.
+The launch menu uses active published products and active sizes on every eligible future Friday, without stock quantity caps. New active sizes need no inventory row. Editors publish blackout dates under **Pickup Info → Pickup blackout dates**; clearing the list reopens dates. No manual Friday opening is needed; Pacific cutoffs, input limits and special-order rules remain code-owned. No mock availability is used by the storefront.
 
 ## Editing workflow
 
@@ -161,7 +161,7 @@ npm run cms:migrate-inactive-products
 
 This adds the new group only where absent, preserving existing groups, unrelated
 copy and draft status. Fresh seeds already include it. Product activation and
-pickup-date opening remain separate: the launch menu is uncapped, and no future open Friday means unavailable ordering.
+pickup blackouts remain separate: the launch menu is uncapped, and future Fridays open by default before the Pacific cutoff unless blacked out in the published CMS list.
 
 ## Phase 3 sandbox commerce
 
@@ -170,15 +170,15 @@ The requested Neon project `spring-glitter-05463559` is linked locally to branch
 ```sh
 npm run db:migrate
 npm run cms:migrate-commerce-copy # one-time migration, temporary Sanity write token
-npm run commerce:pickup -- open 2026-11-20 # explicitly open one future Friday
+# Publish blackout dates under Studio → Pickup Info, if needed
 npm run commerce:check
 npm run stripe:listen -- 3000    # official CLI, stores actual local secret privately
 COMMERCE_ENABLED=true npm run dev
 ```
 
-Complete a test checkout from the existing product selectors, cart drawer and pickup calendar. Use a manually opened future Friday and published active products/sizes for the entire bag. The read-only success page confirms only an order verified in both Stripe and Postgres. The browser capability cookie protects order summaries; contact details are operator-only.
+Complete a test checkout from the existing product selectors, cart drawer and pickup calendar. Use a future Friday outside the published blackout list and published active products/sizes for the entire bag. The read-only success page confirms only an order verified in both Stripe and Postgres. The browser capability cookie protects order summaries; contact details are operator-only.
 
-Run `npm run test:integration` with a separate migrated `TEST_DATABASE_URL` for real Postgres concurrency/state tests. Run `npm run test:e2e` with a locally running test-enabled app and Chromium. Set `PLAYWRIGHT_BASE_URL` for an alternate port. Use `commerce:pickup -- open|close YYYY-MM-DD` to control test Fridays in the isolated QA database; no CMS menu fixture is needed.
+Run `npm run test:integration` with a separate migrated `TEST_DATABASE_URL` for real Postgres concurrency/state tests. Run `npm run test:e2e` with a locally running test-enabled app and Chromium. Set `PLAYWRIGHT_BASE_URL` for an alternate port. Test blackout/cutoff cases with isolated fixtures; do not alter shared published CMS dates for QA. No CMS menu fixture or manual date opening is needed.
 
 Operator-only CSV and production summary:
 
@@ -199,6 +199,6 @@ Customers can unsubscribe at **`/unsubscribe`**. The page saves a current per-em
 
 Apply `npm run db:migrate` and `npm run cms:migrate-unsubscribe` when updating another environment. Edit page wording under **Commerce Copy → Unsubscribe**. After deploying the route, run `npm run cms:migrate-unsubscribe -- --include-navigation` to add **Email preferences** to the footer. This timing keeps the existing staged site from linking to an undeployed page. Future newsletters can use signed confirmation links with the server-only `MARKETING_UNSUBSCRIBE_SECRET`. See [unsubscribe behavior, setup and testing](docs/unsubscribe.md).
 
-## Manual launch menu
+## Launch menu and pickup blackouts
 
-**Friday menus & planned inventory** has been removed from Studio. Publish product/size Active switches to control the menu on every open Friday. Stock caps and menu automation are deferred. Open/close Fridays with `npm run commerce:pickup -- open YYYY-MM-DD` / `close YYYY-MM-DD`; `list` shows the current schedule. Apply migration `0004_typical_darwin.sql` first. Existing legacy dates need explicit manual adoption, and old reservations retain their original lifecycle. See [operator setup and rollout](docs/manual-menu-launch.md).
+**Friday menus & planned inventory** has been removed from Studio. Publish product/size Active switches to control the uncapped menu on every eligible future Friday. All future Fridays open by default before their Pacific cutoff. Content managers add Fridays with calendar pickers in **Pickup Info → Pickup blackout dates**, then publish to close them; removing dates reopens them. Manual opening/closing is retired; `commerce:pickup -- list` only inspects stored order dates. Existing reservations retain their original lifecycle. This change requires no additional database migration or CMS data migration. See [operator setup and rollout](docs/manual-menu-launch.md).

@@ -1,11 +1,13 @@
 import "server-only";
-import { withDatabase } from "../db/client";
-import { fetchCatalog } from "./catalog";
-import { readSchedule } from "./store";
+import { fetchCatalog, fetchPickupBlackoutDates } from "./catalog";
+import { buildPickupSchedule } from "./schedule-model";
 import type { MockSchedule } from "../types/content";
 export async function liveSchedule(): Promise<MockSchedule> {
-  const catalog = await fetchCatalog();
-  return withDatabase((db) => readSchedule(db, catalog));
+  const [catalog, blackoutDates] = await Promise.all([
+    fetchCatalog(),
+    fetchPickupBlackoutDates(),
+  ]);
+  return buildPickupSchedule(catalog, blackoutDates);
 }
 export async function storefrontSchedule(): Promise<MockSchedule> {
   try {

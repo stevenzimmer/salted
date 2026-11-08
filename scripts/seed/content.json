@@ -701,8 +701,7 @@
       "taxNote": "Final tax treatment will be confirmed before checkout launches.",
       "expiredDate": "Your date is no longer available. Please choose another Friday.",
       "confirmation": "Preview the confirmation",
-      "backToDates": "Back to pickup dates",
-      "calendarKey": "Available for your whole bag"
+      "backToDates": "Back to pickup dates"
     },
     "confirmation": {
       "eyebrow": "A taste of what’s next",

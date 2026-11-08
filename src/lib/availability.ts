@@ -5,6 +5,8 @@ import type {
   ProductAvailability,
 } from "@/types/content";
 import { pacificToday } from "@/data/pickup-dates";
+import { fridayPickup, upcomingFridays } from "./pickup-policy";
+import { MAX_CART_QUANTITY } from "./cart";
 
 export function isPickupOpen(date: PickupDate, now = new Date()): boolean {
   return (
@@ -36,6 +38,13 @@ export function validPickupDates(
   schedule: MockSchedule,
   now = new Date(),
 ): PickupDate[] {
+  if (schedule.recurring)
+    return upcomingFridays(schedule.recurring.blackoutDates, now).flatMap(
+      (date) => {
+        const available = pickupDateForCart(items, schedule, date.date, now);
+        return available ? [available] : [];
+      },
+    );
   if (items.length === 0) return [];
   // Aggregate first: duplicate lines must never bypass the inventory comparison.
   const quantities = new Map<string, CartItem>();
@@ -63,12 +72,52 @@ export function validPickupDates(
   );
 }
 
+export function pickupDateForCart(
+  items: CartItem[],
+  schedule: MockSchedule,
+  day: string,
+  now = new Date(),
+): PickupDate | undefined {
+  if (!schedule.recurring)
+    return validPickupDates(items, schedule, now).find(
+      (date) => date.date === day,
+    );
+  const { blackoutDates, offerings } = schedule.recurring;
+  const date = fridayPickup(day, blackoutDates);
+  if (!date || !isPickupOpen(date, now) || items.length === 0) return undefined;
+  const quantities = new Map<string, number>();
+  for (const item of items) {
+    const key = `${item.productId}:${item.variantId}`;
+    const quantity = item.quantity + (quantities.get(key) ?? 0);
+    if (
+      !Number.isSafeInteger(item.quantity) ||
+      item.quantity < 1 ||
+      quantity > MAX_CART_QUANTITY ||
+      !offerings.some(
+        (offering) =>
+          offering.productId === item.productId &&
+          offering.variantId === item.variantId,
+      )
+    )
+      return undefined;
+    quantities.set(key, quantity);
+  }
+  return date;
+}
+
 export function maximumInventory(
   schedule: MockSchedule,
   productId: string,
   variantId: string,
   now = new Date(),
 ): number {
+  if (schedule.recurring)
+    return schedule.recurring.offerings.some(
+      (offering) =>
+        offering.productId === productId && offering.variantId === variantId,
+    )
+      ? Number.POSITIVE_INFINITY
+      : 0;
   return Math.max(
     0,
     ...schedule.dates

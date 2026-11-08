@@ -3,6 +3,7 @@ import { copyFields, singletonTitles } from "./copy-fields";
 import { MAX_NAVIGATION_ITEMS, navigationHref } from "../../lib/navigation";
 import { hasText } from "../lib/content";
 import { apiVersion } from "../env";
+import { pickupDayInput } from "../../lib/pickup-policy";
 import { imageDescription, validateImageAssetSize } from "./image-rules";
 import {
   LimitedImageArrayInput,
@@ -295,6 +296,32 @@ const singletons = Object.entries(copyFields).map(([name, groups]) =>
         : undefined,
     fields: [
       internalName,
+      ...(name === "pickupPage"
+        ? [
+            defineField({
+              name: "blackoutDates",
+              title: "Pickup blackout dates",
+              type: "array",
+              description:
+                "All future Fridays are available before the Wednesday Pacific cutoff. Add Fridays here to close them, then publish. Clear a date to reopen it. Existing checkouts and orders keep their pickup commitment.",
+              of: [
+                defineArrayMember({
+                  type: "date",
+                  options: { dateFormat: "YYYY-MM-DD" },
+                  validation: (rule) =>
+                    rule
+                      .required()
+                      .custom(
+                        (value) =>
+                          pickupDayInput.safeParse(value).success ||
+                          "Choose a valid Friday.",
+                      ),
+                }),
+              ],
+              validation: (rule) => rule.max(500).unique(),
+            }),
+          ]
+        : []),
       ...Object.entries(groups).flatMap(([group, fields]) => {
         const isAnnouncement =
           name === "siteSettings" && group === "announcement";

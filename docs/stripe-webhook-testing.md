@@ -5,7 +5,7 @@ Use a Stripe sandbox or test keys only. The implementation rejects live keys/eve
 ## Local setup
 
 1. Set matching test `STRIPE_SECRET_KEY` and optional `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, the pooled/direct Neon URLs, `NEXT_PUBLIC_SITE_URL=http://localhost:3000`, and a random 32+ character `RATE_LIMIT_SECRET`. Hosted redirect does not need the publishable key in browser code.
-2. Migrate the intended database, initialize the missing commerce copy group once, publish active products/sizes, and explicitly open a Friday with `npm run commerce:pickup -- open YYYY-MM-DD`.
+2. Migrate the intended database, initialize the missing commerce copy group once, publish active products/sizes, and choose a future Friday that is not blacked out under Studio → Pickup Info → Pickup blackout dates. No manual opening is needed.
 3. Install the current official Stripe CLI (`npm install -g @stripe/cli`). Authenticate to the correct sandbox or use the test API key through its environment; never pass secret values in committed commands/logs. Run:
 
    ```sh
@@ -31,10 +31,10 @@ A webhook check passes only when the CLI reports forwarding the event to this ap
 - Invalid signature: POST unsigned/altered raw JSON to `/api/stripe/webhook`; expect 400 and no database writes. Use the exact raw body for SDK signing tests.
 - Lost webhook: run `npm run commerce:reconcile`; actual Stripe state repairs pending orders. Unknown creation attempts remain recoverable under the same idempotency key; legacy holds remain until a Session is recovered or absence is proved.
 - Pricing: change a cart's observed review price / a temporary test catalog, expect current server prices and explicit review before creating a Session. Never edit real editorial product prices just for QA.
-- Product/size disabled, manually closed date, invalid Friday or cutoff: reject before Session creation, preserve the cart and identify unavailable items. Use isolated database tests for cutoff, manual closure and legacy hold cases.
+- Product/size disabled, published blackout date, invalid Friday or cutoff: reject before Session creation, preserve the cart and identify unavailable items. Use isolated database tests for cutoff, blackout and legacy hold cases.
 - Transaction/API errors: roll back local creation before commit; after uncertain Stripe creation retain the attempt (and any legacy hold) and retry with the same key. Test definitive Stripe creation rejection and recovery separately.
 
-Run `npm test`, `npm run test:integration` against a separate migrated `TEST_DATABASE_URL`, and `npm run test:e2e` against the locally running sandbox-enabled app. Playwright needs a Chromium installation (`npx playwright install chromium`) or `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` pointing at an installed Chromium. Set `PLAYWRIGHT_BASE_URL` if using another port. Payment tests create real test Sessions/orders; expire/reconcile them and close temporary QA Fridays afterward. No CMS menu fixture or stock allocation is needed.
+Run `npm test`, `npm run test:integration` against a separate migrated `TEST_DATABASE_URL`, and `npm run test:e2e` against the locally running sandbox-enabled app. Playwright needs a Chromium installation (`npx playwright install chromium`) or `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` pointing at an installed Chromium. Set `PLAYWRIGHT_BASE_URL` if using another port. Payment tests create real test Sessions/orders; expire/reconcile them afterward. Never alter shared editorial blackout dates just for QA. No CMS menu fixture or stock allocation is needed.
 
 ## Later hosted endpoint
 

@@ -46,3 +46,6 @@ export const COMMERCE_CATALOG_QUERY = defineQuery(
 export const MARKETING_CONSENT_QUERY = defineQuery(
   `*[_type == "commerceCopy" && _id == "commerceCopy"][0].marketingConsent.label`,
 );
+export const PICKUP_BLACKOUT_DATES_QUERY = defineQuery(
+  `*[_type == "pickupPage" && _id == "pickupPage"][0].blackoutDates`,
+);

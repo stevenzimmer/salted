@@ -2,10 +2,12 @@ import { createClient } from "@sanity/client";
 import {
   COMMERCE_CATALOG_QUERY,
   MARKETING_CONSENT_QUERY,
+  PICKUP_BLACKOUT_DATES_QUERY,
 } from "../sanity/lib/queries";
 import type {
   COMMERCE_CATALOG_QUERY_RESULT,
   MARKETING_CONSENT_QUERY_RESULT,
+  PICKUP_BLACKOUT_DATES_QUERY_RESULT,
 } from "../../sanity.types";
 import {
   CommerceError,
@@ -13,6 +15,7 @@ import {
   type PriceLine,
   totalCents,
 } from "./validation";
+import { blackoutDatesInput } from "../lib/pickup-policy";
 // Transactional validation must bypass CDN, draft perspective and Next caches.
 const client = () =>
   createClient({
@@ -37,6 +40,14 @@ export const fetchMarketingConsentLabel = () =>
     { cache: "no-store" },
   );
 export type Catalog = COMMERCE_CATALOG_QUERY_RESULT;
+export async function fetchPickupBlackoutDates(): Promise<string[]> {
+  const dates = await client().fetch<PICKUP_BLACKOUT_DATES_QUERY_RESULT>(
+    PICKUP_BLACKOUT_DATES_QUERY,
+    {},
+    { cache: "no-store" },
+  );
+  return blackoutDatesInput.parse(dates ?? []);
+}
 
 // The published active product/size switches are the complete launch menu.
 export function activeOfferings(

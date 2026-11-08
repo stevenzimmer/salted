@@ -1,11 +1,11 @@
 # Launch ordering and legacy inventory lifecycle
 
-Launch stock caps and CMS Friday menus/planned allocations have been removed at the user’s request. Published active products/sizes form the menu on every manually opened Friday. Read [manual launch operations](manual-menu-launch.md) for setup, date commands, migration and tests.
+Launch stock caps and CMS Friday menus/planned allocations have been removed at the user’s request. Published active products/sizes form the menu on every eligible future Friday, except published CMS blackout dates. Read [pickup operations](manual-menu-launch.md) for setup, date commands, migration and tests.
 
-New `uncapped` attempts create pending orders and validated item/price snapshots without stock or hold writes. Paid completion needs verified Stripe state and idempotent transaction handling, but no reservation row. Explicit null availability means no stock cap; missing offerings still fail closed. The existing per-line quantity/input limits and Wednesday Pacific cutoff remain.
+New `uncapped` attempts create pending orders and validated item/price snapshots without stock or hold writes. Paid completion needs verified Stripe state and idempotent transaction handling, but no reservation row. Explicit recurring offerings (and legacy null stock) mean no stock cap; missing offerings still fail closed. The existing per-line quantity/input limits and Wednesday Pacific cutoff remain.
 
 Legacy `reserved` attempts retain their original inventory lifecycle. Active holds become sold only after a verified paid Session and matching local order. Confirmed expiration or definitive creation failure releases only unpaid active holds. Unknown Stripe network outcomes retain legacy holds until reconciliation proves the outcome. Duplicate/out-of-order events cannot sell twice or revert paid state. A reserved attempt missing its holds cannot be fulfilled through the uncapped path.
 
-No inventory table, reservation, sold counter or order is deleted by the migration. Manual date commands never change counters. Closing a Friday stops new orders, while already-payable Sessions keep their original commitment. Refunds change financial state and never restock automatically.
+No inventory table, reservation, sold counter or order is deleted by the migration. Published blackout dates stop new orders, while already-payable Sessions keep their original commitment. Refunds change financial state and never restock automatically.
 
 Verified Stripe webhooks handle payment, expiration and refund notifications. Operators run `npm run commerce:reconcile` when interrupted creation or missed events require recovery, including with new payments disabled. `npm run commerce:prune-rate-limits` deletes request buckets older than 24 hours without touching orders or holds. Neither command runs automatically or synchronizes CMS menus, initializes inventory or opens future dates.

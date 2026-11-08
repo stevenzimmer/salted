@@ -10,11 +10,7 @@ import {
   syncRuns,
   marketingSubscriptions,
 } from "../src/db/schema";
-import {
-  openPickupDate,
-  closePickupDate,
-  listPickupDates,
-} from "../src/commerce/pickups";
+import { listPickupDates } from "../src/commerce/pickups";
 import { reconcileCheckouts } from "../src/commerce/checkout";
 import { CommerceError } from "../src/commerce/validation";
 import { pruneRateLimitBuckets } from "../src/commerce/maintenance";
@@ -36,27 +32,9 @@ async function main() {
       const action = process.argv[3];
       if (action === "list")
         console.log(JSON.stringify(await withDatabase(listPickupDates)));
-      else if (action === "open") {
-        const pickup = await withDatabase((db) =>
-          openPickupDate(db, process.argv[4] ?? ""),
-        );
-        console.log(
-          JSON.stringify({
-            date: pickup.date,
-            enabled: pickup.enabled,
-            pickupStart: pickup.startTime,
-            pickupEnd: pickup.endTime,
-            cutoffAt: pickup.cutoffAt,
-            inventoryMode: "uncapped",
-          }),
-        );
-      } else if (action === "close") {
-        const day = process.argv[4] ?? "";
-        await withDatabase((db) => closePickupDate(db, day));
-        console.log(JSON.stringify({ date: day, enabled: false }));
-      } else
+      else
         throw new Error(
-          "Use commerce:pickup -- list | open YYYY-MM-DD | close YYYY-MM-DD.",
+          "All future Fridays open by default. Publish blackout dates in Studio → Pickup Info. Use commerce:pickup -- list only to inspect stored order dates.",
         );
     } else if (command === "prune-rate-limits") {
       const removedRateLimitBuckets = await withDatabase((db) =>
