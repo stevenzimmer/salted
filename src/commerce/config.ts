@@ -1,6 +1,5 @@
 import Stripe from "stripe";
 import { CommerceError } from "./validation";
-export const commerceEnabled = () => process.env.COMMERCE_ENABLED === "true";
 export function stripeClient() {
   const key = process.env.STRIPE_SECRET_KEY;
   // Live activation is a separate explicitly approved launch change.

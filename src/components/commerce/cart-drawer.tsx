@@ -39,7 +39,7 @@ function focusHeading(element: HTMLHeadingElement | null) {
 export function CartDrawer() {
   const {
     items,
-    commerceEnabled,
+    isDraftMode,
     products,
     commerce,
     schedule,
@@ -309,7 +309,7 @@ export function CartDrawer() {
                 <span>{money(subtotal)}</span>
               </div>
               <Text value={c?.pickupHelper} />
-              {!commerceEnabled ? (
+              {isDraftMode ? (
                 <Text className="cart-preview-note" value={c?.previewNote} />
               ) : null}
               {hasText(c?.checkout) ? (
@@ -398,9 +398,9 @@ export function CartDrawer() {
                   ) : null}
                   <Text
                     value={
-                      commerceEnabled
-                        ? commerce?.checkout?.pickupGuidance
-                        : c?.address
+                      isDraftMode
+                        ? c?.address
+                        : commerce?.checkout?.pickupGuidance
                     }
                   />
                 </div>
@@ -426,13 +426,13 @@ export function CartDrawer() {
               <Text as="span" value={c?.subtotal} />
               <span>{money(subtotal)}</span>
             </div>
-            {commerceEnabled && selected ? (
+            {!isDraftMode && selected ? (
               <CheckoutPayment
                 key={JSON.stringify({ items, date: selected.date })}
                 pickupDate={selected.date}
               />
             ) : null}
-            {!commerceEnabled && hasText(c?.continue) ? (
+            {isDraftMode && hasText(c?.continue) ? (
               <button
                 type="button"
                 className="button-primary mt-5 w-full"
@@ -445,7 +445,7 @@ export function CartDrawer() {
             ) : null}
             <Text
               className="draft-note mt-4 text-center"
-              value={commerceEnabled ? undefined : c?.paymentNote}
+              value={isDraftMode ? c?.paymentNote : undefined}
             />
           </div>
         ) : (

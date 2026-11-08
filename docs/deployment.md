@@ -64,17 +64,18 @@ Open the Vercel-protected staging URL directly and sign in before using its Pres
 
 This work does not push or deploy the website. Neon infrastructure setup is separate from Vercel deployment. Keep `.vercel/` and `.neon` local and gitignored.
 
-| Variable                             | Development                                        | Preview / staged test                                                  | Later production                                           |
-| ------------------------------------ | -------------------------------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------- |
-| `COMMERCE_ENABLED`                   | `true` only during sandbox QA; saved default false | false until sandbox setup is complete, then explicitly enable for test | false until separate live launch approval/code gate review |
-| `DATABASE_URL`                       | pooled intended app/dev branch                     | isolated preview/staging database, never production customer data      | pooled production branch                                   |
-| `DATABASE_URL_UNPOOLED`              | direct migration URL                               | operator/CI migration secret; app does not need it                     | operator/CI migration secret                               |
-| `TEST_DATABASE_URL`                  | separate migrated QA branch                        | test runner only                                                       | do not install                                             |
-| `STRIPE_SECRET_KEY`                  | matching sandbox test key                          | matching sandbox test key                                              | distinct live restricted key after approval                |
-| `STRIPE_WEBHOOK_SECRET`              | actual local CLI secret                            | sandbox endpoint secret for exact hosted origin                        | distinct live endpoint secret                              |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | matching test mode (unused by hosted redirect)     | matching sandbox, optional                                             | matching live mode, optional                               |
-| `RATE_LIMIT_SECRET`                  | random 32+ chars                                   | unique per environment                                                 | separate random production secret                          |
-| `NEXT_PUBLIC_SITE_URL`               | exact local origin/port                            | exact stable staged or preview origin                                  | approved canonical production origin                       |
+| Variable                             | Development                                    | Preview / staged test                                             | Later production                            |
+| ------------------------------------ | ---------------------------------------------- | ----------------------------------------------------------------- | ------------------------------------------- |
+| `DATABASE_URL`                       | pooled intended app/dev branch                 | isolated preview/staging database, never production customer data | pooled production branch                    |
+| `DATABASE_URL_UNPOOLED`              | direct migration URL                           | operator/CI migration secret; app does not need it                | operator/CI migration secret                |
+| `TEST_DATABASE_URL`                  | separate migrated QA branch                    | test runner only                                                  | do not install                              |
+| `STRIPE_SECRET_KEY`                  | matching sandbox test key                      | matching sandbox test key                                         | distinct live restricted key after approval |
+| `STRIPE_WEBHOOK_SECRET`              | actual local CLI secret                        | sandbox endpoint secret for exact hosted origin                   | distinct live endpoint secret               |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | matching test mode (unused by hosted redirect) | matching sandbox, optional                                        | matching live mode, optional                |
+| `RATE_LIMIT_SECRET`                  | random 32+ chars                               | unique per environment                                            | separate random production secret           |
+| `NEXT_PUBLIC_SITE_URL`               | exact local origin/port                        | exact stable staged or preview origin                             | approved canonical production origin        |
+
+Checkout defaults to Stripe without an enable flag. The Stripe client still rejects missing or live keys; live activation requires a separately approved code change. Draft Mode keeps the local preview flow.
 
 Retain Phase 2 Sanity public configuration and server-only Viewer token. Do not put a Sanity Editor token or migration write token into Vercel. Published catalog validation uses read-only Sanity credentials; all database writes occur in server/operator code with private credentials. `SANITY_API_TOKEN` is a server-only compatibility alias, not a browser credential.
 
@@ -88,7 +89,7 @@ Stripe payment receipts are controlled in the matching Stripe Dashboard customer
 
 Before an authorized deployment of `/unsubscribe`, apply committed migration `0003_chubby_hulk.sql` with `npm run db:migrate` to that environment's database, and run `npm run cms:migrate-unsubscribe` with an operator-only Sanity write token. Review **Commerce Copy → Unsubscribe**. Once the deployed route works, run `npm run cms:migrate-unsubscribe -- --include-navigation` to append the footer link when its existing menu has room. Review **Site Settings → Footer Navigation**. The migration preserves existing/cleared copy and drafts; this post-deployment navigation step prevents broken links on older sites sharing the dataset.
 
-The email form requires `DATABASE_URL`, the existing `RATE_LIMIT_SECRET` (32+ characters for private rate-limit buckets), Sanity read configuration and an exact `NEXT_PUBLIC_SITE_URL` at build time. It works with `COMMERCE_ENABLED=false`; use `npm run commerce:prune-rate-limits` for manual removal of request buckets older than 24 hours.
+The email form requires `DATABASE_URL`, the existing `RATE_LIMIT_SECRET` (32+ characters for private rate-limit buckets), Sanity read configuration and an exact `NEXT_PUBLIC_SITE_URL` at build time. It works independently of Stripe configuration; use `npm run commerce:prune-rate-limits` for manual removal of request buckets older than 24 hours.
 
 For future signed newsletter links, set `MARKETING_UNSUBSCRIBE_SECRET` to a dedicated stable random value of at least 32 characters. Local development already has a private generated key. Set different keys in Preview and eventual Production before generating links; never prefix the variable with `NEXT_PUBLIC_`. Keep a key stable while its links remain in circulation. Rotating it invalidates those links; the public email form remains available. No Resend or other email-provider setup is required to unsubscribe. This change does not deploy or enable newsletter sending.
 

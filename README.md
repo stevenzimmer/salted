@@ -1,6 +1,6 @@
 # Salted Focaccia
 
-Next.js 16 / React 19 bakery storefront with Sanity 6 editorial content, an embedded Studio, and Visual Editing. The approved Phase 1 layout and browser cart remain in place. Phase 3 adds Neon/Drizzle orders and default-open pickup Fridays with CMS blackouts, guest Stripe-hosted Checkout and verified webhook orders behind `COMMERCE_ENABLED=false`. Stripe is test-only; special orders remain a local preview and messaging is deferred.
+Next.js 16 / React 19 bakery storefront with Sanity 6 editorial content, an embedded Studio, and Visual Editing. The approved Phase 1 layout and browser cart remain in place. Phase 3 adds Neon/Drizzle orders and default-open pickup Fridays with CMS blackouts, guest Stripe-hosted Checkout and verified webhook orders. Stripe checkout is the default and is test-only; Draft Mode and special orders remain local previews and messaging is deferred.
 
 ## Local setup
 
@@ -165,7 +165,7 @@ pickup blackouts remain separate: the launch menu is uncapped, and future Friday
 
 ## Phase 3 sandbox commerce
 
-The requested Neon project `spring-glitter-05463559` is linked locally to branch `production`. `neon.ts` declares Postgres only, with no Auth, storage or other services. `neon deploy` pulls database credentials; `.neon` and `.env.local` stay gitignored. The default commerce flag is false and live Stripe keys are rejected.
+The requested Neon project `spring-glitter-05463559` is linked locally to branch `production`. `neon.ts` declares Postgres only, with no Auth, storage or other services. `neon deploy` pulls database credentials; `.neon` and `.env.local` stay gitignored. Checkout defaults to Stripe without an enable flag, and live Stripe keys are rejected.
 
 ```sh
 npm run db:migrate
@@ -173,7 +173,7 @@ npm run cms:migrate-commerce-copy # one-time migration, temporary Sanity write t
 # Publish blackout dates under Studio → Pickup Info, if needed
 npm run commerce:check
 npm run stripe:listen -- 3000    # official CLI, stores actual local secret privately
-COMMERCE_ENABLED=true npm run dev
+npm run dev
 ```
 
 Complete a test checkout from the existing product selectors, cart drawer and pickup calendar. Use a future Friday outside the published blackout list and published active products/sizes for the entire bag. The read-only success page confirms only an order verified in both Stripe and Postgres. The browser capability cookie protects order summaries; contact details are operator-only.
@@ -195,7 +195,7 @@ The pickup step offers an unchecked, optional newsletter checkbox above **Contin
 
 Apply the database migration and initialize the new copy slot with `npm run cms:migrate-marketing-consent`. The copy migration preserves existing editorial content and drafts. No newsletters are sent and no email-provider contacts are created. See [consent setup and data lifecycle](docs/marketing-consent.md).
 
-Customers can unsubscribe at **`/unsubscribe`**. The page saves a current per-email opt-out in Postgres, gives the same confirmation for every valid address and leaves original order consent evidence intact. It works with checkout disabled and does not send emails.
+Customers can unsubscribe at **`/unsubscribe`**. The page saves a current per-email opt-out in Postgres, gives the same confirmation for every valid address and leaves original order consent evidence intact. It works independently of Stripe configuration and does not send emails.
 
 Apply `npm run db:migrate` and `npm run cms:migrate-unsubscribe` when updating another environment. Edit page wording under **Commerce Copy → Unsubscribe**. After deploying the route, run `npm run cms:migrate-unsubscribe -- --include-navigation` to add **Email preferences** to the footer. This timing keeps the existing staged site from linking to an undeployed page. Future newsletters can use signed confirmation links with the server-only `MARKETING_UNSUBSCRIBE_SECRET`. See [unsubscribe behavior, setup and testing](docs/unsubscribe.md).
 

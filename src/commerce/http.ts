@@ -7,7 +7,7 @@ import { withDatabase } from "../db/client";
 import { checkoutRateLimits } from "../db/schema";
 import { sql } from "drizzle-orm";
 import { CommerceError, hash } from "./validation";
-import { commerceEnabled, siteOrigin } from "./config";
+import { siteOrigin } from "./config";
 export const OWNER_COOKIE = "salted-commerce-owner";
 export async function ownerCapability(create = false) {
   const jar = await cookies();
@@ -31,12 +31,6 @@ export function attachOwner(response: NextResponse, token: string) {
   return response;
 }
 export function requireCheckoutRequest(request: Request) {
-  if (!commerceEnabled())
-    throw new CommerceError(
-      "commerce_disabled",
-      "Checkout is currently unavailable.",
-      503,
-    );
   if (request.headers.get("origin") !== siteOrigin())
     throw new CommerceError(
       "invalid_origin",

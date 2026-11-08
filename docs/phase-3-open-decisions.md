@@ -1,6 +1,6 @@
 # Phase 3 launch decisions
 
-The repository implements test-mode commerce. Production activation remains explicitly unauthorized and is rejected by the Stripe client guard. `COMMERCE_ENABLED` defaults false.
+The repository implements test-mode commerce. Checkout defaults to Stripe without an enable flag. Production activation remains explicitly unauthorized and is rejected by the Stripe client guard. Draft Mode keeps the local preview flow.
 
 Before a separate live activation change:
 

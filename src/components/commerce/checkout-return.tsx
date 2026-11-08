@@ -3,10 +3,10 @@ import { useState } from "react";
 import { useCart } from "./cart-provider";
 import { hasText } from "@/sanity/lib/content";
 export function CheckoutReturn() {
-  const { commerceEnabled, commerce, refreshAvailability } = useCart();
+  const { isDraftMode, commerce, refreshAvailability } = useCart();
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(false);
-  if (!commerceEnabled) return null;
+  if (isDraftMode) return null;
   async function endCheckout() {
     setBusy(true);
     setError(false);

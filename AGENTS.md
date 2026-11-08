@@ -14,7 +14,7 @@
 - Validate external inputs and stored browser data. Never expose secrets through `NEXT_PUBLIC_*`, client imports, logs, or committed environment files.
 - Avoid unnecessary dependencies and broad Client Component boundaries. Use npm and retain the lockfile.
 - Run `npm run lint`, `npm run typecheck`, `npm test`, and `npm run build` for substantial changes. Test cart and availability rules when they change.
-- Phase 3 commerce is implemented behind COMMERCE_ENABLED=false and a test-key guard. Do not deploy, activate live payments, alter live Stripe resources, or begin Phase 4 without an explicit request.
+- Phase 3 commerce defaults to Stripe checkout with a test-key guard. Draft Mode keeps the local preview flow. Do not deploy, activate live payments, alter live Stripe resources, or begin Phase 4 without an explicit request.
 - Read `docs/deployment.md` before deployment work. Pushes to Vercel-connected branches can trigger deployments; require an explicit request to push or deploy.
 - Keep `.vercel/` gitignored; its project configuration belongs to the local working directory.
 

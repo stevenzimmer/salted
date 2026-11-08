@@ -57,6 +57,57 @@ async function redirectToStripe(page: Page) {
     timeout: 30000,
   });
 }
+test("default Stripe checkout submits the bag from the pickup step", async ({
+  page,
+}) => {
+  // Intercept creation so this UI regression creates no orders or Sessions.
+  await page.route("**/api/commerce/checkout", (route) =>
+    route.fulfill({
+      status: 503,
+      contentType: "application/json",
+      body: JSON.stringify({ error: "Checkout verification response." }),
+    }),
+  );
+  const dialog = await selectPickup(page);
+  const pay = dialog.getByRole("button", {
+    name: "Continue to Stripe",
+    exact: true,
+  });
+  await expect(pay).toBeEnabled();
+  const submission = page.waitForRequest(
+    (request) =>
+      request.url().endsWith("/api/commerce/checkout") &&
+      request.method() === "POST",
+  );
+  await pay.click();
+  const input = (await submission).postDataJSON();
+  expect(input.items).toEqual([
+    { productId: "classic-focaccia", variantId: "square", quantity: 1 },
+  ]);
+  expect(input.pickupDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  expect(input.marketingOptIn).toBe(false);
+  await expect(dialog.getByRole("alert")).toHaveText(
+    "Checkout verification response.",
+  );
+  await expect(dialog.locator(".payment-preview")).toHaveCount(0);
+});
+test("checkout request guards validate origin and input without an enable flag", async ({
+  request,
+  baseURL,
+}) => {
+  const invalidOrigin = await request.post("/api/commerce/checkout", {
+    headers: { Origin: "https://other.example" },
+    data: {},
+  });
+  expect(invalidOrigin.status()).toBe(403);
+  expect((await invalidOrigin.json()).code).toBe("invalid_origin");
+  const invalidInput = await request.post("/api/commerce/checkout", {
+    headers: { Origin: baseURL ?? "http://localhost:3000" },
+    data: {},
+  });
+  expect(invalidInput.status()).toBe(400);
+  expect((await invalidInput.json()).code).toBe("invalid_input");
+});
 test("existing storefront through real sandbox payment returns a verified confirmation and clears the paid bag", async ({
   page,
 }) => {

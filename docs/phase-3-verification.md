@@ -2,7 +2,7 @@
 
 # Phase 3 verification evidence
 
-Verification is against a local production build and the connected **salted sandbox**, with Neon project `spring-glitter-05463559`. No website deployment/push or live Stripe account change was performed. Saved `COMMERCE_ENABLED=false` remains the default.
+Verification is against a local production build and the connected **salted sandbox**, with Neon project `spring-glitter-05463559`. No website deployment/push or live Stripe account change was performed. The enable flag used during this historical QA has since been removed; checkout now defaults to Stripe with the test-key guard retained.
 
 ## Infrastructure and build
 

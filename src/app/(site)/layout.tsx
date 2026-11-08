@@ -4,7 +4,6 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import { DraftVisualEditing } from "@/components/cms/draft-visual-editing";
 import { editorialFont, displayFont } from "@/lib/fonts";
 import { storefrontSchedule } from "@/commerce/schedule";
-import { commerceEnabled } from "@/commerce/config";
 import { CartProvider } from "@/components/commerce/cart-provider";
 import { AnnouncementBar } from "@/components/layout/announcement-bar";
 import { SiteHeader } from "@/components/layout/site-header";
@@ -47,7 +46,7 @@ export default async function SiteLayout({
         </a>
         <CartProvider
           schedule={await storefrontSchedule()}
-          commerceEnabled={commerceEnabled() && !draft}
+          isDraftMode={draft}
           products={products}
           commerce={commerce}
           settings={settings}

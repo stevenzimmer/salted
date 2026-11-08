@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import Stripe from "stripe";
 import {
   checkoutInput,
+  CommerceError,
   totalCents,
   pricesMatch,
 } from "../src/commerce/validation";
@@ -11,6 +12,7 @@ import { priceCart } from "../src/commerce/catalog";
 import { pickupCutoff } from "../src/commerce/pickups";
 import { sessionParams } from "../src/commerce/checkout";
 import { verifyWebhook } from "../src/commerce/webhook";
+import { stripeClient } from "../src/commerce/config";
 const input = () => ({
   marketingOptIn: false,
   items: [{ productId: "bread", variantId: "loaf", quantity: 2 }],
@@ -27,6 +29,34 @@ const catalog = [
     variants: [{ id: "loaf", active: true, label: "Loaf", price: 1250 }],
   },
 ];
+test("default Stripe checkout still requires configured test keys", () => {
+  const before = process.env.STRIPE_SECRET_KEY;
+  try {
+    for (const key of [
+      undefined,
+      "",
+      "sk_live_unit_only",
+      "rk_live_unit_only",
+    ]) {
+      if (key === undefined) delete process.env.STRIPE_SECRET_KEY;
+      else process.env.STRIPE_SECRET_KEY = key;
+      assert.throws(
+        () => stripeClient(),
+        (error: unknown) =>
+          error instanceof CommerceError &&
+          error.code === "test_keys_required" &&
+          error.status === 503,
+      );
+    }
+    for (const key of ["sk_test_unit_only", "rk_test_unit_only"]) {
+      process.env.STRIPE_SECRET_KEY = key;
+      assert.doesNotThrow(() => stripeClient());
+    }
+  } finally {
+    if (before === undefined) delete process.env.STRIPE_SECRET_KEY;
+    else process.env.STRIPE_SECRET_KEY = before;
+  }
+});
 test("strict checkout input rejects money, extra dates, duplicate identities and malformed quantities", () => {
   assert.ok(checkoutInput.safeParse(input()).success);
   for (const invalid of [

@@ -36,7 +36,7 @@ The CMS migration needs a temporary server-only migration token. It adds only a 
 
 ## Current preferences and unsubscribe
 
-This feature records consent only. It sends no newsletters, creates no email-provider contacts and changes no payment receipt/order-notification behavior. Existing special-order previews, live-payment guard and commerce-enabled flag remain unchanged.
+This feature records consent only. It sends no newsletters, creates no email-provider contacts and changes no payment receipt/order-notification behavior. Special orders remain local previews. Checkout defaults to Stripe with the live-payment guard retained.
 
 An order boolean is historical checkout evidence, not the current subscription state for an email address. `marketing_subscriptions` now maintains current subscriber status and withdrawals by normalized email. Customers can opt out at `/unsubscribe`. After deploying the route, the navigation migration adds a footer **Email preferences** link. See [unsubscribe behavior, migration and testing](unsubscribe.md).
 

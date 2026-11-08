@@ -1620,14 +1620,8 @@ img {
   border: 1px solid var(--color-border);
 }
 .confirmation-details h2 {
-  margin-top: 13px;
+  margin-top: 4px;
   font-size: 23px;
-}
-.confirmation-details > p:not(.eyebrow) {
-  margin-top: 10px;
-  color: #6d6259;
-  font-size: 13px;
-  line-height: 1.8;
 }
 .cart-sheet {
   width: 100%;

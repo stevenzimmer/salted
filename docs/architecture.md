@@ -16,13 +16,13 @@ Published active products and sizes define the launch menu on every eligible fut
 
 Postgres owns orders, immutable item snapshots, payment state, inventory, reservations and checkout attempts. Server checkout revalidates published prices, availability, cutoffs and quantities, with idempotency, lazy pickup-row creation and concurrency handling; legacy reserved attempts retain their reservation lifecycle. See [commerce architecture](commerce-architecture.md) and [inventory lifecycle](inventory-lifecycle.md). Sanity never stores authoritative transactional state.
 
-Stripe's verified webhooks and server reconciliation are authoritative for payment completion. `/order/success` is a capability-protected read-only confirmation and clears a matching bag only when Stripe and Postgres verify payment. Hosted Checkout is test-only and commerce defaults disabled. Tax decisions remain open.
+Stripe's verified webhooks and server reconciliation are authoritative for payment completion. `/order/success` is a capability-protected read-only confirmation and clears a matching bag only when Stripe and Postgres verify payment. Hosted Checkout is test-only and is the default outside Draft Mode, which keeps the local preview flow. Tax decisions remain open.
 
 Resend/React Email and optional-consent Twilio SMS remain deferred. No payment, database, messaging, account, or order integrations were introduced in Phase 2. Special-order form validation remains local; no request is sent or persisted.
 
 ## Time and uncertain rules
 
-Pickup dates are Pacific calendar keys. Cutoffs have explicit DST-aware offsets. The site layout supplies the published recurring schedule with periodic client refreshes even while payments are disabled. No mock schedule feeds the storefront. Calendar navigation has no configured last month; the initial date window is only for the initial view and analytics. The configurable special-order minimum, fee and five-day lead-time rule remain code-owned; their displayed wording is editable and must remain accurate. See [open decisions](open-decisions.md).
+Pickup dates are Pacific calendar keys. Cutoffs have explicit DST-aware offsets. The site layout supplies the published recurring schedule with periodic client refreshes independently of Stripe configuration. No mock schedule feeds the storefront. Calendar navigation has no configured last month; the initial date window is only for the initial view and analytics. The configurable special-order minimum, fee and five-day lead-time rule remain code-owned; their displayed wording is editable and must remain accurate. See [open decisions](open-decisions.md).
 
 ## Editable navigation
 

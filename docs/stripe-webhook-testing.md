@@ -14,7 +14,7 @@ Use a Stripe sandbox or test keys only. The implementation rejects live keys/eve
 
    Use the **actual** signing secret printed by this listener as local `STRIPE_WEBHOOK_SECRET`. The helper `npm run stripe:listen -- 3000` uses the official CLI, forwards only handled event types, and writes its actual signing secret privately into `.env.local` without displaying it. Start/restart the app after the helper connects.
 
-4. Start with test commerce enabled (`COMMERCE_ENABLED=true npm run dev`). The committed/default flag remains false. For port 3001, change the site origin, start with `--port 3001`, and forward to that port.
+4. Start the app with `npm run dev`. Checkout defaults to Stripe and requires the configured sandbox test key; no enable flag is needed. For port 3001, change the site origin, start with `--port 3001`, and forward to that port.
 5. Browse the existing homepage, select flavor/size/quantity, add to the drawer, choose an available Friday and continue to Stripe. No `/cart` page is involved.
 
 Use `4242 4242 4242 4242` for success, `4000 0000 0000 0002` for decline, and `4000 0025 0000 3155` for authentication-required. Use a future expiry, any test CVC and synthetic contact details. Complete authentication in the Stripe test modal. Never enter real card/customer data for QA.

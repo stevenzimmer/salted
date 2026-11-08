@@ -14,7 +14,7 @@ The planner recommends Dynamic Payment Methods, Link and Adaptive Pricing for co
 
 Use a minimum-supported approximately 30-minute Session lifetime. Persist the complete Session request for safe idempotent retry. Holds are released only after confirmed Stripe expiration, or after proving no Session creation can still succeed. An operator-only reconciliation command recovers interrupted creation and missed webhooks when run manually. Refunds change financial status but never automatically restock bakery inventory.
 
-Guest name/email are collected by Checkout; phone is disabled initially. Success summaries require a browser capability cookie and omit contact details. Operator exports use local database credentials, never public endpoints. Commerce defaults off and the code rejects live keys. Live activation requires a separate explicit request and a reviewed launch gate.
+Guest name/email are collected by Checkout; phone is disabled initially. Success summaries require a browser capability cookie and omit contact details. Operator exports use local database credentials, never public endpoints. Checkout defaults to Stripe without an enable flag and the code rejects live keys. Draft Mode keeps the local preview flow. Live activation requires a separate explicit request and a reviewed launch gate.
 
 Sources: [hosted Checkout](https://docs.stripe.com/payments/accept-a-payment?payment-ui=checkout&ui=stripe-hosted), [fulfillment](https://docs.stripe.com/checkout/fulfillment), [Session expiration](https://docs.stripe.com/api/checkout/sessions/expire), [idempotent requests](https://docs.stripe.com/api/idempotent_requests), [payment method configurations](https://docs.stripe.com/payments/payment-method-configurations).
 

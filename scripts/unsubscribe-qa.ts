@@ -14,7 +14,6 @@ const child = spawn(
     env: {
       ...process.env,
       DATABASE_URL: process.env.TEST_DATABASE_URL,
-      COMMERCE_ENABLED: "false",
       NEXT_PUBLIC_SITE_URL: "http://localhost:3001",
     },
   },

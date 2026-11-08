@@ -49,7 +49,7 @@ npm run cms:migrate-unsubscribe
 
 The copy migration initializes only a missing unsubscribe group. After deploying and checking the route, run `npm run cms:migrate-unsubscribe -- --include-navigation` to append a normal editable footer item if the existing menu contains fewer than seven items. Navigation is an explicit post-deployment step because older sites sharing the CMS do not yet have this route. The migration preserves empty/missing/full menus, existing unsubscribe links, all other fields and draft status, using revision guards. If a menu is full, replace a menu item manually in Studio rather than exceeding the existing limit. No frontend default copy is introduced.
 
-The form needs `DATABASE_URL`, `RATE_LIMIT_SECRET`, Sanity read configuration and the correct build-time `NEXT_PUBLIC_SITE_URL`. It remains usable when checkout is disabled. Signed links additionally need a private dedicated `MARKETING_UNSUBSCRIBE_SECRET` of at least 32 random characters. See [.env.example](../.env.example) and [environment setup](deployment.md). No email-service key is needed and no website deployment is performed automatically.
+The form needs `DATABASE_URL`, `RATE_LIMIT_SECRET`, Sanity read configuration and the correct build-time `NEXT_PUBLIC_SITE_URL`. It remains usable independently of Stripe configuration. Signed links additionally need a private dedicated `MARKETING_UNSUBSCRIBE_SECRET` of at least 32 random characters. See [.env.example](../.env.example) and [environment setup](deployment.md). No email-service key is needed and no website deployment is performed automatically.
 
 ## Verification
 
@@ -63,7 +63,7 @@ npm run build
 
 Unit tests cover strict normalized inputs, token tampering/key validation, fragment-only URLs, editorial migration preservation and cleared-copy behavior. Real-Postgres integration tests cover paid-consent association, late/duplicate events, repeated withdrawals, a later explicit resubscribe, unchecked purchases, concurrent normalized-address opt-outs, constraints and transaction rollback/retry.
 
-For browser verification, use a separate migrated `TEST_DATABASE_URL`, distinct from the app database. Build with the QA origin, start the dedicated QA server with checkout disabled, and run only this suite:
+For browser verification, use a separate migrated `TEST_DATABASE_URL`, distinct from the app database. Build with the QA origin, start the dedicated QA server, and run only this suite:
 
 ```sh
 NEXT_PUBLIC_SITE_URL=http://localhost:3001 npm run build

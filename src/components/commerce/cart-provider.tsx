@@ -30,7 +30,7 @@ const CartDrawer = dynamic(
 
 type CartContextValue = {
   items: CartItem[];
-  commerceEnabled: boolean;
+  isDraftMode: boolean;
   refreshAvailability: () => Promise<void>;
   updatePrices: (
     prices: { productId: string; variantId: string; unitPrice: number }[],
@@ -55,12 +55,12 @@ export function CartProvider({
   products: initialProducts,
   commerce,
   settings,
-  commerceEnabled = false,
+  isDraftMode = false,
 }: {
   products: Product[];
   commerce: CommerceCopy | null;
   settings: SiteSettings | null;
-  commerceEnabled?: boolean;
+  isDraftMode?: boolean;
   children: ReactNode;
   schedule: MockSchedule;
 }) {
@@ -91,10 +91,8 @@ export function CartProvider({
     getCartSnapshot,
     getServerCartSnapshot,
   );
-  const items = normalizeCart(
-    storedItems,
-    commerceEnabled ? undefined : products,
-  );
+  // Keep unavailable lines visible so customers can review and remove them.
+  const items = normalizeCart(storedItems);
   const [liveSchedule, setLiveSchedule] = useState<MockSchedule | null>(null);
   const currentSchedule = liveSchedule ?? schedule;
   async function refreshAvailability() {
@@ -124,7 +122,6 @@ export function CartProvider({
       window.clearInterval(timer);
       window.removeEventListener("focus", refresh);
     };
-    // Availability is read-only and remains current when payments are disabled.
   }, []);
   const [open, setOpen] = useState(false);
   const [hasOpened, setHasOpened] = useState(false);
@@ -237,7 +234,7 @@ export function CartProvider({
         commerce,
         settings,
         schedule: currentSchedule,
-        commerceEnabled,
+        isDraftMode,
         refreshAvailability,
         updatePrices,
         open,

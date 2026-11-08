@@ -16,7 +16,7 @@ Existing pickup source/enabled flags are historical and no longer gate ordering.
 
 Manual `commerce:pickup open/close` writes are retired and return guidance to Studio. `npm run commerce:pickup -- list` only inspects stored order dates; it is not the offered calendar. This rule supersedes the earlier manual-Friday launch decision.
 
-A blackout affects new checkout creation after its published read. Sanity publication and Postgres transactions are separate systems; an already-created payable Session/retry keeps its original commitment. Verified payments, refunds and legacy reserved-hold recovery keep their existing lifecycle. No network calls run inside database transactions. Payment creation remains behind `COMMERCE_ENABLED=false` and test-key guards.
+A blackout affects new checkout creation after its published read. Sanity publication and Postgres transactions are separate systems; an already-created payable Session/retry keeps its original commitment. Verified payments, refunds and legacy reserved-hold recovery keep their existing lifecycle. No network calls run inside database transactions. Checkout defaults to Stripe and payment creation requires configured test keys.
 
 ## Verification
 
