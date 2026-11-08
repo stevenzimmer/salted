@@ -8,4 +8,4 @@ Legacy `reserved` attempts retain their original inventory lifecycle. Active hol
 
 No inventory table, reservation, sold counter or order is deleted by the migration. Manual date commands never change counters. Closing a Friday stops new orders, while already-payable Sessions keep their original commitment. Refunds change financial state and never restock automatically.
 
-The five-minute authenticated scheduler reconciles interrupted creation, expiration, payment/refund notifications and old rate-limit records. It does not synchronize CMS menus, initialize inventory or open future dates. Keep it running with payments disabled so older Sessions can settle safely.
+Verified Stripe webhooks handle payment, expiration and refund notifications. Operators run `npm run commerce:reconcile` when interrupted creation or missed events require recovery, including with new payments disabled. `npm run commerce:prune-rate-limits` deletes request buckets older than 24 hours without touching orders or holds. Neither command runs automatically or synchronizes CMS menus, initializes inventory or opens future dates.

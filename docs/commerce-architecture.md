@@ -12,7 +12,7 @@ Checkout: strict Zod cart/date/key validation → fresh published active product
 
 A random HttpOnly, SameSite=Lax browser capability is hashed into each checkout/order. Success reads require both this capability and the Session ID; they never expose contact details. Losing the cookie requires contacting the bakery; public order lookup is deliberately unavailable. The success page is read-only and cannot fulfill an order. It clears a matching cart only when Stripe and Postgres both verify paid state. A newer, different cart is preserved.
 
-Database rate limits bound guest attempts and Vercel-provided client IP requests per five-minute window. Raw IPs are never persisted. Keep Vercel's trusted forwarded header semantics and production firewall controls under review. Rate-limit rows expire through the authenticated scheduled job. Browser closure does not release stock.
+Database rate limits bound guest attempts and Vercel-provided client IP requests per five-minute window. Raw IPs are never persisted. Keep Vercel's trusted forwarded header semantics and production firewall controls under review. Operators can delete rate-limit rows older than 24 hours using `npm run commerce:prune-rate-limits`. Browser closure does not release stock.
 
 ## Operator setup
 
@@ -21,7 +21,7 @@ Database rate limits bound guest attempts and Vercel-provided client IP requests
 3. Test migrations on an isolated Neon branch, then run `npm run db:migrate` against the intended app branch. `npm run db:generate` creates future migrations; never use destructive schema push in production.
 4. Run `npm run cms:migrate-commerce-copy` once with a temporary write token. It only initializes a missing checkout copy group and preserves existing groups (including cleared copy) and editorial drafts. Review this operational wording in Studio. If updating an already-initialized checkout group, set the optional Refresh label for the pending-state refresh control; migrations preserve existing groups rather than restoring cleared fields.
 5. Apply migration `0004_typical_darwin.sql`, publish active products/sizes and explicitly open Fridays using `npm run commerce:pickup -- open YYYY-MM-DD`. Use `list` / `close YYYY-MM-DD` to manage dates. No menu/inventory sync is needed. Run `npm run commerce:check` for connectivity. See [launch operations](manual-menu-launch.md).
-6. Run the scheduled handler every five minutes using `Authorization: Bearer <CRON_SECRET>`. `vercel.json` declares the schedule; a Vercel plan supporting this frequency is required. External schedulers can call the same endpoint. Configure before enabling checkout.
+6. Configure the private `RATE_LIMIT_SECRET` for checkout/unsubscribe rate limiting. Use `npm run commerce:reconcile` for operator recovery of interrupted creation or missed events, and `npm run commerce:prune-rate-limits` for expired request-bucket cleanup. Neither command has a public HTTP endpoint or runs automatically.
 
 No database administration endpoint is public. Authorized operators use:
 
@@ -43,4 +43,4 @@ The cart drawer captures explicit optional marketing consent before Stripe redir
 
 `marketing_subscriptions` stores current per-email status and withdrawals. A verified opted-in payment updates this table inside the same fulfillment transaction, only if its consent is newer than the recorded consent and withdrawal. Public `/unsubscribe` changes current status without editing orders and remains available when checkout is disabled. Its separate root layout excludes storefront analytics/cart providers. Operator CSVs distinguish historical consent from current subscription status. Newsletter delivery remains future work; see [unsubscribe setup](unsubscribe.md).
 
-New attempts explicitly persist `inventory_mode=uncapped` and create no inventory/reservation rows. Existing attempts default to `reserved` and retain strict stock fulfillment/release checks. A shared pickup-row lock serializes new checkout with manual closure. The authenticated scheduler reconciles payments/refunds and cleans rate limits only; it does not open dates or update inventory/catalog configuration.
+New attempts explicitly persist `inventory_mode=uncapped` and create no inventory/reservation rows. Existing attempts default to `reserved` and retain strict stock fulfillment/release checks. A shared pickup-row lock serializes new checkout with manual closure. Verified webhooks handle payment/refund notifications. Operator-only commands provide manual reconciliation and rate-limit cleanup; they do not open dates or update catalog/inventory configuration.

@@ -37,7 +37,7 @@ export async function orderConfirmation(
     session.currency !== "usd"
   )
     return null;
-  // This read does not fulfill orders. Webhooks and the scheduled reconciler own writes.
+  // This read does not fulfill orders. Webhooks and manual reconciliation own writes.
   return {
     paid:
       session.payment_status === "paid" &&

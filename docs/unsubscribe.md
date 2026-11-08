@@ -29,7 +29,7 @@ Future senders must call `canSendMarketingEmail` with the actual recipient addre
 
 `POST /api/marketing/unsubscribe` accepts a strict Zod union: `{method:"email", email}` or `{method:"token", token}`. It rejects extra fields, invalid email, oversized bodies and cross-origin requests. Responses never include customer data. No GET mutates state. Database/secret failures return a retryable error rather than displaying false confirmation.
 
-Requests are limited to 30 per five-minute window using purpose-specific HMAC buckets in the existing `checkout_rate_limits` table, with the trusted Vercel client header and `CRON_SECRET`. Raw IPs and email addresses are not stored in that limiter. Existing authenticated commerce cron removes old buckets. Local requests share one development bucket.
+Requests are limited to 30 per five-minute window using purpose-specific HMAC buckets in the existing `checkout_rate_limits` table, with the trusted Vercel client header and `RATE_LIMIT_SECRET`. Raw IPs and email addresses are not stored in that limiter. Operators can remove buckets older than 24 hours with `npm run commerce:prune-rate-limits`; this never changes orders or preferences. Local requests share one development bucket.
 
 Future newsletters can call `createUnsubscribeUrl(subscriptionId, siteOrigin)` server-side. It produces a purpose-bound HMAC-SHA256 link in the form `/unsubscribe#token=v1.…`. The signed capability contains a UUID, never an email address. The fragment stays out of HTTP request paths/query strings and referrer headers. Visiting the page is read-only; the customer selects **Confirm unsubscribe** before the capability is POSTed. Mail link scanners therefore cannot opt someone out just by visiting. Invalid links offer the ordinary email form.
 
@@ -49,7 +49,7 @@ npm run cms:migrate-unsubscribe
 
 The copy migration initializes only a missing unsubscribe group. After deploying and checking the route, run `npm run cms:migrate-unsubscribe -- --include-navigation` to append a normal editable footer item if the existing menu contains fewer than seven items. Navigation is an explicit post-deployment step because older sites sharing the CMS do not yet have this route. The migration preserves empty/missing/full menus, existing unsubscribe links, all other fields and draft status, using revision guards. If a menu is full, replace a menu item manually in Studio rather than exceeding the existing limit. No frontend default copy is introduced.
 
-The form needs `DATABASE_URL`, `CRON_SECRET`, Sanity read configuration and the correct build-time `NEXT_PUBLIC_SITE_URL`. It remains usable when checkout is disabled. Signed links additionally need a private dedicated `MARKETING_UNSUBSCRIBE_SECRET` of at least 32 random characters. See [.env.example](../.env.example) and [environment setup](deployment.md). No email-service key is needed and no website deployment is performed automatically.
+The form needs `DATABASE_URL`, `RATE_LIMIT_SECRET`, Sanity read configuration and the correct build-time `NEXT_PUBLIC_SITE_URL`. It remains usable when checkout is disabled. Signed links additionally need a private dedicated `MARKETING_UNSUBSCRIBE_SECRET` of at least 32 random characters. See [.env.example](../.env.example) and [environment setup](deployment.md). No email-service key is needed and no website deployment is performed automatically.
 
 ## Verification
 

@@ -158,7 +158,6 @@ test("checkout rejects empty carts, changed client prices and invalid webhook si
     data: { id: "evt_unsigned", type: "checkout.session.completed" },
   });
   expect(signature.status()).toBe(400);
-  expect((await request.get("/api/cron/commerce")).status()).toBe(401);
 });
 
 test("authentication-required card completes Stripe's real test challenge before confirming", async ({

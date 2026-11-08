@@ -16,7 +16,7 @@ export function validPreferenceOrigin(request: Request): boolean {
 export async function limitPreferenceRequests(
   request: Request,
 ): Promise<boolean> {
-  const secret = process.env.CRON_SECRET;
+  const secret = process.env.RATE_LIMIT_SECRET;
   if (!secret || secret.length < 32)
     throw new Error("Preference rate limiting is not configured.");
   const ip =

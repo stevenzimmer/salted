@@ -4,7 +4,7 @@ Use a Stripe sandbox or test keys only. The implementation rejects live keys/eve
 
 ## Local setup
 
-1. Set matching test `STRIPE_SECRET_KEY` and optional `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, the pooled/direct Neon URLs, `NEXT_PUBLIC_SITE_URL=http://localhost:3000`, and a random 32+ character `CRON_SECRET`. Hosted redirect does not need the publishable key in browser code.
+1. Set matching test `STRIPE_SECRET_KEY` and optional `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, the pooled/direct Neon URLs, `NEXT_PUBLIC_SITE_URL=http://localhost:3000`, and a random 32+ character `RATE_LIMIT_SECRET`. Hosted redirect does not need the publishable key in browser code.
 2. Migrate the intended database, initialize the missing commerce copy group once, publish active products/sizes, and explicitly open a Friday with `npm run commerce:pickup -- open YYYY-MM-DD`.
 3. Install the current official Stripe CLI (`npm install -g @stripe/cli`). Authenticate to the correct sandbox or use the test API key through its environment; never pass secret values in committed commands/logs. Run:
 
@@ -38,7 +38,7 @@ Run `npm test`, `npm run test:integration` against a separate migrated `TEST_DAT
 
 ## Later hosted endpoint
 
-For an explicitly authorized staged deployment, create a **sandbox** webhook endpoint at `https://<staged-origin>/api/stripe/webhook` with these events: `checkout.session.completed`, `checkout.session.expired`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, `charge.refunded`. Use its endpoint signing secret in that Vercel environment; a CLI secret is local only. Allow this route through Vercel deployment protection using a narrowly scoped routing/protection configuration so Stripe can reach it; do not make a customer-data dashboard public. Configure cron reachability separately.
+For an explicitly authorized staged deployment, create a **sandbox** webhook endpoint at `https://<staged-origin>/api/stripe/webhook` with these events: `checkout.session.completed`, `checkout.session.expired`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, `charge.refunded`. Use its endpoint signing secret in that Vercel environment; a CLI secret is local only. Allow this route through Vercel deployment protection using a narrowly scoped routing/protection configuration so Stripe can reach it; do not make a customer-data dashboard public.
 
 Later production needs a distinct **live** endpoint and live signing secret, matching Stripe API/SDK compatibility, approved receipts/branding/payment settings and a separately approved code change removing the test-only guard. Never reuse the sandbox or CLI secret for production.
 

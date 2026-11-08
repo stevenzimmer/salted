@@ -13,6 +13,7 @@ import {
   checkoutAttempts,
   processedStripeEvents,
   marketingSubscriptions,
+  checkoutRateLimits,
 } from "../src/db/schema";
 import { createOrRecoverSession } from "../src/commerce/checkout";
 import {
@@ -33,6 +34,7 @@ import {
   unsubscribeEmail,
   unsubscribeSubscription,
 } from "../src/marketing/preferences";
+import { pruneRateLimitBuckets } from "../src/commerce/maintenance";
 if (
   !process.env.TEST_DATABASE_URL ||
   process.env.TEST_DATABASE_URL === process.env.DATABASE_URL
@@ -241,6 +243,58 @@ function session(a: Attempt, paid = true): PaymentSession {
     },
   };
 }
+test("manual rate-limit pruning removes only expired buckets and preserves orders", async () => {
+  const f = await fixture(),
+    now = new Date(),
+    oldKey = `qa-old-${randomUUID()}`,
+    currentKey = `qa-current-${randomUUID()}`;
+  try {
+    const attempt = await f.create();
+    await dbTest((db) =>
+      db.insert(checkoutRateLimits).values([
+        {
+          key: oldKey,
+          windowStart: new Date(now.getTime() - 25 * 60 * 60 * 1000),
+          requests: 30,
+        },
+        { key: currentKey, windowStart: now, requests: 2 },
+      ]),
+    );
+    const removed = await dbTest((db) => pruneRateLimitBuckets(db, now));
+    assert.ok(removed >= 1);
+    assert.equal(
+      (
+        await dbTest((db) =>
+          db
+            .select()
+            .from(checkoutRateLimits)
+            .where(eq(checkoutRateLimits.key, oldKey)),
+        )
+      ).length,
+      0,
+    );
+    assert.equal(
+      (
+        await dbTest((db) =>
+          db
+            .select()
+            .from(checkoutRateLimits)
+            .where(eq(checkoutRateLimits.key, currentKey)),
+        )
+      )[0].requests,
+      2,
+    );
+    assert.equal((await f.savedOrder(attempt)).paymentStatus, "pending");
+    assert.equal((await f.savedAttempt(attempt)).status, "creating");
+  } finally {
+    await dbTest((db) =>
+      db
+        .delete(checkoutRateLimits)
+        .where(inArray(checkoutRateLimits.key, [oldKey, currentKey])),
+    );
+    await f.cleanup();
+  }
+});
 test("12 concurrent launch checkouts are uncapped and create no inventory or reservations", async () => {
   const f = await fixture();
   try {

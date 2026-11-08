@@ -70,7 +70,7 @@ There is **no page builder**. Homepage order remains Hero → How It Works → P
 
 ## Routes and architecture
 
-Existing public routes remain `/`, `/products/[slug]`, `/recipes`, `/recipes/[slug]`, `/pickup`, `/special-orders`, `/about`, `/storage-heating`, `/privacy`, `/terms`, `/order/success`. Checkout stays inside the cart Sheet. `/studio/[[...tool]]` replaces the placeholder. API routes also serve checkout, availability, explicit cancellation, signed Stripe webhooks and authenticated scheduled commerce recovery. A site catch-all renders the CMS-controlled 404.
+Existing public routes remain `/`, `/products/[slug]`, `/recipes`, `/recipes/[slug]`, `/pickup`, `/special-orders`, `/about`, `/storage-heating`, `/privacy`, `/terms`, `/order/success`. Checkout stays inside the cart Sheet. `/studio/[[...tool]]` replaces the placeholder. API routes also serve checkout, availability, explicit cancellation, signed Stripe webhooks. A site catch-all renders the CMS-controlled 404.
 
 - `src/app/(site)`: dynamic website root layout, metadata, server pages, `SanityLive`, and draft-only `VisualEditing`.
 - `src/app/(studio)`: separate root layout and `NextStudio`; no storefront, analytics, cart, `SanityLive`, or Visual Editing overlays.
@@ -103,7 +103,7 @@ Google Analytics (`G-FF1JFYJLTV`) remains on website routes. It records preview 
 
 See [deployment](docs/deployment.md) before any push or deployment. This phase does not push or deploy. Add Sanity environment values to the appropriate Vercel environments before a future authorized deployment, using the explicit Viewer token for reads. The temporary seed token is not needed in Vercel.
 
-See [CMS content map](docs/cms-content-map.md), [architecture](docs/architecture.md), and [open decisions](docs/open-decisions.md). Postgres now owns orders/inventory/reservations; verified Stripe webhooks and scheduled reconciliation own payment completion. Messaging remains deferred to Phase 4.
+See [CMS content map](docs/cms-content-map.md), [architecture](docs/architecture.md), and [open decisions](docs/open-decisions.md). Postgres now owns orders/inventory/reservations; verified Stripe webhooks and manual reconciliation own payment completion. Messaging remains deferred to Phase 4.
 
 ## Header and footer navigation
 
@@ -187,7 +187,7 @@ npm run commerce:export -- 2026-11-20 /private/operator/pickup.csv
 npm run commerce:reconcile
 ```
 
-Configure five-minute authenticated cron before enabling hosted checkout. No website push/deployment, live payment activation, live Stripe resources, custom email or SMS are included. See [integration plan](docs/stripe-integration-plan.md), [architecture/setup](docs/commerce-architecture.md), [inventory and initialization](docs/inventory-lifecycle.md), [webhook testing](docs/stripe-webhook-testing.md), [verification evidence](docs/phase-3-verification.md), [launch decisions](docs/phase-3-open-decisions.md), and [Vercel environments](docs/deployment.md).
+Use `npm run commerce:reconcile` for manual payment recovery and `npm run commerce:prune-rate-limits` to remove rate-limit records older than 24 hours. These operator commands require private database credentials; no background job or public recovery endpoint is installed. No website push/deployment, live payment activation, live Stripe resources, custom email or SMS are included. See [integration plan](docs/stripe-integration-plan.md), [architecture/setup](docs/commerce-architecture.md), [inventory and initialization](docs/inventory-lifecycle.md), [webhook testing](docs/stripe-webhook-testing.md), [verification evidence](docs/phase-3-verification.md), [launch decisions](docs/phase-3-open-decisions.md), and [Vercel environments](docs/deployment.md).
 
 ## Optional newsletter consent
 

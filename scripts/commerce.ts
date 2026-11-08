@@ -17,6 +17,7 @@ import {
 } from "../src/commerce/pickups";
 import { reconcileCheckouts } from "../src/commerce/checkout";
 import { CommerceError } from "../src/commerce/validation";
+import { pruneRateLimitBuckets } from "../src/commerce/maintenance";
 async function main() {
   const command = process.argv[2];
   try {
@@ -57,6 +58,11 @@ async function main() {
         throw new Error(
           "Use commerce:pickup -- list | open YYYY-MM-DD | close YYYY-MM-DD.",
         );
+    } else if (command === "prune-rate-limits") {
+      const removedRateLimitBuckets = await withDatabase((db) =>
+        pruneRateLimitBuckets(db),
+      );
+      console.log(JSON.stringify({ removedRateLimitBuckets }));
     } else if (command === "reconcile") {
       const result = await reconcileCheckouts();
       console.log(JSON.stringify(result));
@@ -183,7 +189,7 @@ async function main() {
       );
     } else
       throw new Error(
-        "Use migrate, pickup, reconcile, check or export. CMS menu synchronization has been retired.",
+        "Use migrate, pickup, reconcile, prune-rate-limits, check or export. CMS menu synchronization has been retired.",
       );
   } catch (error) {
     // Driver/Stripe errors may include connection strings or response bodies.

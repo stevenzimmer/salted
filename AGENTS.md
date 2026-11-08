@@ -49,6 +49,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Persist validated catalog price/name snapshots. Browser prices are review hints only; never a source for Stripe amounts.
 - Lock the selected manual Friday during new checkout creation and serialize guest retries. New attempts explicitly use inventory_mode=uncapped and create no holds. Preserve the inventory lifecycle of legacy reserved attempts, including deterministic inventory locks. Keep Stripe/network calls outside transactions; persist Session parameters and reuse idempotency keys.
 - Never release holds by timestamp or navigation alone. Confirm Stripe expiration or definitive creation failure/absence; paid orders never release inventory.
+- Payment recovery and expired request-bucket cleanup run only through private operator commands. Do not add scheduled jobs or public maintenance endpoints without an explicit request; verified webhooks handle normal payment notifications.
 - Success redirects are read-only. Require the browser capability and verified local/Stripe paid state; never expose contact details or clear a different/newer cart.
 - Use `npm run db:generate` and committed Drizzle migrations; test on an isolated branch before application. Direct migration URL and pooled application URL have separate roles.
 - Run `npm run test:integration` with a separate TEST_DATABASE_URL when transactional logic changes. Synthetic Stripe envelopes do not prove real webhook delivery; report CLI/browser evidence separately.

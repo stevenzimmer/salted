@@ -1,5 +1,5 @@
 import "server-only";
-import { randomBytes, timingSafeEqual } from "node:crypto";
+import { randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
@@ -46,17 +46,6 @@ export function requireCheckoutRequest(request: Request) {
   if (Number(request.headers.get("content-length") ?? 0) > 20000)
     throw new CommerceError("invalid_input", "The bag is too large.", 400);
 }
-export function authorizedCron(request: Request) {
-  const secret = process.env.CRON_SECRET;
-  const received = request.headers.get("authorization") ?? "";
-  const expected = `Bearer ${secret}`;
-  return (
-    !!secret &&
-    secret.length >= 32 &&
-    Buffer.byteLength(received) === Buffer.byteLength(expected) &&
-    timingSafeEqual(Buffer.from(received), Buffer.from(expected))
-  );
-}
 export function apiError(error: unknown) {
   const status =
     error instanceof CommerceError
@@ -95,7 +84,7 @@ export async function limitCheckoutRequests(
   request: Request,
   ownerHash: string,
 ) {
-  const secret = process.env.CRON_SECRET;
+  const secret = process.env.RATE_LIMIT_SECRET;
   if (!secret || secret.length < 32)
     throw new CommerceError(
       "configuration_missing",

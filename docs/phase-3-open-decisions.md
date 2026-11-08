@@ -6,10 +6,10 @@ Before a separate live activation change:
 
 - Approve tax treatment for the products/location and any registrations. Automatic tax is currently off; do not interpret this as a tax exemption decision.
 - Provide and approve the real pickup street address and arrival guidance. Current CMS guidance states that these await bakery confirmation; no address delivery is promised. A separate secure address-delivery mechanism is still needed if the address must remain private.
-- Approve cancellation, refunds, missed pickup, fulfillment and contact workflows; set who monitors Stripe/cron/sync errors and how they recover exceptional paid-without-stock cases.
+- Approve cancellation, refunds, missed pickup, fulfillment and contact workflows; set who monitors Stripe/webhook errors and how they recover exceptional paid-without-stock cases.
 - Review draft ingredients, allergens, dietary claims, legal content, founder copy and all commerce wording. Existing draft notices remain.
 - Launch decision: no stock caps, with published active product/size switches and private manual Friday opening/closing. Design shared/per-variant capacity and menu automation later. Operators must open desired dates explicitly; holiday closures use the same command.
-- Configure five-minute cron on a compatible Vercel plan or external scheduler, with retry/error alerts. Confirm workload fits the 60-second function budget and increase cadence/worker capacity if backlog grows.
+- Assign an operator to investigate pending payments and use `commerce:reconcile` for missed notifications/interrupted creation. Rate-limit buckets older than 24 hours can be removed with `commerce:prune-rate-limits`. These commands run manually with private credentials.
 - Use a clean, isolated live database/branch; the configured app branch currently contains synthetic sandbox orders retained for audit. Do not mix these with future customer orders.
 - Decide contact retention, database backup/restore procedures, secure CSV storage and authorized operator access. A dashboard is intentionally deferred until authentication is designed; use the operator export script.
 - Configure sandbox/production receipt and branding settings in the matching Stripe environment. Phase 4 owns branded Resend email and Twilio; this phase sends neither.
