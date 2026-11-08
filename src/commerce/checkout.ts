@@ -10,6 +10,7 @@ import {
 } from "./catalog";
 import { resolveMarketingConsent } from "./marketing-consent";
 import {
+  cartFingerprint,
   CommerceError,
   pricesMatch,
   type CheckoutInput,
@@ -117,7 +118,6 @@ export async function beginCheckout(input: CheckoutInput, ownerHash: string) {
       ),
   );
   if (existing[0]) {
-    const { cartFingerprint } = await import("./validation");
     if (existing[0].fingerprint !== cartFingerprint(input))
       throw new CommerceError(
         "idempotency_conflict",
@@ -129,6 +129,32 @@ export async function beginCheckout(input: CheckoutInput, ownerHash: string) {
         "This checkout ended. Review your bag and start again.",
       );
     return { session: await createOrRecoverSession(existing[0]) };
+  }
+  const [active] = await withDatabase((db) =>
+    db
+      .select()
+      .from(checkoutAttempts)
+      .where(
+        and(
+          eq(checkoutAttempts.ownerHash, ownerHash),
+          inArray(checkoutAttempts.status, ["creating", "open"]),
+        ),
+      ),
+  );
+  if (active) {
+    if (active.fingerprint === cartFingerprint(input))
+      return { session: await createOrRecoverSession(active) };
+
+    const session = await createOrRecoverSession(active);
+    if (session.status === "open") {
+      const expired = await stripeClient().checkout.sessions.expire(session.id);
+      await withDatabase((db) => applySession(db, expired));
+    } else if (session.status !== "expired") {
+      throw new CommerceError(
+        "checkout_active",
+        "Your previous checkout is still processing. Please refresh your bag and try again shortly.",
+      );
+    }
   }
   const [catalog, marketingLabel, blackoutDates] = await Promise.all([
     fetchCatalog(),
