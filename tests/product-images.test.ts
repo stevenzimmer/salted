@@ -33,6 +33,7 @@ const product: Product = {
     ...variant,
     // Editorial array keys need not match the stable inventory identity.
     _key: `editor-${variant.id}`,
+    active: variant.id !== "round",
     image: variant.id === "square" ? squareImage : undefined,
   })),
 };
@@ -84,7 +85,7 @@ function detail(item: Product) {
   return createElement(ProductSelectionProvider, props);
 }
 
-test("card and detail images match the initial available size and annotate its editorial array key", () => {
+test("card and detail images match the first CMS-active size and annotate its editorial array key", () => {
   for (const content of [
     createElement(ProductCard, { product }),
     detail(product),
@@ -152,11 +153,11 @@ test("size photos work without a main image; clearing both removes image boxes",
   assert.match(page, /cms-single-column/);
 });
 
-test("sold-out and variantless products keep optional-image behavior", () => {
+test("closed pickup dates preserve the CMS-active size image; variantless products keep optional-image behavior", () => {
   const soldOut = { ...schedule, availability: [] };
   const html = render(detail(product), product, soldOut);
-  assert.match(html, /alt="Main product photo"/);
-  assert.match(html, /<input[^>]*checked=""[^>]*value="round"/);
+  assert.match(html, /alt="Square size photo"/);
+  assert.match(html, /<input[^>]*checked=""[^>]*value="square"/);
   const variantless = { ...product, variants: [] };
   const page = render(detail(variantless), variantless);
   assert.match(page, /alt="Main product photo"/);

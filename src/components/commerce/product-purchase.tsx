@@ -3,22 +3,21 @@ import { useId, useState, type ChangeEvent } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { QuantitySelector } from "./quantity-selector";
 import { useCart } from "./cart-provider";
-import { maximumInventory } from "@/lib/availability";
+import { MAX_CART_QUANTITY } from "@/lib/cart";
 import { money } from "@/lib/format";
 import { hasText, clean, interpolate } from "@/sanity/lib/content";
 import { Text } from "@/components/cms/text";
 import { useProductSelection } from "./product-selection";
 export function ProductPurchase({ detailed = false }: { detailed?: boolean }) {
-  const { schedule, addItem, commerce } = useCart();
+  const { addItem, commerce } = useCart();
   const { product, options, variant, setVariantId } = useProductSelection();
   const copy = commerce?.product;
   const [quantity, setQuantity] = useState(1);
   const [outcome, setOutcome] = useState<"added" | "blocked" | null>(null);
   const id = useId();
   if (!product.active || !variant) return null;
-  const inventory = maximumInventory(schedule, product.id, variant.id);
-  const soldOut = inventory === 0;
-  const safeQuantity = Math.min(quantity, Math.max(1, inventory));
+  const soldOut = variant.active === false;
+  const safeQuantity = Math.min(MAX_CART_QUANTITY, Math.max(1, quantity));
   const button = soldOut ? copy?.soldOut : copy?.add;
   const legend = copy?.chooseSize;
   const message =
@@ -55,8 +54,7 @@ export function ProductPurchase({ detailed = false }: { detailed?: boolean }) {
         <Text as="legend" className="eyebrow mb-2.5" value={legend} />
         <div className="variant-options">
           {options.map((option) => {
-            const unavailable =
-              maximumInventory(schedule, product.id, option.id) === 0;
+            const unavailable = option.active === false;
             return (
               <label
                 key={option.id}
@@ -94,17 +92,11 @@ export function ProductPurchase({ detailed = false }: { detailed?: boolean }) {
       {detailed ? (
         <Text className="serving-note" value={variant.servingDescription} />
       ) : null}
-      {inventory > 0 && inventory <= 3 ? (
-        <Text
-          className="stock-note"
-          value={interpolate(copy?.lowStock, { quantity: inventory })}
-        />
-      ) : null}
       <div className="purchase-actions">
         <QuantitySelector
           value={safeQuantity}
           onChange={setQuantity}
-          max={inventory}
+          max={MAX_CART_QUANTITY}
           label={`Quantity for ${clean(product.name) || "product"}`}
           disabled={soldOut}
         />

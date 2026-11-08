@@ -32,7 +32,6 @@ export function mapProduct(
     active: doc.active === true,
     variants:
       doc.variants?.flatMap((v) =>
-        v.active !== false &&
         hasText(v.id) &&
         hasText(v.label) &&
         Number.isSafeInteger(v.price) &&

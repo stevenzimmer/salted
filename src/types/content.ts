@@ -12,6 +12,7 @@ export type ProductVariant = {
   shortLabel: string;
   servingDescription: string;
   price: number;
+  active?: boolean;
   image?: ImageWithAlt;
 };
 export type Product = Omit<
@@ -67,7 +68,7 @@ export type ProductAvailability = {
   pickupDateId: string;
   productId: string;
   variantId: string;
-  inventory: number;
+  inventory: number | null; // null explicitly means uncapped, never missing stock.
 };
 
 export type MockSchedule = {

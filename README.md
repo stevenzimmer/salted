@@ -1,6 +1,6 @@
 # Salted Focaccia
 
-Next.js 16 / React 19 bakery storefront with Sanity 6 editorial content, an embedded Studio, and Visual Editing. The approved Phase 1 layout and browser cart remain in place. Checkout and special orders are still local previews: there are no payments, orders, reservations, or messages.
+Next.js 16 / React 19 bakery storefront with Sanity 6 editorial content, an embedded Studio, and Visual Editing. The approved Phase 1 layout and browser cart remain in place. Phase 3 adds Neon/Drizzle orders and manual pickup Fridays, guest Stripe-hosted Checkout and verified webhook orders behind `COMMERCE_ENABLED=false`. Stripe is test-only; special orders remain a local preview and messaging is deferred.
 
 ## Local setup
 
@@ -49,7 +49,7 @@ Open `http://localhost:3000` and `/studio`. If the server was already running ag
 
 `npm run cms:seed` uses `SANITY_API_WRITE_TOKEN` or the setup alias `SANITY_API_TOKEN`. It checks both draft and published IDs, preserves existing documents, uploads local Instagram images and remote placeholders as Sanity assets, and creates missing documents atomically with `createIfNotExists`. Repeated runs preserve editor work and do not re-upload existing documents' images. If an image download fails, the import stops with an error. An explicit `--skip-placeholder-images` imports copy and local photos while leaving placeholder image fields unset. No runtime fallback image exists. Final photography, ingredients, allergens, reviews, recipes, founder copy, care instructions, and policies still require approval.
 
-Only the initial fixture catalog has mock inventory. A new CMS product or variant has **zero** availability until a developer explicitly adds a preview inventory row. Availability, quantities, Pacific cutoffs, pickup dates, fees, and the special-order lead-time rule remain code-owned.
+The launch menu uses active published products and active sizes on every manually opened Friday, without stock quantity caps. New active sizes need no inventory row. Pickup dates are opened/closed with the private operator command; Pacific cutoffs, input limits and special-order rules remain code-owned. No mock availability is used by the storefront.
 
 ## Editing workflow
 
@@ -70,15 +70,15 @@ There is **no page builder**. Homepage order remains Hero → How It Works → P
 
 ## Routes and architecture
 
-Existing public routes remain `/`, `/products/[slug]`, `/recipes`, `/recipes/[slug]`, `/pickup`, `/special-orders`, `/about`, `/storage-heating`, `/privacy`, `/terms`, `/order/success`. Checkout stays inside the cart Sheet. `/studio/[[...tool]]` replaces the placeholder. The only new API routes enable/disable Draft Mode. A site catch-all renders the CMS-controlled 404.
+Existing public routes remain `/`, `/products/[slug]`, `/recipes`, `/recipes/[slug]`, `/pickup`, `/special-orders`, `/about`, `/storage-heating`, `/privacy`, `/terms`, `/order/success`. Checkout stays inside the cart Sheet. `/studio/[[...tool]]` replaces the placeholder. API routes also serve checkout, availability, explicit cancellation, signed Stripe webhooks and authenticated scheduled commerce recovery. A site catch-all renders the CMS-controlled 404.
 
 - `src/app/(site)`: dynamic website root layout, metadata, server pages, `SanityLive`, and draft-only `VisualEditing`.
 - `src/app/(studio)`: separate root layout and `NextStudio`; no storefront, analytics, cart, `SanityLive`, or Visual Editing overlays.
 - `src/sanity/schema`: fixed content slots, reusable objects, repeatable documents, validation.
-- `src/sanity/lib/queries.ts`: all 12 organized `defineQuery` queries. `sanityFetch` from `defineLive` supplies live content and source maps. Shared settings, commerce copy, and the current catalog are fetched once per React request through `getGlobalContent`.
+- `src/sanity/lib/queries.ts`: all centralized `defineQuery` queries. `sanityFetch` from `defineLive` supplies live content and source maps. Shared settings, commerce copy, and the current catalog are fetched once per React request through `getGlobalContent`.
 - `schema.json`, `sanity.types.ts`: committed generated schema and query types. Small mappers adapt generated content to existing commerce props without stripping editorial source maps.
 - `src/components/cms`: conditional text, restricted Portable Text, image rendering and `createDataAttribute` image annotations.
-- `src/data`: operational preview schedule/inventory and special-order rules only.
+- `src/data`: pickup rules, historical test fixtures and special-order rules only.
 - `src/lib/cart.ts`: validates browser records against the current CMS catalog, resolves integer-cent prices, and preserves the versioned local-storage cart shape.
 
 Metadata is cleaned with Sanity's stega utility. Canonical paths are code-owned. The entire staging website remains `noindex, nofollow`; Studio is also non-indexable. Set the approved site URL and resolve [open decisions](docs/open-decisions.md) before a launch.
@@ -103,7 +103,7 @@ Google Analytics (`G-FF1JFYJLTV`) remains on website routes. It records preview 
 
 See [deployment](docs/deployment.md) before any push or deployment. This phase does not push or deploy. Add Sanity environment values to the appropriate Vercel environments before a future authorized deployment, using the explicit Viewer token for reads. The temporary seed token is not needed in Vercel.
 
-See [CMS content map](docs/cms-content-map.md), [architecture](docs/architecture.md), and [open decisions](docs/open-decisions.md). Phase 3 is not started: Postgres owns future orders/inventory/reservations, Stripe webhooks will own payment completion, and messaging remains deferred.
+See [CMS content map](docs/cms-content-map.md), [architecture](docs/architecture.md), and [open decisions](docs/open-decisions.md). Postgres now owns orders/inventory/reservations; verified Stripe webhooks and scheduled reconciliation own payment completion. Messaging remains deferred to Phase 4.
 
 ## Header and footer navigation
 
@@ -161,4 +161,44 @@ npm run cms:migrate-inactive-products
 
 This adds the new group only where absent, preserving existing groups, unrelated
 copy and draft status. Fresh seeds already include it. Product activation and
-inventory remain separate: active products without stock retain their sold-out UI.
+pickup-date opening remain separate: the launch menu is uncapped, and no future open Friday means unavailable ordering.
+
+## Phase 3 sandbox commerce
+
+The requested Neon project `spring-glitter-05463559` is linked locally to branch `production`. `neon.ts` declares Postgres only, with no Auth, storage or other services. `neon deploy` pulls database credentials; `.neon` and `.env.local` stay gitignored. The default commerce flag is false and live Stripe keys are rejected.
+
+```sh
+npm run db:migrate
+npm run cms:migrate-commerce-copy # one-time migration, temporary Sanity write token
+npm run commerce:pickup -- open 2026-11-20 # explicitly open one future Friday
+npm run commerce:check
+npm run stripe:listen -- 3000    # official CLI, stores actual local secret privately
+COMMERCE_ENABLED=true npm run dev
+```
+
+Complete a test checkout from the existing product selectors, cart drawer and pickup calendar. Use a manually opened future Friday and published active products/sizes for the entire bag. The read-only success page confirms only an order verified in both Stripe and Postgres. The browser capability cookie protects order summaries; contact details are operator-only.
+
+Run `npm run test:integration` with a separate migrated `TEST_DATABASE_URL` for real Postgres concurrency/state tests. Run `npm run test:e2e` with a locally running test-enabled app and Chromium. Set `PLAYWRIGHT_BASE_URL` for an alternate port. Use `commerce:pickup -- open|close YYYY-MM-DD` to control test Fridays in the isolated QA database; no CMS menu fixture is needed.
+
+Operator-only CSV and production summary:
+
+```sh
+npm run commerce:export -- 2026-11-20 /private/operator/pickup.csv
+npm run commerce:reconcile
+```
+
+Configure five-minute authenticated cron before enabling hosted checkout. No website push/deployment, live payment activation, live Stripe resources, custom email or SMS are included. See [integration plan](docs/stripe-integration-plan.md), [architecture/setup](docs/commerce-architecture.md), [inventory and initialization](docs/inventory-lifecycle.md), [webhook testing](docs/stripe-webhook-testing.md), [verification evidence](docs/phase-3-verification.md), [launch decisions](docs/phase-3-open-decisions.md), and [Vercel environments](docs/deployment.md).
+
+## Optional newsletter consent
+
+The pickup step offers an unchecked, optional newsletter checkbox above **Continue to Stripe**. Edit its wording in **Commerce Copy → Marketing Consent → Label**; clearing the label removes the control. Opt-in is saved with a timestamp, source, accepted wording and wording hash on the order, then associated with the actual guest email from the verified Stripe payment. Existing orders default to opted out.
+
+Apply the database migration and initialize the new copy slot with `npm run cms:migrate-marketing-consent`. The copy migration preserves existing editorial content and drafts. No newsletters are sent and no email-provider contacts are created. See [consent setup and data lifecycle](docs/marketing-consent.md).
+
+Customers can unsubscribe at **`/unsubscribe`**. The page saves a current per-email opt-out in Postgres, gives the same confirmation for every valid address and leaves original order consent evidence intact. It works with checkout disabled and does not send emails.
+
+Apply `npm run db:migrate` and `npm run cms:migrate-unsubscribe` when updating another environment. Edit page wording under **Commerce Copy → Unsubscribe**. After deploying the route, run `npm run cms:migrate-unsubscribe -- --include-navigation` to add **Email preferences** to the footer. This timing keeps the existing staged site from linking to an undeployed page. Future newsletters can use signed confirmation links with the server-only `MARKETING_UNSUBSCRIBE_SECRET`. See [unsubscribe behavior, setup and testing](docs/unsubscribe.md).
+
+## Manual launch menu
+
+**Friday menus & planned inventory** has been removed from Studio. Publish product/size Active switches to control the menu on every open Friday. Stock caps and menu automation are deferred. Open/close Fridays with `npm run commerce:pickup -- open YYYY-MM-DD` / `close YYYY-MM-DD`; `list` shows the current schedule. Apply migration `0004_typical_darwin.sql` first. Existing legacy dates need explicit manual adoption, and old reservations retain their original lifecycle. See [operator setup and rollout](docs/manual-menu-launch.md).

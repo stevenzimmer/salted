@@ -23,9 +23,11 @@ import {
 } from "@/components/ui/sheet";
 import { useCart } from "./cart-provider";
 import { QuantitySelector } from "./quantity-selector";
+import { CheckoutPayment } from "./checkout-payment";
+import { CheckoutReturn } from "./checkout-return";
 import { PickupDatePicker } from "./pickup-date-picker";
 import { resolveCart, cartSubtotal } from "@/lib/cart";
-import { maximumInventory, validPickupDates } from "@/lib/availability";
+import { validPickupDates } from "@/lib/availability";
 import { money, pickupLabel } from "@/lib/format";
 import { pickupConfig } from "@/data/pickup-config";
 import { trackCheckoutEvent, type CheckoutStep } from "@/lib/analytics";
@@ -37,6 +39,7 @@ function focusHeading(element: HTMLHeadingElement | null) {
 export function CartDrawer() {
   const {
     items,
+    commerceEnabled,
     products,
     commerce,
     schedule,
@@ -53,7 +56,7 @@ export function CartDrawer() {
   const dates = validPickupDates(items, schedule);
   const selected = dates.find((date) => date.date === selectedDate);
   const itemCount = items.reduce((total, item) => total + item.quantity, 0);
-  const visibleStep = lines.length === 0 ? "bag" : step;
+  const visibleStep = items.length === 0 ? "bag" : step;
   const lastViewedStep = useRef<CheckoutStep | null>(null);
   const wasUnavailable = useRef(false);
 
@@ -186,7 +189,7 @@ export function CartDrawer() {
             {hasText(description) ? description : "Order preview"}
           </SheetDescription>
         </SheetHeader>
-        {lines.length === 0 ? (
+        {items.length === 0 ? (
           [c?.emptyHeading, c?.emptyBody, c?.emptyCta].some(hasText) ? (
             <div className="empty-cart">
               <ShoppingBag size={48} strokeWidth={1} aria-hidden="true" />
@@ -210,6 +213,31 @@ export function CartDrawer() {
           ) : null
         ) : step === "bag" ? (
           <>
+            <CheckoutReturn />
+            {items.length !== lines.length ? (
+              <div className="checkout-notice" role="alert">
+                Some items are no longer available. Remove them to continue.
+                {items
+                  .filter(
+                    (item) =>
+                      !lines.some(
+                        (l) =>
+                          l.productId === item.productId &&
+                          l.variantId === item.variantId,
+                      ),
+                  )
+                  .map((item) => (
+                    <button
+                      type="button"
+                      className="text-button"
+                      key={`${item.productId}:${item.variantId}`}
+                      onClick={() => removeItem(item.productId, item.variantId)}
+                    >
+                      Remove {item.productId} / {item.variantId}
+                    </button>
+                  ))}
+              </div>
+            ) : null}
             <div className="cart-lines">
               {lines.map((line) => (
                 <article
@@ -267,11 +295,6 @@ export function CartDrawer() {
                         onChange={(quantity) =>
                           setQuantity(line.productId, line.variantId, quantity)
                         }
-                        max={maximumInventory(
-                          schedule,
-                          line.productId,
-                          line.variantId,
-                        )}
                       />
                       <span className="text-sm font-medium">
                         {money(line.lineTotal)}
@@ -287,7 +310,9 @@ export function CartDrawer() {
                 <span>{money(subtotal)}</span>
               </div>
               <Text value={c?.pickupHelper} />
-              <Text className="cart-preview-note" value={c?.previewNote} />
+              {!commerceEnabled ? (
+                <Text className="cart-preview-note" value={c?.previewNote} />
+              ) : null}
               {hasText(c?.checkout) ? (
                 <button
                   type="button"
@@ -368,7 +393,13 @@ export function CartDrawer() {
                   {hasText(c?.city) || hasText(c?.hours) ? (
                     <p>{locationLine}</p>
                   ) : null}
-                  <Text value={c?.address} />
+                  <Text
+                    value={
+                      commerceEnabled
+                        ? commerce?.checkout?.pickupGuidance
+                        : c?.address
+                    }
+                  />
                 </div>
               </div>
             ) : null}
@@ -392,7 +423,13 @@ export function CartDrawer() {
               <Text as="span" value={c?.subtotal} />
               <span>{money(subtotal)}</span>
             </div>
-            {hasText(c?.continue) ? (
+            {commerceEnabled && selected ? (
+              <CheckoutPayment
+                key={JSON.stringify({ items, date: selected.date })}
+                pickupDate={selected.date}
+              />
+            ) : null}
+            {!commerceEnabled && hasText(c?.continue) ? (
               <button
                 type="button"
                 className="button-primary mt-5 w-full"
@@ -405,7 +442,7 @@ export function CartDrawer() {
             ) : null}
             <Text
               className="draft-note mt-4 text-center"
-              value={c?.paymentNote}
+              value={commerceEnabled ? undefined : c?.paymentNote}
             />
           </div>
         ) : (

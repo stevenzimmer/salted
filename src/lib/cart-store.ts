@@ -46,3 +46,48 @@ export function updateCart(update: (items: CartItem[]) => CartItem[]): void {
   }
   window.dispatchEvent(new Event(EVENT));
 }
+
+// Display-only price observations. They are never used to calculate server totals.
+export function rememberCartPrice(
+  productId: string,
+  variantId: string,
+  price: number,
+) {
+  try {
+    const prices: unknown = JSON.parse(
+      localStorage.getItem("salted:cart-prices:v1") ?? "{}",
+    );
+    const record =
+      prices && typeof prices === "object" && !Array.isArray(prices)
+        ? prices
+        : {};
+    localStorage.setItem(
+      "salted:cart-prices:v1",
+      JSON.stringify({ ...record, [`${productId}:${variantId}`]: price }),
+    );
+  } catch {
+    /* Server price review still applies when storage is unavailable. */
+  }
+}
+export function observedCartPrice(
+  productId: string,
+  variantId: string,
+): number | undefined {
+  try {
+    const prices: unknown = JSON.parse(
+      localStorage.getItem("salted:cart-prices:v1") ?? "{}",
+    );
+    const key = `${productId}:${variantId}`;
+    if (prices && typeof prices === "object" && key in prices) {
+      const value = (prices as Record<string, unknown>)[key];
+      if (
+        typeof value === "number" &&
+        Number.isSafeInteger(value) &&
+        value >= 0
+      )
+        return value;
+    }
+  } catch {
+    /* Untrusted browser data is ignored. */
+  }
+}

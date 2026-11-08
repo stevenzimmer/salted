@@ -1,6 +1,7 @@
 "use client";
 
 import { Minus, Plus } from "lucide-react";
+import { MAX_CART_QUANTITY } from "@/lib/cart";
 
 export function QuantitySelector({
   value,
@@ -31,7 +32,7 @@ export function QuantitySelector({
       <button
         type="button"
         aria-label={`Increase ${label.toLowerCase()}`}
-        disabled={disabled || value >= max}
+        disabled={disabled || value >= Math.min(max, MAX_CART_QUANTITY)}
         onClick={() => onChange(value + 1)}
       >
         <Plus size={14} />

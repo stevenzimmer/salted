@@ -2,9 +2,7 @@
 
 import { createContext, useContext, useState, type ReactNode } from "react";
 import type { Product, ProductVariant } from "@/types/content";
-import { maximumInventory } from "@/lib/availability";
 import { hasText } from "@/sanity/lib/content";
-import { useCart } from "./cart-provider";
 
 type ProductSelection = {
   product: Product;
@@ -22,14 +20,13 @@ export function ProductSelectionProvider({
   product: Product;
   children: ReactNode;
 }) {
-  const { schedule } = useCart();
   const [variantId, setVariantId] = useState<string | null>(null);
   const options = product.variants.filter((option) => hasText(option.label));
   const variant =
-    options.find((option) => option.id === variantId) ??
     options.find(
-      (option) => maximumInventory(schedule, product.id, option.id) > 0,
+      (option) => option.id === variantId && option.active !== false,
     ) ??
+    options.find((option) => option.active !== false) ??
     options[0];
 
   return (

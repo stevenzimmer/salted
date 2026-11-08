@@ -20,14 +20,15 @@ export function inventoryFor(
   productId: string,
   variantId: string,
 ): number {
-  return (
-    availability.find(
-      (row) =>
-        row.pickupDateId === pickupDateId &&
-        row.productId === productId &&
-        row.variantId === variantId,
-    )?.inventory ?? 0
+  const row = availability.find(
+    (row) =>
+      row.pickupDateId === pickupDateId &&
+      row.productId === productId &&
+      row.variantId === variantId,
   );
+  if (!row) return 0;
+  // Infinity is internal arithmetic only; the wire format uses explicit null.
+  return row.inventory === null ? Number.POSITIVE_INFINITY : row.inventory;
 }
 
 export function validPickupDates(

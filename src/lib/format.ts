@@ -22,3 +22,15 @@ export function pickupLabel(key: string): string {
     day: "numeric",
   });
 }
+
+// Pickup times are already Pacific wall-clock values, not UTC instants.
+export function pickupWindowLabel(startTime: string, endTime: string): string {
+  const [start, end] = [startTime, endTime].map((time) => {
+    const [hour, minute] = time.split(":").map(Number);
+    return {
+      label: `${hour % 12 || 12}${minute ? `:${String(minute).padStart(2, "0")}` : ""}`,
+      period: hour < 12 ? "am" : "pm",
+    };
+  });
+  return `${start.label}${start.period === end.period ? "" : start.period}–${end.label}${end.period} PT`;
+}

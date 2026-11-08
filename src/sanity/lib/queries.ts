@@ -38,3 +38,11 @@ export const PRIVACY_QUERY = defineQuery(
 export const TERMS_QUERY = defineQuery(
   `*[_type == "termsPage" && _id == "termsPage"][0]`,
 );
+
+// Commerce always executes these against published documents without CDN/cache.
+export const COMMERCE_CATALOG_QUERY = defineQuery(
+  `*[_type == "product"]{_id, id, active, displayName, variants[]{id, active, label, price}}`,
+);
+export const MARKETING_CONSENT_QUERY = defineQuery(
+  `*[_type == "commerceCopy" && _id == "commerceCopy"][0].marketingConsent.label`,
+);

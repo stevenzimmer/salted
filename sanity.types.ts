@@ -187,6 +187,45 @@ export type CommerceCopy = {
   _updatedAt: string;
   _rev: string;
   internalName: string;
+  unsubscribe?: {
+    eyebrow?: string;
+    title?: string;
+    description?: string;
+    emailLabel?: string;
+    emailPlaceholder?: string;
+    submit?: string;
+    busy?: string;
+    confirmationHeading?: string;
+    confirmationBody?: string;
+    tokenHeading?: string;
+    tokenDescription?: string;
+    confirm?: string;
+    invalidEmail?: string;
+    invalidLink?: string;
+    error?: string;
+    rateLimited?: string;
+    backHome?: string;
+  };
+  marketingConsent?: {
+    label?: string;
+  };
+  checkout?: {
+    pay?: string;
+    busy?: string;
+    priceChanged?: string;
+    review?: string;
+    refresh?: string;
+    pendingHeading?: string;
+    pendingBody?: string;
+    paidHeading?: string;
+    paidBody?: string;
+    unavailableHeading?: string;
+    unavailableBody?: string;
+    pickupGuidance?: string;
+    storageLink?: string;
+    cancel?: string;
+    resume?: string;
+  };
   inactiveProduct?: {
     heading?: string;
     body?: string;
@@ -910,6 +949,45 @@ export type GLOBAL_QUERY_RESULT = {
     _updatedAt: string;
     _rev: string;
     internalName: string;
+    unsubscribe?: {
+      eyebrow?: string;
+      title?: string;
+      description?: string;
+      emailLabel?: string;
+      emailPlaceholder?: string;
+      submit?: string;
+      busy?: string;
+      confirmationHeading?: string;
+      confirmationBody?: string;
+      tokenHeading?: string;
+      tokenDescription?: string;
+      confirm?: string;
+      invalidEmail?: string;
+      invalidLink?: string;
+      error?: string;
+      rateLimited?: string;
+      backHome?: string;
+    };
+    marketingConsent?: {
+      label?: string;
+    };
+    checkout?: {
+      pay?: string;
+      busy?: string;
+      priceChanged?: string;
+      review?: string;
+      refresh?: string;
+      pendingHeading?: string;
+      pendingBody?: string;
+      paidHeading?: string;
+      paidBody?: string;
+      unavailableHeading?: string;
+      unavailableBody?: string;
+      pickupGuidance?: string;
+      storageLink?: string;
+      cancel?: string;
+      resume?: string;
+    };
     inactiveProduct?: {
       heading?: string;
       body?: string;
@@ -1556,6 +1634,27 @@ export type TERMS_QUERY_RESULT = {
   seo?: Seo;
 } | null;
 
+// Source: src/sanity/lib/queries.ts
+// Variable: COMMERCE_CATALOG_QUERY
+// Query: *[_type == "product"]{_id, id, active, displayName, variants[]{id, active, label, price}}
+export type COMMERCE_CATALOG_QUERY_RESULT = Array<{
+  _id: string;
+  id: string;
+  active: boolean | null;
+  displayName: string | null;
+  variants: Array<{
+    id: string;
+    active: boolean | null;
+    label: string | null;
+    price: number;
+  }> | null;
+}>;
+
+// Source: src/sanity/lib/queries.ts
+// Variable: MARKETING_CONSENT_QUERY
+// Query: *[_type == "commerceCopy" && _id == "commerceCopy"][0].marketingConsent.label
+export type MARKETING_CONSENT_QUERY_RESULT = string | null;
+
 // Query TypeMap
 declare global {
   interface SanityQueries {
@@ -1571,6 +1670,8 @@ declare global {
     '*[_type == "recipesPage" && _id == "recipesPage"][0]': RECIPES_PAGE_QUERY_RESULT;
     '*[_type == "privacyPage" && _id == "privacyPage"][0]': PRIVACY_QUERY_RESULT;
     '*[_type == "termsPage" && _id == "termsPage"][0]': TERMS_QUERY_RESULT;
+    '*[_type == "product"]{_id, id, active, displayName, variants[]{id, active, label, price}}': COMMERCE_CATALOG_QUERY_RESULT;
+    '*[_type == "commerceCopy" && _id == "commerceCopy"][0].marketingConsent.label': MARKETING_CONSENT_QUERY_RESULT;
   }
 }
 // Lets @sanity/client releases that predate the global registry read it too

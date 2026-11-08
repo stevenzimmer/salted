@@ -23,7 +23,10 @@ export function ProductCard({
   showDetailsLink = true,
 }: ProductCardProps) {
   const Heading = variant === "preview" ? "h2" : "h3";
-  const price = product.variants[0]?.price;
+  const activeVariants = product.variants.filter(
+    (option) => option.active !== false,
+  );
+  const price = activeVariants[0]?.price;
   const copyVisible =
     [
       product.name,
@@ -57,7 +60,7 @@ export function ProductCard({
                   ) : null}
                   {price !== undefined ? (
                     <span className="product-price">
-                      {product.variants.length > 1 && hasText(copy?.from) ? (
+                      {activeVariants.length > 1 && hasText(copy?.from) ? (
                         <>{copy.from} </>
                       ) : null}
                       {money(price)}

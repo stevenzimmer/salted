@@ -54,7 +54,7 @@ The exact editable string-field inventory is `src/sanity/schema/copy-fields.ts`.
 
 - Route patterns, canonical URL paths, fixed section CTA destinations (navigation links/order are CMS-owned), section order, page architecture, layout variants, CSS tokens, typography, spacing, fonts, breakpoints, grids, decorative star/quote/arrow icons, punctuation, workflow numbering, currency/date formatting, and locale.
 - Accessible fallback names: skip link, Home, navigation landmarks, menu/cart open/close, quantity increase/decrease/remove, calendar screen-reader instructions and library-localized dates, carousel position/previous/next/choose labels, dialog titles/descriptions and focus targets when their visible CMS fields are cleared. These essential control names remain in code so content removal cannot create inaccessible controls. Visible public labels are CMS-driven. Draft exit text and Studio setup/authentication messages are administrative UI.
-- Cart persistence key/shape, quantities, integer-cent arithmetic, cutoff checks, Pacific timezone, enabled dates, preview inventory identities, stock thresholds, one date per whole order, form field structure, validation constraints, operational special-order minimum/fee and lead-time rule. Customer-facing wording for those constraints is CMS-owned; editors must keep wording aligned with code until the commerce phase.
+- Cart persistence key/shape, per-line quantity validation, integer-cent arithmetic, Pacific cutoff checks, manual date opening/closing, one date per whole order, form structure, validation and special-order minimum/fee/lead-time rules. Launch offerings are uncapped. Customer-facing wording for these rules remains CMS-owned.
 - `internalName`, inventory IDs, slugs, categories/tiers, active state and display order are structural/internal fields. Internal names never appear as public fallbacks. Slugs preserve existing dynamic route architecture. Display order orders repeatable items only.
 - Native browser validation behavior, shadcn/Radix/React Day Picker accessibility UI and platform errors remain application/library-owned. Customer-facing special-order validation messages are editable.
 - Analytics measurement ID and event names are internal configuration. No transactional customer data is stored in Sanity.
@@ -64,8 +64,8 @@ The exact editable string-field inventory is `src/sanity/schema/copy-fields.ts`.
 Inactive products are excluded from the storefront catalog and ordering, while
 their `/products/[slug]` pages and metadata remain available. Commerce Copy →
 Inactive product owns the optional heading, body and special-order CTA label;
-the destination `/special-orders` remains code-owned. An active product with no
-inventory continues to use the existing sold-out controls.
+the destination `/special-orders` remains code-owned. Active products/sizes are
+uncapped on open Fridays; without an eligible open Friday, purchase controls are unavailable.
 
 `src/data/products.ts`, `pricing.ts`, `recipes.ts`, `reviews.ts`, `site-config.ts`, `instagram.ts`, and `content-pages.ts` were removed. Pickup/special-order configuration now contains only operational values. `scripts/seed/content.json` is migration-only; the frontend never imports it. Existing local Instagram files remain available as migration input, not as runtime image fallbacks.
 
@@ -78,3 +78,7 @@ Studio image fields require files under 400 KB (400,000 bytes). File selection, 
 ## Conditional-rendering contract
 
 `hasText` cleans stega before checking whitespace while rendering the original encoded string. `hasCopy` ignores structural fields; `hasImage` requires a valid asset and accessible alt/decorative metadata; `hasItems` checks arrays; `hasPortableTextContent`/`visibleBlocks` remove empty encoded blocks. Optional sections, columns, lists, image wrappers, headings and CTAs are guarded at their owning component. Empty form labels become screen-reader-only code labels. Invalid/deleted/blank-label variants cannot become selectable cart options. Image removal never falls back to local or remote placeholder URLs.
+
+## Launch menu controls
+
+The Friday-menu/planned-inventory document type is removed from Studio. Products and each size retain their Active switches; published active offerings are available on every manually opened Friday, with no stock caps at launch. Date opening/closing is an operator-only Postgres command, never an editable CMS behavior field. Historical preview-stock notes above describe earlier phases; current setup is in [manual launch operations](manual-menu-launch.md).

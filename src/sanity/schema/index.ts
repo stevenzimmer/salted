@@ -225,10 +225,10 @@ const objects = [
     fields: [
       defineField({
         name: "id",
-        title: "Stable inventory key",
+        title: "Stable size / variant key",
         type: "string",
         description:
-          "Keep existing keys: round, square, pan, or loaf. New keys have no preview inventory.",
+          "Keep this key stable so existing carts and orders continue to identify this size.",
         validation: (r) => r.required().regex(/^[a-z0-9-]+$/),
       }),
       text("label"),
@@ -242,7 +242,11 @@ const objects = [
         type: "number",
         validation: (r) => r.required().integer().min(0).max(10000000),
       }),
-      active,
+      defineField({
+        ...active,
+        description:
+          "Publish this size as active to offer it on every open pickup Friday. Turn it off to remove it from the menu.",
+      }),
     ],
     preview: { select: { title: "label", subtitle: "id", media: "image" } },
   }),
@@ -304,7 +308,14 @@ const singletons = Object.entries(copyFields).map(([name, groups]) =>
             group === "product" &&
             field === "filters"
               ? productFilters
-              : text(field),
+              : name === "commerceCopy" && group === "marketingConsent"
+                ? defineField({
+                    ...text(field),
+                    description:
+                      "Optional newsletter checkbox wording. Clearing it removes the signup option. The checkbox always starts unchecked.",
+                    validation: (rule) => rule.max(2000),
+                  })
+                : text(field),
           ),
         });
         return isAnnouncement
@@ -399,10 +410,10 @@ export const schemaTypes = [
       internalName,
       defineField({
         name: "id",
-        title: "Stable inventory identity",
+        title: "Stable product identity",
         type: "string",
         description:
-          "Changing this breaks existing browser carts. Inventory stays in code until the commerce phase.",
+          "Keep this identity stable for existing carts and order history.",
         validation: (r) => r.required().regex(/^[a-z0-9-]+$/),
       }),
       slug,
@@ -462,7 +473,7 @@ export const schemaTypes = [
             );
             return !ids || new Set(ids).size === ids.length
               ? true
-              : "Variant inventory keys must be unique.";
+              : "Size / variant keys must be unique.";
           }),
       }),
       references("relatedRecipes", "recipe"),

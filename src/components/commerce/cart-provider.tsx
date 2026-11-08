@@ -2,6 +2,7 @@
 
 import {
   createContext,
+  useEffect,
   useContext,
   useRef,
   useState,
@@ -14,8 +15,8 @@ import {
   getServerCartSnapshot,
   subscribeCart,
   updateCart,
+  rememberCartPrice,
 } from "@/lib/cart-store";
-import { maximumInventory } from "@/lib/availability";
 import { MAX_CART_QUANTITY } from "@/lib/cart";
 import { trackAddToCart, trackCheckoutEvent } from "@/lib/analytics";
 import type { CommerceCopy, SiteSettings } from "../../../sanity.types";
@@ -29,6 +30,11 @@ const CartDrawer = dynamic(
 
 type CartContextValue = {
   items: CartItem[];
+  commerceEnabled: boolean;
+  refreshAvailability: () => Promise<void>;
+  updatePrices: (
+    prices: { productId: string; variantId: string; unitPrice: number }[],
+  ) => void;
   products: Product[];
   commerce: CommerceCopy | null;
   settings: SiteSettings | null;
@@ -46,22 +52,80 @@ const CartContext = createContext<CartContextValue | null>(null);
 export function CartProvider({
   children,
   schedule,
-  products,
+  products: initialProducts,
   commerce,
   settings,
+  commerceEnabled = false,
 }: {
   products: Product[];
   commerce: CommerceCopy | null;
   settings: SiteSettings | null;
+  commerceEnabled?: boolean;
   children: ReactNode;
   schedule: MockSchedule;
 }) {
+  const [priceOverrides, setPriceOverrides] = useState<Record<string, number>>(
+    {},
+  );
+  const products = initialProducts.map((product) => ({
+    ...product,
+    variants: product.variants.map((variant) => ({
+      ...variant,
+      price: priceOverrides[`${product.id}:${variant.id}`] ?? variant.price,
+    })),
+  }));
+  function updatePrices(
+    prices: { productId: string; variantId: string; unitPrice: number }[],
+  ) {
+    setPriceOverrides((previous) => ({
+      ...previous,
+      ...Object.fromEntries(
+        prices
+          .filter((p) => Number.isSafeInteger(p.unitPrice) && p.unitPrice >= 0)
+          .map((p) => [`${p.productId}:${p.variantId}`, p.unitPrice]),
+      ),
+    }));
+  }
   const storedItems = useSyncExternalStore(
     subscribeCart,
     getCartSnapshot,
     getServerCartSnapshot,
   );
-  const items = normalizeCart(storedItems, products);
+  const items = normalizeCart(
+    storedItems,
+    commerceEnabled ? undefined : products,
+  );
+  const [liveSchedule, setLiveSchedule] = useState<MockSchedule | null>(null);
+  const currentSchedule = liveSchedule ?? schedule;
+  async function refreshAvailability() {
+    try {
+      const response = await fetch("/api/commerce/availability", {
+        cache: "no-store",
+      });
+      const value: unknown = await response.json();
+      const { scheduleInput } = await import("@/lib/schedule-validation");
+      const parsed = scheduleInput.safeParse(value);
+      setLiveSchedule(
+        response.ok && parsed.success
+          ? parsed.data
+          : { dates: [], availability: [] },
+      );
+    } catch {
+      setLiveSchedule({ dates: [], availability: [] });
+    }
+  }
+  useEffect(() => {
+    const refresh = () => {
+      void refreshAvailability();
+    };
+    const timer = window.setInterval(refresh, 15000);
+    window.addEventListener("focus", refresh);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("focus", refresh);
+    };
+    // Availability is read-only and remains current when payments are disabled.
+  }, []);
   const [open, setOpen] = useState(false);
   const [hasOpened, setHasOpened] = useState(false);
   const opener = useRef<HTMLElement | null>(null);
@@ -72,6 +136,7 @@ export function CartProvider({
         opener.current = document.activeElement;
       }
       setHasOpened(true);
+      void refreshAvailability();
     }
     setOpen(next);
   }
@@ -87,7 +152,10 @@ export function CartProvider({
         (product) =>
           product.id === item.productId &&
           product.active &&
-          product.variants.some((variant) => variant.id === item.variantId),
+          product.variants.some(
+            (variant) =>
+              variant.id === item.variantId && variant.active !== false,
+          ),
       )
     )
       return false;
@@ -97,10 +165,7 @@ export function CartProvider({
           line.productId === item.productId &&
           line.variantId === item.variantId,
       )?.quantity ?? 0;
-    const max = Math.min(
-      MAX_CART_QUANTITY,
-      maximumInventory(schedule, item.productId, item.variantId),
-    );
+    const max = MAX_CART_QUANTITY;
     if (
       item.quantity < 1 ||
       !Number.isSafeInteger(item.quantity) ||
@@ -118,6 +183,13 @@ export function CartProvider({
       }
       return false;
     }
+    if (current === 0) {
+      const variant = products
+        .find((p) => p.id === item.productId)
+        ?.variants.find((v) => v.id === item.variantId);
+      if (variant)
+        rememberCartPrice(item.productId, item.variantId, variant.price);
+    }
     updateCart((cart) => [...cart, item]);
     trackAddToCart(item, products);
     handleOpen(true);
@@ -125,14 +197,25 @@ export function CartProvider({
   }
 
   function setQuantity(productId: string, variantId: string, quantity: number) {
-    const max = Math.min(
-      MAX_CART_QUANTITY,
-      maximumInventory(schedule, productId, variantId),
-    );
+    if (
+      !Number.isSafeInteger(quantity) ||
+      !products.some(
+        (product) =>
+          product.id === productId &&
+          product.active &&
+          product.variants.some(
+            (variant) => variant.id === variantId && variant.active !== false,
+          ),
+      )
+    )
+      return;
     updateCart((cart) =>
       cart.map((item) =>
         item.productId === productId && item.variantId === variantId
-          ? { ...item, quantity: Math.min(max, Math.max(1, quantity)) }
+          ? {
+              ...item,
+              quantity: Math.min(MAX_CART_QUANTITY, Math.max(1, quantity)),
+            }
           : item,
       ),
     );
@@ -153,7 +236,10 @@ export function CartProvider({
         products,
         commerce,
         settings,
-        schedule,
+        schedule: currentSchedule,
+        commerceEnabled,
+        refreshAvailability,
+        updatePrices,
         open,
         setOpen: handleOpen,
         addItem,

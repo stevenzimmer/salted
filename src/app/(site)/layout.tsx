@@ -3,7 +3,8 @@ import { draftMode } from "next/headers";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { DraftVisualEditing } from "@/components/cms/draft-visual-editing";
 import { editorialFont, displayFont } from "@/lib/fonts";
-import { getMockSchedule } from "@/data/product-availability";
+import { storefrontSchedule } from "@/commerce/schedule";
+import { commerceEnabled } from "@/commerce/config";
 import { CartProvider } from "@/components/commerce/cart-provider";
 import { AnnouncementBar } from "@/components/layout/announcement-bar";
 import { SiteHeader } from "@/components/layout/site-header";
@@ -45,7 +46,8 @@ export default async function SiteLayout({
           Skip to content
         </a>
         <CartProvider
-          schedule={getMockSchedule()}
+          schedule={await storefrontSchedule()}
+          commerceEnabled={commerceEnabled() && !draft}
           products={products}
           commerce={commerce}
           settings={settings}

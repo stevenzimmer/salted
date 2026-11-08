@@ -2,62 +2,86 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { LogoMark } from "@/components/brand/logo-mark";
 import { Text } from "@/components/cms/text";
-import { pickupLabel } from "@/lib/format";
-import { getMockSchedule } from "@/data/product-availability";
-import { isPickupOpen } from "@/lib/availability";
-import { OrderPreviewAnalytics } from "@/components/commerce/order-preview-analytics";
+import { money, pickupLabel, pickupWindowLabel } from "@/lib/format";
 import { getGlobalContent } from "@/sanity/lib/data";
 import { clean, hasText } from "@/sanity/lib/content";
+import { ownerCapability } from "@/commerce/http";
+import { orderConfirmation } from "@/commerce/confirmation";
+import { ConfirmationRefresh } from "@/components/commerce/confirmation-refresh";
+import { VerifiedCartClear } from "@/components/commerce/verified-cart-clear";
 export async function generateMetadata() {
   const { commerce } = await getGlobalContent();
   return {
     title: clean(commerce?.confirmation?.seoTitle),
     robots: { index: false, follow: false },
+    referrer: "no-referrer",
   };
 }
 export default async function SuccessPage({
   searchParams,
 }: {
-  searchParams: Promise<{ pickup?: string }>;
+  searchParams: Promise<{ session_id?: string }>;
 }) {
-  const [{ pickup }, { settings, commerce }] = await Promise.all([
+  const [{ session_id }, { settings, commerce }, owner] = await Promise.all([
     searchParams,
     getGlobalContent(),
+    ownerCapability(),
   ]);
-  const date = getMockSchedule().dates.find(
-    (date) => date.date === pickup && isPickupOpen(date),
-  );
-  const c = commerce?.confirmation,
-    cart = commerce?.cart;
-  const details =
-    [c?.pickupLabel, c?.chosenDate, c?.address, cart?.city, cart?.hours].some(
-      hasText,
-    ) || date;
+  let order = null;
+  try {
+    order = await orderConfirmation(session_id, owner?.ownerHash);
+  } catch {
+    /* A missing service must never render a paid confirmation. */
+  }
+  const copy = commerce?.checkout;
+  const heading = order?.paid
+    ? copy?.paidHeading
+    : order?.ended || !order
+      ? copy?.unavailableHeading
+      : copy?.pendingHeading;
+  const body = order?.paid
+    ? copy?.paidBody
+    : order?.ended || !order
+      ? copy?.unavailableBody
+      : copy?.pendingBody;
   return (
     <div className="shell confirmation-page">
-      <OrderPreviewAnalytics hasValidPickupDate={Boolean(date)} />
       <LogoMark settings={settings} />
-      <Text className="eyebrow mt-8" value={c?.eyebrow} />
-      <Text as="h1" className="whitespace-pre-line" value={c?.heading} />
-      <Text className="page-description" value={c?.body} />
-      {details ? (
-        <div className="confirmation-details">
-          <Text className="eyebrow" value={c?.pickupLabel} />
-          <Text as="h2" value={date ? pickupLabel(date.date) : c?.chosenDate} />
-          {hasText(cart?.city) || hasText(cart?.hours) ? (
+      <Text className="eyebrow mt-8" value={commerce?.confirmation?.eyebrow} />
+      <Text as="h1" className="whitespace-pre-line" value={heading} />
+      <Text className="page-description" value={body} />
+      {order?.paid ? (
+        <>
+          <VerifiedCartClear orderNumber={order.number} items={order.items} />
+          <div className="confirmation-details">
+            <p className="eyebrow">{order.number}</p>
+            <Text as="h2" value={pickupLabel(order.pickup.date)} />
             <p>
-              {cart?.hours}
-              {hasText(cart?.hours) && hasText(cart?.city) ? " · " : null}
-              {cart?.city}
+              {pickupWindowLabel(order.pickup.startTime, order.pickup.endTime)}
             </p>
-          ) : null}
-          <Text className="mt-4 text-sm" value={c?.address} />
-        </div>
+            <ul className="my-5 space-y-3">
+              {order.items.map((i) => (
+                <li key={`${i.productId}:${i.variantId}`}>
+                  {i.quantity} × {i.name} / {i.variant} — {money(i.lineTotal)}
+                </li>
+              ))}
+            </ul>
+            <p className="font-medium">{money(order.total)}</p>
+            <Text className="mt-4 text-sm" value={copy?.pickupGuidance} />
+            {hasText(copy?.storageLink) ? (
+              <Link href="/storage-heating" className="inline-link mt-4">
+                {copy.storageLink}
+              </Link>
+            ) : null}
+          </div>
+        </>
       ) : null}
-      <Text className="draft-note max-w-md" value={c?.note} />
-      {hasText(c?.cta) ? (
+      {order && !order.paid && !order.ended ? (
+        <ConfirmationRefresh label={copy?.refresh} />
+      ) : null}
+      {hasText(commerce?.confirmation?.cta) ? (
         <Link className="button-primary mt-8" href="/#products">
-          {c.cta}
+          {commerce.confirmation.cta}
           <ArrowUpRight size={17} />
         </Link>
       ) : null}

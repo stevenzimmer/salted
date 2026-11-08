@@ -24,7 +24,9 @@ export function normalizeCart(
     );
     if (
       products &&
-      !product?.variants.some((variant) => variant.id === variantId)
+      !product?.variants.some(
+        (variant) => variant.id === variantId && variant.active !== false,
+      )
     )
       continue;
     const key = `${productId}:${variantId}`;
@@ -46,7 +48,7 @@ export function resolveCart(items: CartItem[], products: Product[]) {
       (product) => product.id === item.productId && product.active,
     );
     const variant = product?.variants.find(
-      (variant) => variant.id === item.variantId,
+      (variant) => variant.id === item.variantId && variant.active !== false,
     );
     return product && variant
       ? [

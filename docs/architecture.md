@@ -8,21 +8,21 @@ The CMS is a fixed content model, not a page builder. See [content map](cms-cont
 
 ## One order, one pickup date
 
-A cart line stays `{productId, variantId, quantity}`. The browser persists no prices or pickup dates. Storage validates shape; the current CMS catalog filters removed products/variants, and totals use catalog integer-cent prices. Browser prices are still previews, never authoritative for future payments.
+A cart line stays `{productId, variantId, quantity}`. Display-only observed prices are stored separately to require review after a price change; neither they nor browser totals are authoritative. The order-level pickup date is selected in the drawer. Stored input is validated, and disabled/deleted products must be removed before checkout. Server validation reloads published Sanity prices.
 
-The operational calendar and inventory stay in code in this phase. `validPickupDates` checks the complete cart, aggregated quantities, enabled dates, Pacific cutoffs and inventory. Missing inventory means unavailable, including newly added CMS products. Separate pickup dates require separate orders. No capacity is reserved or decremented.
+Published active products and sizes define the launch menu on every manually opened Postgres Friday, without quantity-based inventory caps. `validPickupDates` checks complete-cart offerings, quantities, enabled dates and Pacific cutoffs. Explicit null stock means uncapped; a missing offering remains unavailable. No mock stock or CMS weekly-menu sync feeds the storefront. Separate pickup dates require separate orders. See [manual launch operations](manual-menu-launch.md).
 
-## Future transactional ownership
+## Transactional ownership
 
-Postgres will own orders, immutable item snapshots, payment state, inventory, reservations, special-order workflow, and notification delivery state. Production checkout must revalidate prices, availability, cutoffs and quantities on the server, with atomic reservations, expiry, idempotency and concurrency handling. Sanity never stores authoritative transactional state.
+Postgres owns orders, immutable item snapshots, payment state, inventory, reservations and checkout attempts. Server checkout revalidates published prices, availability, cutoffs and quantities, with atomic reservations, expiration, idempotency and concurrency handling. See [commerce architecture](commerce-architecture.md) and [inventory lifecycle](inventory-lifecycle.md). Sanity never stores authoritative transactional state.
 
-Stripe's verified webhooks will be authoritative for payment completion. `/order/success` remains an explicitly labeled local confirmation preview, preserves the bag, and proves nothing about payment. Tax decisions remain open.
+Stripe's verified webhooks and server reconciliation are authoritative for payment completion. `/order/success` is a capability-protected read-only confirmation and clears a matching bag only when Stripe and Postgres verify payment. Hosted Checkout is test-only and commerce defaults disabled. Tax decisions remain open.
 
 Resend/React Email and optional-consent Twilio SMS remain deferred. No payment, database, messaging, account, or order integrations were introduced in Phase 2. Special-order form validation remains local; no request is sent or persisted.
 
 ## Time and uncertain rules
 
-Pickup dates are Pacific calendar keys. Cutoffs have explicit DST-aware offsets. The same rolling preview schedule is sent from the dynamic site layout to client interactions. The configurable special-order minimum, fee and five-day lead-time rule remain code-owned; their displayed wording is editable and must remain accurate. See [open decisions](open-decisions.md).
+Pickup dates are Pacific calendar keys. Cutoffs have explicit DST-aware offsets. The site layout supplies the live published schedule when enabled, with periodic client refreshes; the rolling preview schedule is used only while commerce is disabled. The configurable special-order minimum, fee and five-day lead-time rule remain code-owned; their displayed wording is editable and must remain accurate. See [open decisions](open-decisions.md).
 
 ## Editable navigation
 

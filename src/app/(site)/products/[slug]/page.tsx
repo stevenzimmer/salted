@@ -45,6 +45,9 @@ export default async function ProductPage({ params }: Props) {
   const product = doc ? mapProduct(doc) : null;
   if (!product) notFound();
   const c = commerce?.product;
+  const activeVariants = product.variants.filter(
+    (option) => option.active !== false,
+  );
   const relatedRecipes = (recipeDocs ?? [])
     .filter((recipe) => product.relatedRecipeIds.includes(recipe._id))
     .map(mapRecipe)
@@ -99,12 +102,12 @@ export default async function ProductPage({ params }: Props) {
                 </p>
               ) : null}
               <Text as="h1" value={product.name} />
-              {product.variants[0] ? (
+              {activeVariants[0] ? (
                 <p className="detail-price">
-                  {product.variants.length > 1 && hasText(c?.from) ? (
+                  {activeVariants.length > 1 && hasText(c?.from) ? (
                     <>{c.from} </>
                   ) : null}
-                  {money(product.variants[0].price)}
+                  {money(activeVariants[0].price)}
                 </p>
               ) : null}
               <Text

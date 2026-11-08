@@ -8,6 +8,8 @@ import { CartProvider } from "../src/components/commerce/cart-provider";
 import { ProductSelectionProvider } from "../src/components/commerce/product-selection";
 import { ProductPurchase } from "../src/components/commerce/product-purchase";
 import { ProductUnavailable } from "../src/components/commerce/product-unavailable";
+import { ProductCard } from "../src/components/commerce/product-card";
+import { mapProduct } from "../src/sanity/lib/mappers";
 import { getMockSchedule } from "../src/data/product-availability";
 import { normalizeCart, resolveCart } from "../src/lib/cart";
 import {
@@ -51,12 +53,88 @@ test("inactive products have no purchase controls even when inventory exists", (
   assert.match(renderPurchase(products[0]), /type="radio"/);
 });
 
-test("active products with no inventory keep the existing sold-out controls", () => {
-  const html = renderPurchase(products[0], { ...schedule, availability: [] });
-  assert.match(html, /Sold out/);
+test("active products can be added without inventory or open pickup dates", () => {
+  const html = renderPurchase(products[0], { dates: [], availability: [] });
+  assert.doesNotMatch(html, /Sold out/);
   assert.match(html, /type="radio"/);
-  assert.doesNotMatch(html, /Add to bag/);
+  assert.match(html, /Add to bag/);
+  assert.doesNotMatch(html, /disabled="" class="add-button"/);
+  const radios = html.match(/<input\b[^>]*type="radio"[^>]*>/g) ?? [];
+  assert.equal(radios.length, products[0].variants.length);
+  assert.ok(radios.every((radio) => !radio.includes("disabled")));
+});
+
+test("all CMS-inactive sizes keep add-to-bag and quantity controls disabled", () => {
+  const item = {
+    ...products[0],
+    variants: products[0].variants.map((variant) => ({
+      ...variant,
+      active: false,
+    })),
+  };
+  const html = renderPurchase(item, schedule);
   assert.match(html, /disabled="" class="add-button"/);
+  assert.doesNotMatch(html, /Add to bag/);
+  assert.match(
+    html,
+    /aria-label="Increase quantity for pesto mozzarella" disabled=""/,
+  );
+});
+
+test("active and legacy sizes stay selectable with no pickup dates and default to CMS order", () => {
+  const html = renderPurchase(products[0], { dates: [], availability: [] });
+  const radios = html.match(/<input\b[^>]*type="radio"[^>]*>/g) ?? [];
+  assert.ok(radios.every((radio) => !radio.includes("disabled")));
+  const firstRadio = radios[0];
+  assert.ok(firstRadio);
+  assert.match(firstRadio, /checked=""/);
+  assert.match(firstRadio, /value="round"/);
+});
+test("only CMS-inactive sizes are disabled, and the first active size is selected even without pickup availability", () => {
+  const item = {
+    ...products[0],
+    variants: products[0].variants.map((variant, i) => ({
+      ...variant,
+      active: i !== 0,
+    })),
+  };
+  const html = renderPurchase(item, { dates: [], availability: [] });
+  const radios = html.match(/<input\b[^>]*type="radio"[^>]*>/g) ?? [];
+  assert.equal(radios.length, 3);
+  assert.match(radios[0], /disabled=""/);
+  assert.doesNotMatch(radios[1], /disabled/);
+  assert.match(radios[1], /checked=""/);
+  assert.doesNotMatch(radios[2], /disabled/);
+  const cart = [{ productId: item.id, variantId: "round", quantity: 1 }];
+  assert.deepEqual(normalizeCart(cart, [item]), []);
+  assert.deepEqual(resolveCart(cart, [item]), []);
+});
+test("CMS mapping retains inactive sizes for disabled controls, without advertising their price", () => {
+  const original = products[0];
+  const mapped = mapProduct({
+    ...original,
+    displayName: original.name,
+    slug: { _type: "slug", current: original.slug },
+    category: { _type: "reference", _ref: "product-category-focaccia" },
+    variants: original.variants.map((variant, i) => ({
+      ...variant,
+      _type: "productVariant" as const,
+      active: i !== 0,
+    })),
+  });
+  assert.ok(mapped);
+  assert.equal(mapped.variants.length, original.variants.length);
+  assert.equal(mapped.variants[0].active, false);
+  const cartProps = {
+    products: [mapped],
+    commerce: null,
+    settings: null,
+    schedule: { dates: [], availability: [] },
+    children: createElement(ProductCard, { product: mapped }),
+  };
+  const html = renderToStaticMarkup(createElement(CartProvider, cartProps));
+  assert.match(html, /class="product-price">\$15/);
+  assert.doesNotMatch(html, /class="product-price">\$8/);
 });
 
 function renderUnavailable(copy?: CommerceCopy["inactiveProduct"]) {
