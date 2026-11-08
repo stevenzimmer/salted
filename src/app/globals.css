@@ -246,13 +246,13 @@ img {
   min-height: 52px;
   align-items: center;
   justify-content: center;
-  gap: 30px;
+  gap: 12px;
   padding: 14px 25px;
   border: 1px solid var(--copper-ink);
   background: var(--copper-ink);
   color: var(--cream);
   font-family: var(--font-display), sans-serif;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   letter-spacing: 0.07em;
   line-height: 1.3;
@@ -682,7 +682,7 @@ img {
   border: 1px solid #b8a895;
   color: #6d6259;
   font-family: var(--font-display), sans-serif;
-  font-size: 12px;
+  font-size: 14px;
   letter-spacing: 0.025em;
   text-align: center;
   cursor: pointer;
@@ -747,7 +747,7 @@ img {
   background: var(--copper-ink);
   color: var(--cream);
   font-family: var(--font-display), sans-serif;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.02em;
   text-transform: lowercase;
@@ -1181,14 +1181,14 @@ img {
   font-size: 12px;
 }
 .detailed .variant-option {
-  min-height: 67px;
+  min-height: 72px;
   flex-direction: column;
   gap: 4px;
-  font-size: 14px;
+  font-size: 16px;
 }
 .variant-price {
   font-family: var(--font-editorial), Georgia, serif;
-  font-size: 12px;
+  font-size: 16px;
 }
 .serving-note {
   min-height: 40px;
