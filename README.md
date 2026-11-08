@@ -70,7 +70,7 @@ There is **no page builder**. Homepage order remains Hero → How It Works → P
 
 ## Routes and architecture
 
-Existing public routes remain `/`, `/products/[slug]`, `/recipes`, `/recipes/[slug]`, `/pickup`, `/special-orders`, `/about`, `/storage-heating`, `/privacy`, `/terms`, `/order/success`. Checkout stays inside the cart Sheet. `/studio/[[...tool]]` replaces the placeholder. API routes also serve checkout, availability, explicit cancellation, signed Stripe webhooks. A site catch-all renders the CMS-controlled 404.
+Existing public routes remain `/`, `/products/[slug]`, `/recipes`, `/recipes/[slug]`, `/pickup`, `/special-orders`, `/about`, `/storage-heating`, `/privacy`, `/terms`, `/order/success`. Checkout stays inside the cart Sheet. `/studio/[[...tool]]` replaces the placeholder. API routes also serve checkout, pickup availability, and signed Stripe webhooks. A site catch-all renders the CMS-controlled 404.
 
 - `src/app/(site)`: dynamic website root layout, metadata, server pages, `SanityLive`, and draft-only `VisualEditing`.
 - `src/app/(studio)`: separate root layout and `NextStudio`; no storefront, analytics, cart, `SanityLive`, or Visual Editing overlays.

@@ -25,7 +25,7 @@ A webhook check passes only when the CLI reports forwarding the event to this ap
 
 - Paid Session: one existing uncapped order becomes paid/confirmed exactly once without inventory/reservation writes, actual customer name/email are captured, and the capability-protected success page confirms it. Cart clears only after verification.
 - Decline/authentication: no paid order until successful settlement. Retrying within the Session does not create a second order.
-- Return/back/abandon: cart remains; the pending attempt remains while Stripe is payable. End the prior checkout explicitly to expire it. Legacy reserved holds remain until confirmed expiration. Closing a tab alone does not cancel.
+- Return/back/abandon: cart remains; the pending attempt remains while Stripe is payable. Stripe expiration events and operator reconciliation handle expired Sessions. Legacy reserved holds remain until confirmed expiration. Closing a tab alone does not cancel.
 - Expiration: expire the matching test Session, observe forwarded expiration, and verify the cancelled pending order. Legacy reserved attempts also release holds once.
 - Duplicate/out-of-order delivery: replay matching signed events, or resend via the sandbox Dashboard/CLI. No duplicate order/fulfillment and no downgrade from paid. Current Session state is fetched before application.
 - Invalid signature: POST unsigned/altered raw JSON to `/api/stripe/webhook`; expect 400 and no database writes. Use the exact raw body for SDK signing tests.

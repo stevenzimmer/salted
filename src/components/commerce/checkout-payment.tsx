@@ -161,24 +161,6 @@ export function CheckoutPayment({ pickupDate }: { pickupDate: string }) {
     await refreshAvailability();
     setBusy(false);
   }
-  async function endCheckout() {
-    setBusy(true);
-    try {
-      const response = await fetch("/api/commerce/cancel", { method: "POST" });
-      if (!response.ok) {
-        const value = responseInput.parse(await response.json());
-        setError(value.error);
-      } else {
-        setError(undefined);
-        request.current = null;
-        sessionStorage.removeItem("salted:checkout-request");
-      }
-    } catch {
-      setError("Checkout could not be ended yet. Please retry shortly.");
-    }
-    await refreshAvailability();
-    setBusy(false);
-  }
   return (
     <div className="mt-5">
       {needsReview ? (
@@ -223,16 +205,6 @@ export function CheckoutPayment({ pickupDate }: { pickupDate: string }) {
           onClick={pay}
         >
           {busy && hasText(copy?.busy) ? copy.busy : copy.pay}
-        </button>
-      ) : null}
-      {hasText(copy?.cancel) ? (
-        <button
-          type="button"
-          className="text-button mt-4"
-          disabled={busy}
-          onClick={endCheckout}
-        >
-          {copy.cancel}
         </button>
       ) : null}
     </div>

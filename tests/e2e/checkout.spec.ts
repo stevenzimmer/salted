@@ -132,9 +132,8 @@ test("existing storefront through real sandbox payment returns a verified confir
     page.getByText("salted-phase3-qa@example.com", { exact: true }),
   ).toHaveCount(0);
 });
-test("declined sandbox card stays unpaid and returning preserves the bag until explicit Session cancellation", async ({
+test("declined sandbox card stays unpaid and returning preserves the bag", async ({
   page,
-  request,
   baseURL,
 }) => {
   await redirectToStripe(page);
@@ -147,20 +146,6 @@ test("declined sandbox card stays unpaid and returning preserves the bag until e
   await expect(
     page.getByRole("button", { name: "Open cart, 1 item", exact: true }),
   ).toBeVisible();
-  await page
-    .getByRole("button", { name: "Open cart, 1 item", exact: true })
-    .click();
-  const [response] = await Promise.all([
-    page.waitForResponse((r) => r.url().endsWith("/api/commerce/cancel")),
-    page
-      .getByRole("button", {
-        name: "End my previous checkout",
-        exact: true,
-      })
-      .click(),
-  ]);
-  expect(response.status()).toBe(200);
-  expect((await request.get("/api/commerce/availability")).status()).toBe(200);
 });
 test("unverified success URL cannot display a paid confirmation", async ({
   page,

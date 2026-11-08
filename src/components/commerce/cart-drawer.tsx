@@ -24,7 +24,6 @@ import {
 import { useCart } from "./cart-provider";
 import { QuantitySelector } from "./quantity-selector";
 import { CheckoutPayment } from "./checkout-payment";
-import { CheckoutReturn } from "./checkout-return";
 import { PickupDatePicker } from "./pickup-date-picker";
 import { resolveCart, cartSubtotal } from "@/lib/cart";
 import { pickupDateForCart, validPickupDates } from "@/lib/availability";
@@ -212,7 +211,6 @@ export function CartDrawer() {
           ) : null
         ) : step === "bag" ? (
           <>
-            <CheckoutReturn />
             {items.length !== lines.length ? (
               <div className="checkout-notice" role="alert">
                 Some items are no longer available. Remove them to continue.
