@@ -60,6 +60,8 @@ export function CartDrawer() {
   const visibleStep = items.length === 0 ? "bag" : step;
   const lastViewedStep = useRef<CheckoutStep | null>(null);
   const wasUnavailable = useRef(false);
+  const skipFocusRestore = useRef(false);
+  const scrollToProductsAfterClose = useRef(false);
 
   // Synchronize analytics with the visible drawer, including cross-tab cart
   // changes. Refs prevent duplicate views on rerenders and Strict Mode replay.
@@ -106,8 +108,16 @@ export function CartDrawer() {
   }
 
   function closeForNavigation() {
+    skipFocusRestore.current = true;
     setOpen(false);
     setStep("bag");
+  }
+
+  function findYourGoodStuff() {
+    scrollToProductsAfterClose.current =
+      window.location.pathname === "/" &&
+      window.location.hash === "#products";
+    closeForNavigation();
   }
 
   function goBack(toStep: CheckoutStep) {
@@ -171,7 +181,14 @@ export function CartDrawer() {
         className="cart-sheet"
         onCloseAutoFocus={(event) => {
           event.preventDefault();
-          restoreFocus();
+          if (skipFocusRestore.current) skipFocusRestore.current = false;
+          else restoreFocus();
+          if (scrollToProductsAfterClose.current) {
+            scrollToProductsAfterClose.current = false;
+            requestAnimationFrame(() =>
+              document.getElementById("products")?.scrollIntoView(),
+            );
+          }
         }}
       >
         <SheetHeader
@@ -201,7 +218,7 @@ export function CartDrawer() {
                 <Link
                   href="/#products"
                   className="button-primary"
-                  onClick={closeForNavigation}
+                  onClick={findYourGoodStuff}
                 >
                   {c.emptyCta}
                   <ArrowRight size={18} aria-hidden="true" />
@@ -321,9 +338,13 @@ export function CartDrawer() {
                 </button>
               ) : null}
               {hasText(c?.keepShopping) ? (
-                <button type="button" className="text-button" onClick={close}>
+                <Link
+                  href="/#products"
+                  className="text-button"
+                  onClick={findYourGoodStuff}
+                >
                   {c.keepShopping}
-                </button>
+                </Link>
               ) : null}
             </div>
           </>
