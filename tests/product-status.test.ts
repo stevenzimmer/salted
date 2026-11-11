@@ -17,10 +17,15 @@ import {
   migrateInactiveProductCopy,
 } from "../scripts/migrations/inactive-products";
 import { products } from "./fixtures/catalog";
+import { migrateSizeTooltip } from "../scripts/migrations/size-tooltip";
 
 const schedule = getMockSchedule(new Date("2999-01-01T19:00:00Z"));
 
-function renderPurchase(product: Product, stock: MockSchedule = schedule) {
+function renderPurchase(
+  product: Product,
+  stock: MockSchedule = schedule,
+  copy: NonNullable<CommerceCopy["product"]> = {},
+) {
   const selectionProps = {
     product,
     children: createElement(ProductPurchase, { detailed: true }),
@@ -39,6 +44,8 @@ function renderPurchase(product: Product, stock: MockSchedule = schedule) {
         chooseSize: "Choose your size",
         add: "Add to bag",
         soldOut: "Sold out",
+        selectSizeTooltip: "Please select a size",
+        ...copy,
       },
     } satisfies CommerceCopy,
     settings: null,
@@ -46,6 +53,27 @@ function renderPurchase(product: Product, stock: MockSchedule = schedule) {
   };
   return renderToStaticMarkup(createElement(CartProvider, cartProps));
 }
+
+test("size tooltip migration preserves edited or cleared copy and unrelated fields", () => {
+  const product = { add: "Keep add label" };
+  assert.deepEqual(migrateSizeTooltip({ product }), {
+    "product.selectSizeTooltip": "Please select a size",
+  });
+  assert.deepEqual(product, { add: "Keep add label" });
+  for (const selectSizeTooltip of ["Custom wording", "", " ", null])
+    assert.equal(migrateSizeTooltip({ product: { selectSizeTooltip } }), null);
+  for (const document of [{}, { product: null }])
+    assert.equal(migrateSizeTooltip(document), null);
+});
+
+test("clearing size tooltip copy removes its focusable wrapper without enabling add-to-bag", () => {
+  assert.match(renderPurchase(products[0]), /add-button-tooltip-trigger/);
+  for (const selectSizeTooltip of [undefined, "", " "]) {
+    const html = renderPurchase(products[0], schedule, { selectSizeTooltip });
+    assert.doesNotMatch(html, /add-button-tooltip-trigger/);
+    assert.match(html, /disabled="" class="add-button"/);
+  }
+});
 
 test("inactive products have no purchase controls even when inventory exists", () => {
   assert.equal(renderPurchase({ ...products[0], active: false }), "");

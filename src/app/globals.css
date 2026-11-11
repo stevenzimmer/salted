@@ -566,9 +566,10 @@ img {
   /* Keep the solid stop above all copy, even when the text wraps. */
   background: linear-gradient(
     to top,
-    /* var(--copper-ink) 0%, */ /* var(--copper-ink) calc(100% - 112px), */
-    color-mix(in srgb, var(--copper-ink) 60%, transparent) calc(100% - 72px),
-    color-mix(in srgb, var(--copper-ink) 25%, transparent) calc(100% - 32px),
+    /* var(--copper-ink) 0%, */
+    /* var(--lavender) calc(100% - 112px), */
+    color-mix(in srgb, var(--lavender) 70%, transparent) calc(100% - 72px),
+    color-mix(in srgb, var(--lavender) 70%, transparent) calc(100% - 32px),
     transparent 100%
   );
   pointer-events: none;
@@ -725,6 +726,12 @@ img {
 .quantity-control button:disabled {
   color: #a99c8b;
 }
+.quantity-control[data-size-required] {
+  cursor: not-allowed;
+}
+.quantity-control[data-size-required] button {
+  pointer-events: none;
+}
 .quantity-control output {
   min-width: 23px;
   text-align: center;
@@ -748,6 +755,15 @@ img {
   letter-spacing: 0.02em;
   text-transform: lowercase;
   transition: background 0.2s;
+}
+.add-button-tooltip-trigger {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  cursor: not-allowed;
+}
+.add-button-tooltip-trigger > .add-button {
+  pointer-events: none;
 }
 .add-button:hover {
   background: var(--charcoal);
@@ -2042,7 +2058,8 @@ img {
   .purchase-actions {
     flex-wrap: wrap;
   }
-  .purchase-actions .add-button {
+  .purchase-actions .add-button,
+  .purchase-actions .add-button-tooltip-trigger {
     min-width: 125px;
   }
   .variant-option {

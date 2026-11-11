@@ -242,6 +242,7 @@ export type CommerceCopy = {
     menuNote?: string;
     details?: string;
     chooseSize?: string;
+    selectSizeTooltip?: string;
     yourLoaf?: string;
     unavailable?: string;
     soldOut?: string;
@@ -1004,6 +1005,7 @@ export type GLOBAL_QUERY_RESULT = {
       menuNote?: string;
       details?: string;
       chooseSize?: string;
+      selectSizeTooltip?: string;
       yourLoaf?: string;
       unavailable?: string;
       soldOut?: string;

@@ -19,6 +19,11 @@ export function ProductPurchase({ detailed = false }: { detailed?: boolean }) {
   if (!product.active || !options.length) return null;
   const soldOut = !options.some((option) => option.active !== false);
   const disabled = soldOut || !variant;
+  const addTooltip = disabled
+    ? soldOut
+      ? copy?.soldOut
+      : copy?.selectSizeTooltip
+    : undefined;
   const safeQuantity = Math.min(MAX_CART_QUANTITY, Math.max(1, quantity));
   const button = soldOut ? copy?.soldOut : copy?.add;
   const legend = copy?.chooseSize;
@@ -45,16 +50,32 @@ export function ProductPurchase({ detailed = false }: { detailed?: boolean }) {
         : "blocked",
     );
   }
-  return (
-    <div
-      className={detailed ? "product-purchase detailed" : "product-purchase"}
+  const addButton = (
+    <button
+      type="button"
+      onClick={handleAdd}
+      disabled={disabled}
+      className="add-button"
     >
-      <fieldset
-        className="m-0 min-w-0 border-0 p-0"
-        aria-label={hasText(legend) ? clean(legend) : "Product size"}
+      {button}
+      {variant && !soldOut ? (
+        <>
+          <span>— {money(variant.price * safeQuantity)}</span>
+          <ArrowUpRight size={15} aria-hidden="true" />
+        </>
+      ) : null}
+    </button>
+  );
+  return (
+    <Tooltip.Provider delayDuration={250}>
+      <div
+        className={detailed ? "product-purchase detailed" : "product-purchase"}
       >
-        <Text as="legend" className="eyebrow mb-2.5" value={legend} />
-        <Tooltip.Provider delayDuration={250}>
+        <fieldset
+          className="m-0 min-w-0 border-0 p-0"
+          aria-label={hasText(legend) ? clean(legend) : "Product size"}
+        >
+          <Text as="legend" className="eyebrow mb-2.5" value={legend} />
           <div className="variant-options">
             {options.map((option) => {
               const unavailable = option.active === false;
@@ -112,50 +133,65 @@ export function ProductPurchase({ detailed = false }: { detailed?: boolean }) {
               );
             })}
           </div>
-        </Tooltip.Provider>
-      </fieldset>
-      {detailed ? (
-        <Text className="serving-note" value={variant?.servingDescription} />
-      ) : null}
-      <div className="purchase-actions">
-        <QuantitySelector
-          value={safeQuantity}
-          onChange={setQuantity}
-          max={MAX_CART_QUANTITY}
-          label={`Quantity for ${clean(product.name) || "product"}`}
-          disabled={disabled}
-        />
-        {hasText(button) ? (
-          <button
-            type="button"
-            onClick={handleAdd}
+        </fieldset>
+        {detailed ? (
+          <Text className="serving-note" value={variant?.servingDescription} />
+        ) : null}
+        <div className="purchase-actions">
+          <QuantitySelector
+            value={safeQuantity}
+            onChange={setQuantity}
+            max={MAX_CART_QUANTITY}
+            label={`Quantity for ${clean(product.name) || "product"}`}
             disabled={disabled}
-            className="add-button"
+            disabledTooltip={
+              !variant && !soldOut ? copy?.selectSizeTooltip : undefined
+            }
+          />
+          {hasText(button) ? (
+            hasText(addTooltip) ? (
+              <Tooltip.Root>
+                <Tooltip.Trigger asChild>
+                  <span
+                    className="add-button-tooltip-trigger"
+                    tabIndex={0}
+                    role="group"
+                    aria-label={clean(button)}
+                    aria-disabled="true"
+                  >
+                    {addButton}
+                  </span>
+                </Tooltip.Trigger>
+                <Tooltip.Portal>
+                  <Tooltip.Content
+                    className="variant-tooltip"
+                    sideOffset={8}
+                    collisionPadding={12}
+                  >
+                    {addTooltip}
+                  </Tooltip.Content>
+                </Tooltip.Portal>
+              </Tooltip.Root>
+            ) : (
+              addButton
+            )
+          ) : null}
+        </div>
+        {detailed ? (
+          <Text
+            className="mt-4 whitespace-pre-line text-xs leading-relaxed text-muted-foreground"
+            value={copy?.pickupNote}
+          />
+        ) : null}
+        {hasText(message) ? (
+          <p
+            className={outcome === "blocked" ? "mt-2 text-xs" : "sr-only"}
+            role={outcome === "blocked" ? "alert" : "status"}
           >
-            {button}
-            {variant && !soldOut ? (
-              <>
-                <span>— {money(variant.price * safeQuantity)}</span>
-                <ArrowUpRight size={15} aria-hidden="true" />
-              </>
-            ) : null}
-          </button>
+            {message}
+          </p>
         ) : null}
       </div>
-      {detailed ? (
-        <Text
-          className="mt-4 whitespace-pre-line text-xs leading-relaxed text-muted-foreground"
-          value={copy?.pickupNote}
-        />
-      ) : null}
-      {hasText(message) ? (
-        <p
-          className={outcome === "blocked" ? "mt-2 text-xs" : "sr-only"}
-          role={outcome === "blocked" ? "alert" : "status"}
-        >
-          {message}
-        </p>
-      ) : null}
-    </div>
+    </Tooltip.Provider>
   );
 }

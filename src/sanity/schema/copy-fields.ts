@@ -190,6 +190,7 @@ export const copyFields = {
       "menuNote",
       "details",
       "chooseSize",
+      "selectSizeTooltip",
       "yourLoaf",
       "unavailable",
       "soldOut",

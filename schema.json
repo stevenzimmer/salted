@@ -1374,6 +1374,13 @@
               },
               "optional": true
             },
+            "selectSizeTooltip": {
+              "type": "objectAttribute",
+              "value": {
+                "type": "string"
+              },
+              "optional": true
+            },
             "yourLoaf": {
               "type": "objectAttribute",
               "value": {

@@ -4,6 +4,8 @@ Future Fridays are available by default before their Wednesday 11:59:59 PM Pacif
 
 Product cards and detail pages initially show the product's main CMS image with no size selected. Customers must select an active size before adding to their bag. Selecting a size shows its optional image; missing or invalid size images use the product's main image. Cleared main images leave no initial image box. Size selection and add-to-bag remain independent of pickup-date availability.
 
+**Commerce Copy → Product → Select size tooltip** controls guidance on disabled Add to bag and quantity controls while a size awaits selection. Run `npm run cms:migrate-size-tooltip` once to initialize missing wording; it preserves existing or cleared copy and editor drafts. Clearing the field removes these tooltips. Add to bag buttons for products with no active sizes use the existing Sold out wording. Quantity limits after selecting a size do not show size-selection guidance.
+
 ## Content manager workflow
 
 Open **Studio → Pickup Info → Pickup blackout dates**. Add a date with its calendar picker, then **Publish** to close that Friday to new checkouts. Only valid Fridays are accepted; duplicate entries are rejected. Remove a date and publish to reopen it. An absent or cleared list means no blackout dates. Draft changes never close published checkout dates. Blackouts apply to the whole order, not individual products or sizes.

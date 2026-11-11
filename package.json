@@ -32,6 +32,7 @@
     "unsubscribe:qa": "node --env-file-if-exists=.env.local --import tsx scripts/unsubscribe-qa.ts",
     "commerce:pickup": "node --env-file-if-exists=.env.local --import tsx scripts/commerce.ts pickup",
     "cms:migrate-manual-menu-copy": "node --env-file-if-exists=.env.local --import tsx scripts/migrate-manual-menu-copy.ts",
+    "cms:migrate-size-tooltip": "node --env-file-if-exists=.env.local --import tsx scripts/migrate-size-tooltip.ts",
     "commerce:prune-rate-limits": "node --env-file-if-exists=.env.local --import tsx scripts/commerce.ts prune-rate-limits"
   },
   "engines": {
