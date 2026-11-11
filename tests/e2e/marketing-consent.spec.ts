@@ -21,6 +21,7 @@ test.describe("newsletter choice through real sandbox checkout", () => {
           exact: true,
         }),
       });
+      await card.locator('input[type="radio"]:not([disabled])').first().check();
       await card.getByRole("button", { name: /Add to bag/ }).click();
       const dialog = page.getByRole("dialog");
       await dialog.getByRole("button", { name: /^Checkout/ }).click();
@@ -131,14 +132,13 @@ test("newsletter choice does not invalidate an acknowledged price review", async
   page,
 }) => {
   await page.goto("/");
-  const card = page
-    .locator("article")
-    .filter({
-      has: page.getByRole("link", {
-        name: "View Classic Focaccia",
-        exact: true,
-      }),
-    });
+  const card = page.locator("article").filter({
+    has: page.getByRole("link", {
+      name: "View Classic Focaccia",
+      exact: true,
+    }),
+  });
+  await card.locator('input[type="radio"]:not([disabled])').first().check();
   await card.getByRole("button", { name: /Add to bag/ }).click();
   const dialog = page.getByRole("dialog");
   await dialog.getByRole("button", { name: /^Checkout/ }).click();

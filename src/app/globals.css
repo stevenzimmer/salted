@@ -313,19 +313,6 @@ img {
   letter-spacing: 0.23em;
   font-size: 24px;
 }
-.hero-headline {
-  margin-top: 12px;
-  font-family: var(--font-display), "Arial Narrow", sans-serif;
-  font-size: clamp(40px, 3.9vw, 58px);
-  font-weight: 600;
-  line-height: 1.03;
-  white-space: pre-line;
-}
-.hero-description {
-  margin-top: 16px;
-  font-size: 18px;
-  line-height: 1.8;
-}
 .hero-cta {
   margin-top: 27px;
 }
@@ -694,8 +681,8 @@ img {
 }
 .variant-option.is-selected {
   border-color: var(--charcoal);
-  background: var(--charcoal);
-  color: var(--cream);
+  background: var(--lavender);
+  color: var(--charcoal);
 }
 .variant-option.is-unavailable {
   border-color: #d7cebf;
@@ -1898,9 +1885,6 @@ img {
   .hero-wordmark {
     font-size: 16vw;
   }
-  .hero-headline {
-    font-size: 44px;
-  }
   .hero-sticker {
     right: -15px;
     width: 115px;
@@ -1988,14 +1972,6 @@ img {
   .hero-tagline {
     font-size: 14px;
     letter-spacing: 0.19em;
-  }
-  .hero-headline {
-    margin-top: 27px;
-    font-size: 47px;
-  }
-  .hero-description {
-    margin-top: 16px;
-    font-size: 15px;
   }
   .hero-cta {
     margin-top: 22px;

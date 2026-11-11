@@ -38,8 +38,6 @@ export function Hero({ page }: { page: Homepage }) {
             <Wordmark className="hero-wordmark" />
           </div>
           <Text className="eyebrow hero-tagline" value={hero?.eyebrow} />
-          <Text as="h1" className="hero-headline" value={hero?.headline} />
-          <Text className="hero-description" value={hero?.description} />
           {hasText(hero?.cta) ? (
             <a className="button-primary hero-cta" href="#products">
               {hero.cta}

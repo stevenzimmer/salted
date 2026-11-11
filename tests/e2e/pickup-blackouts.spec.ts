@@ -32,6 +32,7 @@ test("default Fridays remain selectable across months; blackout refreshes remove
       exact: true,
     }),
   });
+  await card.locator('input[type="radio"]:not([disabled])').first().check();
   await card.getByRole("button", { name: /Add to bag/ }).click();
   const dialog = page.getByRole("dialog");
   await dialog.getByRole("button", { name: /^Checkout/ }).click();

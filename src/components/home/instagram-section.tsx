@@ -24,7 +24,6 @@ export function InstagramSection({
     <section
       id="instagram"
       aria-labelledby={hasText(copy?.heading) ? "instagram-heading" : undefined}
-      className="border-t border-border bg-muted/40"
     >
       <div
         className={`shell section-pad grid items-center gap-10 md:grid-cols-[0.85fr_1fr] md:gap-16 lg:gap-24 ${!textColumn || !photos.length ? "cms-single-column" : ""}`}

@@ -22,12 +22,9 @@ export function ProductSelectionProvider({
 }) {
   const [variantId, setVariantId] = useState<string | null>(null);
   const options = product.variants.filter((option) => hasText(option.label));
-  const variant =
-    options.find(
-      (option) => option.id === variantId && option.active !== false,
-    ) ??
-    options.find((option) => option.active !== false) ??
-    options[0];
+  const variant = options.find(
+    (option) => option.id === variantId && option.active !== false,
+  );
 
   return (
     <ProductSelectionContext

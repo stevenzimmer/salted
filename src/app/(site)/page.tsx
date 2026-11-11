@@ -122,7 +122,7 @@ export default async function HomePage() {
           <Text className="menu-note" value={p?.note} />
         </section>
       ) : null}
-      {hasCopy(r) || visibleRecipes.length ? (
+      {/* {hasCopy(r) || visibleRecipes.length ? (
         <section className="section-pad border-border bg-muted/40">
           <div className="shell">
             <SectionHeading
@@ -159,9 +159,10 @@ export default async function HomePage() {
             ) : null}
           </div>
         </section>
-      ) : null}
+      ) : null} */}
       {hasCopy(v) || reviews.length ? (
-        <section className="shell section-pad reviews-section">
+        <section className="section-pad reviews-section bg-muted/40">
+          <div className="shell">
           <SectionHeading
             eyebrow={v?.eyebrow}
             heading={v?.heading}
@@ -205,6 +206,7 @@ export default async function HomePage() {
               </a>
             </div>
           ) : null}
+          </div>
         </section>
       ) : null}
       <InstagramSection page={page} settings={settings} />

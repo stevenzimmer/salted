@@ -2,6 +2,8 @@
 
 Future Fridays are available by default before their Wednesday 11:59:59 PM Pacific cutoff. Pickup stays 2–6pm PT. Published active products and active sizes form the menu, without stock caps. Customers can build a bag independently of pickup eligibility, subject to the existing 20-unit-per-line limit.
 
+Product cards and detail pages initially show the product's main CMS image with no size selected. Customers must select an active size before adding to their bag. Selecting a size shows its optional image; missing or invalid size images use the product's main image. Cleared main images leave no initial image box. Size selection and add-to-bag remain independent of pickup-date availability.
+
 ## Content manager workflow
 
 Open **Studio → Pickup Info → Pickup blackout dates**. Add a date with its calendar picker, then **Publish** to close that Friday to new checkouts. Only valid Fridays are accepted; duplicate entries are rejected. Remove a date and publish to reopen it. An absent or cleared list means no blackout dates. Draft changes never close published checkout dates. Blackouts apply to the whole order, not individual products or sizes.

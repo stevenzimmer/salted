@@ -48,6 +48,9 @@ test("active sizes can be selected, added and updated without an open Friday; th
     else await expect(radio).toBeEnabled();
   }
   const first = card.locator(`input[type="radio"][value="${active[0].id}"]`);
+  await expect(card.locator('input[type="radio"]:checked')).toHaveCount(0);
+  await expect(card.locator(".add-button")).toBeDisabled();
+  await first.check();
   await expect(first).toBeChecked();
   await first.focus();
   await first.press("ArrowRight");

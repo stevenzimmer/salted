@@ -53,12 +53,14 @@ test("inactive products have no purchase controls even when inventory exists", (
   assert.match(renderPurchase(products[0]), /type="radio"/);
 });
 
-test("active products can be added without inventory or open pickup dates", () => {
+test("active sizes stay enabled without pickup dates, while add-to-bag waits for a selection", () => {
   const html = renderPurchase(products[0], { dates: [], availability: [] });
   assert.doesNotMatch(html, /Sold out/);
   assert.match(html, /type="radio"/);
   assert.match(html, /Add to bag/);
-  assert.doesNotMatch(html, /disabled="" class="add-button"/);
+  assert.match(html, /disabled="" class="add-button"/);
+  assert.doesNotMatch(html, /checked=""|is-selected/);
+  assert.doesNotMatch(html, /Add to bag[^<]*<span/);
   const radios = html.match(/<input\b[^>]*type="radio"[^>]*>/g) ?? [];
   assert.equal(radios.length, products[0].variants.length);
   assert.ok(radios.every((radio) => !radio.includes("disabled")));
@@ -81,16 +83,16 @@ test("all CMS-inactive sizes keep add-to-bag and quantity controls disabled", ()
   );
 });
 
-test("active and legacy sizes stay selectable with no pickup dates and default to CMS order", () => {
+test("active and legacy sizes start unselected and stay in CMS order with no pickup dates", () => {
   const html = renderPurchase(products[0], { dates: [], availability: [] });
   const radios = html.match(/<input\b[^>]*type="radio"[^>]*>/g) ?? [];
   assert.ok(radios.every((radio) => !radio.includes("disabled")));
   const firstRadio = radios[0];
   assert.ok(firstRadio);
-  assert.match(firstRadio, /checked=""/);
+  assert.ok(radios.every((radio) => !radio.includes("checked")));
   assert.match(firstRadio, /value="round"/);
 });
-test("only CMS-inactive sizes are disabled, and the first active size is selected even without pickup availability", () => {
+test("only CMS-inactive sizes are disabled and active sizes start unselected", () => {
   const item = {
     ...products[0],
     variants: products[0].variants.map((variant, i) => ({
@@ -103,7 +105,7 @@ test("only CMS-inactive sizes are disabled, and the first active size is selecte
   assert.equal(radios.length, 3);
   assert.match(radios[0], /disabled=""/);
   assert.doesNotMatch(radios[1], /disabled/);
-  assert.match(radios[1], /checked=""/);
+  assert.ok(radios.every((radio) => !radio.includes("checked")));
   assert.doesNotMatch(radios[2], /disabled/);
   const cart = [{ productId: item.id, variantId: "round", quantity: 1 }];
   assert.deepEqual(normalizeCart(cart, [item]), []);

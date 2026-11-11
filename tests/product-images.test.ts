@@ -10,6 +10,8 @@ import { ProductCard } from "../src/components/commerce/product-card";
 import { ProductDetailLayout } from "../src/components/commerce/product-images";
 import { ProductPurchase } from "../src/components/commerce/product-purchase";
 import { ProductSelectionProvider } from "../src/components/commerce/product-selection";
+import { CmsImage } from "../src/components/cms/image";
+import { getProductImage } from "../src/lib/product-image";
 import type { ImageWithAlt } from "../sanity.types";
 import type { MockSchedule, Product } from "../src/types/content";
 import { products } from "./fixtures/catalog";
@@ -85,21 +87,20 @@ function detail(item: Product) {
   return createElement(ProductSelectionProvider, props);
 }
 
-test("card and detail images match the first CMS-active size and annotate its editorial array key", () => {
+test("cards and detail pages start with the product thumbnail and no size selected", () => {
   for (const content of [
     createElement(ProductCard, { product }),
     detail(product),
   ]) {
     const html = render(content);
-    assert.match(html, /alt="Square size photo"/);
-    assert.match(html, /square-1200x1500.webp/);
-    assert.match(html, /<input[^>]*checked=""[^>]*value="square"/);
+    assert.match(html, /alt="Main product photo"/);
+    assert.doesNotMatch(html, /square-1200x1500.webp|checked=""|is-selected/);
     assert.match(html, /disabled=""[^>]*value="round"/);
-    assert.match(html, /path=variants:editor-square.image/);
+    assert.match(html, /path=image/);
   }
   const html = render(detail(product));
-  assert.match(html, /Square caption/);
-  assert.doesNotMatch(html, /Main caption/);
+  assert.match(html, /Main caption/);
+  assert.doesNotMatch(html, /Square caption/);
 });
 
 test("missing or invalid size photos fall back to the CMS main image in both views", () => {
@@ -109,6 +110,12 @@ test("missing or invalid size photos fall back to the CMS main image in both vie
     { ...squareImage, alt: " " },
     { ...squareImage, asset: { _ref: "invalid", _type: "reference" as const } },
   ]) {
+    const selectedImage = getProductImage(product, {
+      ...product.variants[1],
+      image,
+    });
+    assert.equal(selectedImage.image, mainImage);
+    assert.equal(selectedImage.path, "image");
     const item = {
       ...product,
       variants: product.variants.map((variant) => ({ ...variant, image })),
@@ -125,15 +132,18 @@ test("missing or invalid size photos fall back to the CMS main image in both vie
   }
 });
 
-test("size photos work without a main image; clearing both removes image boxes", () => {
+test("missing thumbnails leave no initial image box even when a size has a photo", () => {
   const withoutMain = { ...product, image: undefined };
-  assert.match(
-    render(detail(withoutMain), withoutMain),
-    /alt="Square size photo"/,
+  const initialDetail = render(detail(withoutMain), withoutMain);
+  assert.doesNotMatch(initialDetail, /<img|product-detail-image/);
+  const initialCard = render(
+    createElement(ProductCard, { product: withoutMain }),
+    withoutMain,
   );
-  assert.match(
-    render(createElement(ProductCard, { product: withoutMain }), withoutMain),
-    /class="product-image"/,
+  assert.doesNotMatch(initialCard, /<img|class="product-image"|product-scrim/);
+  assert.equal(
+    getProductImage(withoutMain, withoutMain.variants[1]).image,
+    squareImage,
   );
   const cleared = {
     ...withoutMain,
@@ -153,15 +163,30 @@ test("size photos work without a main image; clearing both removes image boxes",
   assert.match(page, /cms-single-column/);
 });
 
-test("closed pickup dates preserve the CMS-active size image; variantless products keep optional-image behavior", () => {
+test("closed pickup dates keep the thumbnail and unselected sizes; variantless products keep optional images", () => {
   const soldOut = { ...schedule, availability: [] };
   const html = render(detail(product), product, soldOut);
-  assert.match(html, /alt="Square size photo"/);
-  assert.match(html, /<input[^>]*checked=""[^>]*value="square"/);
+  assert.match(html, /alt="Main product photo"/);
+  assert.doesNotMatch(html, /checked=""|is-selected/);
   const variantless = { ...product, variants: [] };
   const page = render(detail(variantless), variantless);
   assert.match(page, /alt="Main product photo"/);
   assert.doesNotMatch(page, /type="radio"/);
+});
+
+test("selected size photos retain their alt text and exact keyed Visual Editing path", () => {
+  const selected = getProductImage(product, product.variants[1]);
+  assert.equal(selected.image, squareImage);
+  const html = render(
+    createElement(CmsImage, {
+      ...selected,
+      documentId: product._id,
+      documentType: product._type,
+    }),
+  );
+  assert.match(html, /alt="Square size photo"/);
+  assert.match(html, /square-1200x1500.webp/);
+  assert.match(html, /path=variants:editor-square.image/);
 });
 
 test("decorative size photos retain empty alt text and keyed Visual Editing paths survive reordering", () => {
@@ -170,7 +195,14 @@ test("decorative size photos retain empty alt text and keyed Visual Editing path
     image: { ...squareImage, decorative: true, alt: undefined },
   };
   const reordered = { ...product, variants: [variant, product.variants[0]] };
-  const html = render(detail(reordered), reordered);
+  const html = render(
+    createElement(CmsImage, {
+      ...getProductImage(reordered, variant),
+      documentId: reordered._id,
+      documentType: reordered._type,
+    }),
+    reordered,
+  );
   assert.match(html, /alt=""/);
   assert.match(html, /square-1200x1500.webp/);
   assert.match(html, /path=variants:editor-square.image/);

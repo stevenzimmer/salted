@@ -15,8 +15,9 @@ export function ProductPurchase({ detailed = false }: { detailed?: boolean }) {
   const [quantity, setQuantity] = useState(1);
   const [outcome, setOutcome] = useState<"added" | "blocked" | null>(null);
   const id = useId();
-  if (!product.active || !variant) return null;
-  const soldOut = variant.active === false;
+  if (!product.active || !options.length) return null;
+  const soldOut = !options.some((option) => option.active !== false);
+  const disabled = soldOut || !variant;
   const safeQuantity = Math.min(MAX_CART_QUANTITY, Math.max(1, quantity));
   const button = soldOut ? copy?.soldOut : copy?.add;
   const legend = copy?.chooseSize;
@@ -58,13 +59,13 @@ export function ProductPurchase({ detailed = false }: { detailed?: boolean }) {
             return (
               <label
                 key={option.id}
-                className={`variant-option ${option.id === variant.id ? "is-selected" : ""} ${unavailable ? "is-unavailable" : ""}`}
+                className={`variant-option ${option.id === variant?.id ? "is-selected" : ""} ${unavailable ? "is-unavailable" : ""}`}
               >
                 <input
                   type="radio"
                   name={`variant-${id}`}
                   value={option.id}
-                  checked={option.id === variant.id}
+                  checked={option.id === variant?.id}
                   disabled={unavailable}
                   onChange={handleVariantChange}
                 />
@@ -90,7 +91,7 @@ export function ProductPurchase({ detailed = false }: { detailed?: boolean }) {
         </div>
       </fieldset>
       {detailed ? (
-        <Text className="serving-note" value={variant.servingDescription} />
+        <Text className="serving-note" value={variant?.servingDescription} />
       ) : null}
       <div className="purchase-actions">
         <QuantitySelector
@@ -98,17 +99,17 @@ export function ProductPurchase({ detailed = false }: { detailed?: boolean }) {
           onChange={setQuantity}
           max={MAX_CART_QUANTITY}
           label={`Quantity for ${clean(product.name) || "product"}`}
-          disabled={soldOut}
+          disabled={disabled}
         />
         {hasText(button) ? (
           <button
             type="button"
             onClick={handleAdd}
-            disabled={soldOut}
+            disabled={disabled}
             className="add-button"
           >
             {button}
-            {!soldOut ? (
+            {variant && !soldOut ? (
               <>
                 <span>— {money(variant.price * safeQuantity)}</span>
                 <ArrowUpRight size={15} aria-hidden="true" />
