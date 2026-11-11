@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { ArrowUpRight, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Spark } from "@/components/brand/spark";
 import {
   minimumSpecialOrderDate,
   validateSpecialOrder,
@@ -120,9 +121,7 @@ export function SpecialOrderForm({
           >
             {hasText(copy?.nameLabel) ? copy?.nameLabel : "Name"}
             {hasText(copy?.nameLabel) ? (
-              <>
-                <span>*</span>
-              </>
+              <Spark className="required-spark" />
             ) : null}
           </label>
           <Input
@@ -148,9 +147,7 @@ export function SpecialOrderForm({
           >
             {hasText(copy?.emailLabel) ? copy?.emailLabel : "Email address"}
             {hasText(copy?.emailLabel) ? (
-              <>
-                <span>*</span>
-              </>
+              <Spark className="required-spark" />
             ) : null}
           </label>
           <Input
@@ -177,9 +174,7 @@ export function SpecialOrderForm({
           >
             {hasText(copy?.phoneLabel) ? copy?.phoneLabel : "Phone number"}
             {hasText(copy?.phoneLabel) ? (
-              <>
-                <span>*</span>
-              </>
+              <Spark className="required-spark" />
             ) : null}
           </label>
           <Input
@@ -206,9 +201,7 @@ export function SpecialOrderForm({
           >
             {hasText(copy?.dateLabel) ? copy?.dateLabel : "Requested date"}
             {hasText(copy?.dateLabel) ? (
-              <>
-                <span>*</span>
-              </>
+              <Spark className="required-spark" />
             ) : null}
           </label>
           <Input
@@ -235,9 +228,7 @@ export function SpecialOrderForm({
               ? copy?.productsLabel
               : "Requested products"}
             {hasText(copy?.productsLabel) ? (
-              <>
-                <span>*</span>
-              </>
+              <Spark className="required-spark" />
             ) : null}
           </label>
           <Textarea
@@ -265,9 +256,7 @@ export function SpecialOrderForm({
               ? copy?.quantityLabel
               : "Approximate quantity"}
             {hasText(copy?.quantityLabel) ? (
-              <>
-                <span>*</span>
-              </>
+              <Spark className="required-spark" />
             ) : null}
           </label>
           <Input

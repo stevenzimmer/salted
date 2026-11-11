@@ -22,7 +22,7 @@ export default async function SuccessPage({
 }: {
   searchParams: Promise<{ session_id?: string }>;
 }) {
-  const [{ session_id }, { settings, commerce }, owner] = await Promise.all([
+  const [{ session_id }, { commerce }, owner] = await Promise.all([
     searchParams,
     getGlobalContent(),
     ownerCapability(),
@@ -46,7 +46,7 @@ export default async function SuccessPage({
       : copy?.pendingBody;
   return (
     <div className="shell confirmation-page">
-      <LogoMark settings={settings} />
+      <LogoMark />
       <Text className="eyebrow mt-8" value={commerce?.confirmation?.eyebrow} />
       <Text as="h1" className="whitespace-pre-line" value={heading} />
       <Text className="page-description" value={body} />

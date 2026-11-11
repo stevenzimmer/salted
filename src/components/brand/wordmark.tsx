@@ -1,17 +1,10 @@
 import { cn } from "@/lib/utils";
-import { hasText } from "@/sanity/lib/content";
-export function Wordmark({
-  className,
-  value,
-}: {
-  className?: string;
-  value?: string | null;
-}) {
-  if (!hasText(value)) return null;
+import { Spark } from "@/components/brand/spark";
+export function Wordmark({ className }: { className?: string }) {
   return (
     <span className={cn("wordmark", className)}>
-      {value}
-      <span aria-hidden="true">.</span>
+      salted
+      <Spark className="wordmark-spark" />
     </span>
   );
 }

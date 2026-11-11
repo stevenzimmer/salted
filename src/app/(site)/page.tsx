@@ -60,7 +60,7 @@ export default async function HomePage() {
     v = page.reviewsSection;
   return (
     <>
-      <Hero page={page} settings={settings} />
+      <Hero page={page} />
       {hasCopy(how) ? (
         <section className="section-pad how-section border-border bg-muted/40">
           <div className="shell">

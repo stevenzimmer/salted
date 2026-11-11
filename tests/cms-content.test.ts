@@ -173,7 +173,6 @@ test("missing assets and missing meaningful alt text do not leave image wrappers
   const html = renderToStaticMarkup(
     createElement(Hero, {
       page: page({ headline: "Only copy" }),
-      settings: null,
     }),
   );
   assert.doesNotMatch(html, /hero-visual|<img/);
@@ -183,8 +182,7 @@ test("an entirely cleared hero and announcement have no section, padding, or orn
   assert.equal(
     renderToStaticMarkup(
       createElement(Hero, {
-        page: page({ headline: encoded(" "), cta: encoded("") }),
-        settings: null,
+        page: page({ headline: encoded(" "), cta: encoded("") })
       }),
     ),
     "",

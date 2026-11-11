@@ -1,20 +1,14 @@
 import { ArrowDownRight, MapPin } from "lucide-react";
 import { Wordmark } from "@/components/brand/wordmark";
+import { Spark } from "@/components/brand/spark";
 import { CmsImage } from "@/components/cms/image";
 import { Text } from "@/components/cms/text";
 import { hasCopy, hasImage, hasText } from "@/sanity/lib/content";
-import type { Homepage, SiteSettings } from "../../../sanity.types";
+import type { Homepage } from "../../../sanity.types";
 
-export function Hero({
-  page,
-  settings,
-}: {
-  page: Homepage;
-  settings: SiteSettings | null;
-}) {
+export function Hero({ page }: { page: Homepage }) {
   const hero = page.hero;
-  const hasBrand = hasText(settings?.brand?.wordmark);
-  const hasColumn = hasCopy(hero) || hasBrand;
+  const hasColumn = hasCopy(hero);
   if (!hasColumn && !hasImage(page.heroImage)) return null;
   return (
     <section
@@ -27,9 +21,7 @@ export function Hero({
             <p className="eyebrow hero-eyebrow">
               {hasText(hero?.caption) ? (
                 <span>
-                  <span className="hero-eyebrow-star" aria-hidden="true">
-                    {"\u2733\uFE0E"}
-                  </span>
+                  <Spark className="hero-eyebrow-spark" />
                   <span>{hero.caption}</span>
                 </span>
               ) : null}
@@ -41,23 +33,10 @@ export function Hero({
               ) : null}
             </p>
           ) : null}
-          {hasBrand ? (
-            <div className="hero-brand">
-              <Wordmark
-                value={settings?.brand?.wordmark}
-                className="hero-wordmark"
-              />
-              <svg
-                className="hero-spark"
-                viewBox="0 0 40 48"
-                fill="currentColor"
-                aria-hidden="true"
-                focusable="false"
-              >
-                <path d="M20 0C23.5 14 27 18.5 40 24C27 29.5 23.5 34 20 48C16.5 34 13 29.5 0 24C13 18.5 16.5 14 20 0Z" />
-              </svg>
-            </div>
-          ) : null}
+
+          <div className="hero-brand">
+            <Wordmark className="hero-wordmark" />
+          </div>
           <Text className="eyebrow hero-tagline" value={hero?.eyebrow} />
           <Text as="h1" className="hero-headline" value={hero?.headline} />
           <Text className="hero-description" value={hero?.description} />

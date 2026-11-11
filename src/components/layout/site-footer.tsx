@@ -17,7 +17,8 @@ export function SiteFooter({ settings }: { settings: SiteSettings | null }) {
   const brand = [b?.wordmark, b?.tagline, b?.footerCopy].some(hasText);
   const social =
     hasImage(settings.footerImage) ||
-    [b?.sealTop, b?.sealBottom, c?.instagramHeading].some(hasText) ||
+    brand ||
+    hasText(c?.instagramHeading) ||
     (instagram && hasText(c?.instagramLabel));
   if (
     !brand &&
@@ -37,7 +38,6 @@ export function SiteFooter({ settings }: { settings: SiteSettings | null }) {
               {hasText(b?.wordmark) ? (
                 <Link href="/" aria-label="Home">
                   <Wordmark
-                    value={b.wordmark}
                     className="text-[88px] sm:text-[110px]"
                   />
                 </Link>
@@ -69,7 +69,7 @@ export function SiteFooter({ settings }: { settings: SiteSettings | null }) {
                   />
                 </div>
               ) : (
-                <LogoMark settings={settings} />
+                <LogoMark />
               )}
               <Text as="h2" value={c?.instagramHeading} />
               {instagram && hasText(c?.instagramLabel) ? (

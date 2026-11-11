@@ -7,16 +7,12 @@ import { Text } from "@/components/cms/text";
 import { hasCopy, hasImage, hasText } from "@/sanity/lib/content";
 import { fetchContent } from "@/sanity/lib/fetch-content";
 import { ABOUT_QUERY } from "@/sanity/lib/queries";
-import { getGlobalContent } from "@/sanity/lib/data";
 import { contentMetadata } from "@/sanity/lib/metadata";
 export async function generateMetadata() {
   return contentMetadata((await fetchContent(ABOUT_QUERY))?.seo, "/about");
 }
 export default async function AboutPage() {
-  const [page, { settings }] = await Promise.all([
-    fetchContent(ABOUT_QUERY),
-    getGlobalContent(),
-  ]);
+  const page = await fetchContent(ABOUT_QUERY);
   if (!page) return null;
   if (!hasCopy(page.intro) && !hasCopy(page.story) && !hasImage(page.image))
     return null;
@@ -43,7 +39,7 @@ export default async function AboutPage() {
           ) : null}
           {copy ? (
             <div className="about-page-copy">
-              <LogoMark settings={settings} />
+              <LogoMark />
               <Text
                 as="h2"
                 className="whitespace-pre-line"

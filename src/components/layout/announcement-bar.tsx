@@ -1,5 +1,6 @@
 import type { SiteSettings } from "../../../sanity.types";
 import { hasText } from "@/sanity/lib/content";
+import { Spark } from "@/components/brand/spark";
 export function AnnouncementBar({
   settings,
 }: {
@@ -9,13 +10,9 @@ export function AnnouncementBar({
   if (!settings?.announcementEnabled || !hasText(text)) return null;
   return (
     <div className="announcement">
-      <span className="mr-3" aria-hidden="true">
-        {"\u2733\uFE0E"}
-      </span>
+      <Spark className="mr-3" />
       {text}
-      <span className="ml-3 hidden sm:inline" aria-hidden="true">
-        {"\u2733\uFE0E"}
-      </span>
+      <Spark className="ml-3 hidden sm:inline-block" />
     </div>
   );
 }

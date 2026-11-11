@@ -42,7 +42,6 @@ export default async function PreferencesLayout({
           <header className="shell py-8">
             <Link href="/" aria-label="Salted Focaccia home">
               <Wordmark
-                value={settings?.brand?.wordmark}
                 className="text-6xl"
               />
             </Link>

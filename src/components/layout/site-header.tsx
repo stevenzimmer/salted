@@ -49,7 +49,6 @@ export function SiteHeader({ settings }: { settings: SiteSettings | null }) {
         {hasText(settings?.brand?.wordmark) ? (
           <Link href="/" aria-label="Home" className="shrink-0">
             <Wordmark
-              value={settings?.brand?.wordmark}
               className="text-[44px]"
             />
           </Link>
@@ -121,7 +120,6 @@ export function SiteHeader({ settings }: { settings: SiteSettings | null }) {
                     >
                       {hasText(settings?.brand?.wordmark) ? (
                         <Wordmark
-                          value={settings.brand.wordmark}
                           className="text-5xl"
                         />
                       ) : (
