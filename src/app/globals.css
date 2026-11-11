@@ -675,12 +675,15 @@ img {
   height: 1px;
   opacity: 0;
 }
+.variant-option input:disabled {
+  pointer-events: none;
+}
 .variant-option:has(input:focus-visible) {
   outline: 2px solid var(--copper-ink);
   outline-offset: 3px;
 }
 .variant-option.is-selected {
-  border-color: var(--charcoal);
+  border-color: var(--lavender);
   background: var(--lavender);
   color: var(--charcoal);
 }
@@ -689,6 +692,17 @@ img {
   color: #766b60;
   text-decoration: line-through;
   cursor: not-allowed;
+}
+.variant-tooltip {
+  z-index: 60;
+  padding: 6px 10px;
+  background: var(--charcoal);
+  color: var(--cream);
+  font-family: var(--font-display), sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  letter-spacing: 0.025em;
+  text-transform: lowercase;
 }
 .purchase-actions {
   display: flex;

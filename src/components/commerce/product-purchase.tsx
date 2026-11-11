@@ -1,6 +1,7 @@
 "use client";
 import { useId, useState, type ChangeEvent } from "react";
 import { ArrowUpRight } from "lucide-react";
+import { Tooltip } from "radix-ui";
 import { QuantitySelector } from "./quantity-selector";
 import { useCart } from "./cart-provider";
 import { MAX_CART_QUANTITY } from "@/lib/cart";
@@ -53,42 +54,65 @@ export function ProductPurchase({ detailed = false }: { detailed?: boolean }) {
         aria-label={hasText(legend) ? clean(legend) : "Product size"}
       >
         <Text as="legend" className="eyebrow mb-2.5" value={legend} />
-        <div className="variant-options">
-          {options.map((option) => {
-            const unavailable = option.active === false;
-            return (
-              <label
-                key={option.id}
-                className={`variant-option ${option.id === variant?.id ? "is-selected" : ""} ${unavailable ? "is-unavailable" : ""}`}
-              >
-                <input
-                  type="radio"
-                  name={`variant-${id}`}
-                  value={option.id}
-                  checked={option.id === variant?.id}
-                  disabled={unavailable}
-                  onChange={handleVariantChange}
-                />
-                <span>
-                  {hasText(option.shortLabel)
-                    ? option.shortLabel
-                    : option.label}
-                </span>
-                {detailed ? (
-                  unavailable ? (
-                    <Text
-                      as="span"
-                      className="variant-price"
-                      value={copy?.unavailable}
-                    />
-                  ) : (
-                    <span className="variant-price">{money(option.price)}</span>
-                  )
-                ) : null}
-              </label>
-            );
-          })}
-        </div>
+        <Tooltip.Provider delayDuration={250}>
+          <div className="variant-options">
+            {options.map((option) => {
+              const unavailable = option.active === false;
+              const showTooltip = unavailable && hasText(copy?.soldOut);
+              const label = (
+                <label
+                  key={option.id}
+                  className={`variant-option ${option.id === variant?.id ? "is-selected" : ""} ${unavailable ? "is-unavailable" : ""}`}
+                  tabIndex={showTooltip ? 0 : undefined}
+                  aria-disabled={unavailable || undefined}
+                >
+                  <input
+                    type="radio"
+                    name={`variant-${id}`}
+                    value={option.id}
+                    checked={option.id === variant?.id}
+                    disabled={unavailable}
+                    onChange={handleVariantChange}
+                  />
+                  <span>
+                    {hasText(option.shortLabel)
+                      ? option.shortLabel
+                      : option.label}
+                  </span>
+                  {detailed ? (
+                    unavailable ? (
+                      <Text
+                        as="span"
+                        className="variant-price"
+                        value={copy?.unavailable}
+                      />
+                    ) : (
+                      <span className="variant-price">
+                        {money(option.price)}
+                      </span>
+                    )
+                  ) : null}
+                </label>
+              );
+              return showTooltip ? (
+                <Tooltip.Root key={option.id}>
+                  <Tooltip.Trigger asChild>{label}</Tooltip.Trigger>
+                  <Tooltip.Portal>
+                    <Tooltip.Content
+                      className="variant-tooltip"
+                      sideOffset={8}
+                      collisionPadding={12}
+                    >
+                      {copy?.soldOut}
+                    </Tooltip.Content>
+                  </Tooltip.Portal>
+                </Tooltip.Root>
+              ) : (
+                label
+              );
+            })}
+          </div>
+        </Tooltip.Provider>
       </fieldset>
       {detailed ? (
         <Text className="serving-note" value={variant?.servingDescription} />
