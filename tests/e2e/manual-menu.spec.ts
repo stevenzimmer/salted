@@ -192,6 +192,6 @@ test.describe("default Friday menu with real sandbox payments", () => {
     await expect(
       page.getByRole("button", { name: "Open cart, 0 items", exact: true }),
     ).toBeVisible();
-    await expect(page.getByText(/2–6pm PT/)).toBeVisible();
+    await expect(page.getByText("2–6pm", { exact: true })).toBeVisible();
   });
 });

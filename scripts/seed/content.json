@@ -302,7 +302,7 @@
     "when": {
       "eyebrow": "The when",
       "heading": "Fridays.\n2–6 pm.",
-      "body": "Orders close Wednesday at 11:59 pm Pacific. Available dates depend on everything in your bag."
+      "body": "Orders close Wednesday at 11:59 pm. Available dates depend on everything in your bag."
     },
     "where": {
       "eyebrow": "The where",
@@ -699,7 +699,7 @@
       "city": "Rocklin, California",
       "hours": "2–6 pm",
       "address": "Exact pickup address is provided after purchase.",
-      "cutoff": "Orders close {date} at 11:59 pm Pacific.",
+      "cutoff": "Orders close {date} at 11:59 pm.",
       "continue": "Continue to payment",
       "paymentNote": "Preview only. Payment is coming in a later phase.",
       "paymentPreviewHeading": "Your Friday looks good.",

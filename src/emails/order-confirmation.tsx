@@ -67,7 +67,7 @@ export function OrderConfirmationEmail({
   const pickupWindow = pickupWindowLabel(
     order.pickup.startTime,
     order.pickup.endTime,
-  ).replace(/ PT$/, "");
+  );
   const date = new Intl.DateTimeFormat("en-US", {
     weekday: "long",
     year: "numeric",

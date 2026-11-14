@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import { scheduleInput } from "../../src/lib/schedule-validation";
 import { calendarDate, dateKey } from "../../src/lib/format";
 
-test("default Fridays remain selectable across months; blackout refreshes remove selection and clearing reopens it", async ({
+test("server-provided Fridays remain selectable without client availability refreshes", async ({
   page,
   request,
 }) => {
@@ -11,19 +11,16 @@ test("default Fridays remain selectable across months; blackout refreshes remove
   const schedule = scheduleInput.parse(await response.json());
   if (!schedule.recurring)
     throw new Error("The storefront must use default-open Friday rules.");
-  let blackoutDates = schedule.recurring.blackoutDates;
-  let unavailable = false;
+  const availabilityRequests: string[] = [];
+  page.on("request", (request) => {
+    if (request.url().endsWith("/api/commerce/availability"))
+      availabilityRequests.push(request.url());
+  });
+  // A browser availability failure must not override the server-provided schedule.
   await page.route("**/api/commerce/availability", (route) =>
-    route.fulfill({
-      status: unavailable ? 503 : 200,
-      json: unavailable
-        ? { dates: [], availability: [] }
-        : {
-            ...schedule,
-            recurring: { ...schedule.recurring, blackoutDates },
-          },
-    }),
+    route.fulfill({ status: 503, json: { dates: [], availability: [] } }),
   );
+  await page.clock.install();
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   const card = page.locator("article").filter({
@@ -57,35 +54,28 @@ test("default Fridays remain selectable across months; blackout refreshes remove
     dialog.getByRole("status").filter({ hasText: /^Selected / }),
   ).toBeVisible();
 
-  blackoutDates = [...blackoutDates, day];
-  let refreshed = page.waitForResponse((r) =>
-    r.url().endsWith("/api/commerce/availability"),
-  );
   await page.evaluate(() => window.dispatchEvent(new Event("focus")));
-  await refreshed;
-  await expect(selectedButton).toBeDisabled();
+  await page.clock.fastForward(16_000);
+  await expect(selectedButton).toBeEnabled();
   await expect(
     dialog.getByRole("status").filter({ hasText: /^Selected / }),
-  ).toHaveCount(0);
+  ).toBeVisible();
+
+  // Checkout errors stay visible without a follow-up availability request.
+  await page.route("**/api/commerce/checkout", (route) =>
+    route.fulfill({
+      status: 409,
+      json: { code: "unavailable", error: "This Friday is unavailable." },
+    }),
+  );
+  await dialog
+    .getByRole("button", { name: "Continue to Stripe", exact: true })
+    .click();
+  await expect(dialog.getByRole("alert")).toHaveText(
+    "This Friday is unavailable.",
+  );
   await expect(
     dialog.getByRole("button", { name: "Continue to Stripe", exact: true }),
-  ).toHaveCount(0);
-  await expect(available.first()).toBeVisible();
-
-  blackoutDates = blackoutDates.filter((date) => date !== day);
-  refreshed = page.waitForResponse((r) =>
-    r.url().endsWith("/api/commerce/availability"),
-  );
-  await page.evaluate(() => window.dispatchEvent(new Event("focus")));
-  await refreshed;
-  await expect(selectedButton).toBeEnabled();
-
-  unavailable = true;
-  refreshed = page.waitForResponse((r) =>
-    r.url().endsWith("/api/commerce/availability"),
-  );
-  await page.evaluate(() => window.dispatchEvent(new Event("focus")));
-  await refreshed;
-  await expect(grid).toBeVisible();
-  await expect(available).toHaveCount(0);
+  ).toBeEnabled();
+  expect(availabilityRequests).toEqual([]);
 });

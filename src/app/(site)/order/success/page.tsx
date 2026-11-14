@@ -4,7 +4,9 @@ import { LogoMark } from "@/components/brand/logo-mark";
 import { Text } from "@/components/cms/text";
 import { money, pickupLabel, pickupWindowLabel } from "@/lib/format";
 import { getGlobalContent } from "@/sanity/lib/data";
-import { clean, hasText } from "@/sanity/lib/content";
+import { fetchContent } from "@/sanity/lib/fetch-content";
+import { ORDER_EMAIL_QUERY } from "@/sanity/lib/queries";
+import { clean, hasText, safeUrl } from "@/sanity/lib/content";
 import { ownerCapability } from "@/commerce/http";
 import { orderConfirmation } from "@/commerce/confirmation";
 import { ConfirmationRefresh } from "@/components/commerce/confirmation-refresh";
@@ -40,6 +42,10 @@ export default async function SuccessPage({
     /* A missing service must never render a paid confirmation. */
   }
   const copy = commerce?.checkout;
+  const pickupCopy = order?.paid
+    ? (await fetchContent(ORDER_EMAIL_QUERY))?.orderEmail
+    : null;
+  const directionsUrl = safeUrl(pickupCopy?.pickupDirectionsUrl);
   const heading = order?.paid
     ? copy?.paidHeading
     : order?.ended || !order
@@ -67,6 +73,15 @@ export default async function SuccessPage({
             <p>
               {pickupWindowLabel(order.pickup.startTime, order.pickup.endTime)}
             </p>
+            <Text
+              className="mt-4 whitespace-pre-line"
+              value={pickupCopy?.pickupAddress}
+            />
+            {directionsUrl && hasText(pickupCopy?.pickupDirectionsLabel) ? (
+              <Link href={directionsUrl} className="inline-link mt-2">
+                {pickupCopy.pickupDirectionsLabel}
+              </Link>
+            ) : null}
             <ul className="my-5 space-y-3">
               {order.items.map((i) => (
                 <li key={`${i.productId}:${i.variantId}`}>

@@ -26,8 +26,7 @@ const responseInput = z.object({
     .optional(),
 });
 export function CheckoutPayment({ pickupDate }: { pickupDate: string }) {
-  const { items, products, commerce, refreshAvailability, updatePrices } =
-    useCart();
+  const { items, products, commerce, updatePrices } = useCart();
   const copy = commerce?.checkout;
   const marketingLabel = commerce?.marketingConsent?.label;
   const consentText = clean(marketingLabel).trim();
@@ -158,7 +157,6 @@ export function CheckoutPayment({ pickupDate }: { pickupDate: string }) {
         "Checkout could not be reached. Your bag is saved; please retry.",
       );
     }
-    await refreshAvailability();
     setBusy(false);
   }
   return (

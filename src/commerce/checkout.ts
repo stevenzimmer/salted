@@ -57,7 +57,7 @@ export function sessionParams(
         unit_amount: l.unitPrice,
         product_data: {
           name: `${l.productName} / ${l.variantName}`,
-          description: `Pickup ${input.pickupDate}, 2–6 PM America/Los_Angeles`,
+          description: `Pickup ${input.pickupDate}, 2–6 PM`,
         },
       },
     })),

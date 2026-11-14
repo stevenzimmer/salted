@@ -2,7 +2,6 @@
 
 import {
   createContext,
-  useEffect,
   useContext,
   useRef,
   useState,
@@ -31,7 +30,6 @@ const CartDrawer = dynamic(
 type CartContextValue = {
   items: CartItem[];
   isDraftMode: boolean;
-  refreshAvailability: () => Promise<void>;
   updatePrices: (
     prices: { productId: string; variantId: string; unitPrice: number }[],
   ) => void;
@@ -93,36 +91,6 @@ export function CartProvider({
   );
   // Keep unavailable lines visible so customers can review and remove them.
   const items = normalizeCart(storedItems);
-  const [liveSchedule, setLiveSchedule] = useState<MockSchedule | null>(null);
-  const currentSchedule = liveSchedule ?? schedule;
-  async function refreshAvailability() {
-    try {
-      const response = await fetch("/api/commerce/availability", {
-        cache: "no-store",
-      });
-      const value: unknown = await response.json();
-      const { scheduleInput } = await import("@/lib/schedule-validation");
-      const parsed = scheduleInput.safeParse(value);
-      setLiveSchedule(
-        response.ok && parsed.success
-          ? parsed.data
-          : { dates: [], availability: [] },
-      );
-    } catch {
-      setLiveSchedule({ dates: [], availability: [] });
-    }
-  }
-  useEffect(() => {
-    const refresh = () => {
-      void refreshAvailability();
-    };
-    const timer = window.setInterval(refresh, 15000);
-    window.addEventListener("focus", refresh);
-    return () => {
-      window.clearInterval(timer);
-      window.removeEventListener("focus", refresh);
-    };
-  }, []);
   const [open, setOpen] = useState(false);
   const [hasOpened, setHasOpened] = useState(false);
   const opener = useRef<HTMLElement | null>(null);
@@ -133,7 +101,6 @@ export function CartProvider({
         opener.current = document.activeElement;
       }
       setHasOpened(true);
-      void refreshAvailability();
     }
     setOpen(next);
   }
@@ -233,9 +200,8 @@ export function CartProvider({
         products,
         commerce,
         settings,
-        schedule: currentSchedule,
+        schedule,
         isDraftMode,
-        refreshAvailability,
         updatePrices,
         open,
         setOpen: handleOpen,

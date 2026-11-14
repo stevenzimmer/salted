@@ -32,5 +32,5 @@ export function pickupWindowLabel(startTime: string, endTime: string): string {
       period: hour < 12 ? "am" : "pm",
     };
   });
-  return `${start.label}${start.period === end.period ? "" : start.period}–${end.label}${end.period} PT`;
+  return `${start.label}${start.period === end.period ? "" : start.period}–${end.label}${end.period}`;
 }

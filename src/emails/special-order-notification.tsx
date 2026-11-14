@@ -45,7 +45,7 @@ export function SpecialOrderNotificationEmail({
         <Head />
         <Body className="m-0 bg-[#faf3e7] px-4 py-8 font-serif text-[#292521]">
           <Preview>{request.id}</Preview>
-          <Container className="mx-auto max-w-[560px]">
+          <Container className="mx-auto max-w-140">
             {hasText(copy?.heading) ? (
               <Heading as="h1" className="text-3xl font-normal">
                 {copy.heading}
@@ -59,7 +59,7 @@ export function SpecialOrderNotificationEmail({
                     {label}
                   </Heading>
                 ) : null}
-                <Text className="mt-0 whitespace-pre-wrap break-words text-sm leading-6">
+                <Text className="mt-0 whitespace-pre-wrap wrap-break-word text-sm leading-6">
                   {value}
                 </Text>
               </Section>
