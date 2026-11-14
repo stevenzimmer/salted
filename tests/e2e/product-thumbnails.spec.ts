@@ -13,20 +13,24 @@ async function expectProductImage(
   product: Product,
   variant?: ProductVariant,
 ) {
-  const { image, path } = getProductImage(product, variant);
-  const url = imageUrl(image, 1600, 4 / 5);
+  const { image, path, fallback } = getProductImage(product, variant);
+  const url = fallback?.src ?? imageUrl(image, 1600, 4 / 5);
   const img = container.locator("img");
   if (!url) {
     await expect(img).toHaveCount(0);
     return;
   }
-  await expect(img).toHaveAttribute(
-    "data-sanity",
-    imageAnnotation(product._id, path, product._type),
-  );
+  if (fallback) {
+    await expect(img).not.toHaveAttribute("data-sanity");
+  } else {
+    await expect(img).toHaveAttribute(
+      "data-sanity",
+      imageAnnotation(product._id, path, product._type),
+    );
+  }
   await expect(img).toHaveAttribute(
     "alt",
-    image?.decorative ? "" : clean(image?.alt),
+    fallback?.alt ?? (image?.decorative ? "" : clean(image?.alt)),
   );
   await expect
     .poll(async () => {

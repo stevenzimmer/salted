@@ -103,7 +103,7 @@ test("cards and detail pages start with the product thumbnail and no size select
   assert.doesNotMatch(html, /Square caption/);
 });
 
-test("missing or invalid size photos fall back to the CMS main image in both views", () => {
+test("missing or invalid focaccia size photos use the size guide; initial views keep the CMS thumbnail", () => {
   for (const image of [
     undefined,
     { ...squareImage, asset: undefined },
@@ -114,8 +114,11 @@ test("missing or invalid size photos fall back to the CMS main image in both vie
       ...product.variants[1],
       image,
     });
-    assert.equal(selectedImage.image, mainImage);
-    assert.equal(selectedImage.path, "image");
+    assert.equal(selectedImage.image, undefined);
+    assert.equal(
+      selectedImage.fallback?.src,
+      "/images/products/focaccia-8x8-square.jpg",
+    );
     const item = {
       ...product,
       variants: product.variants.map((variant) => ({ ...variant, image })),
@@ -129,6 +132,49 @@ test("missing or invalid size photos fall back to the CMS main image in both vie
       assert.doesNotMatch(html, /square-1200x1500.webp/);
     }
     assert.match(render(detail(item), item), /Main caption/);
+  }
+});
+
+test("focaccia guides match stable size IDs and never replace an existing size image", () => {
+  for (const category of ["focaccia", "product-category-focaccia"]) {
+    const item = { ...product, category };
+    const filenames = ["6-inch-round", "8x8-square", "9x13-pan"];
+    for (const [index, variant] of item.variants.entries()) {
+      const selected = getProductImage(item, { ...variant, image: undefined });
+      assert.equal(selected.image, undefined);
+      assert.equal(
+        selected.fallback?.src,
+        `/images/products/focaccia-${filenames[index]}.jpg`,
+      );
+      assert.ok(selected.fallback?.alt);
+      assert.deepEqual(
+        getProductImage(item, { ...variant, image: squareImage }),
+        {
+          image: squareImage,
+          path: `variants[_key==${JSON.stringify(variant._key)}].image`,
+        },
+      );
+      const withoutMain = getProductImage(
+        { ...item, image: undefined },
+        { ...variant, image: undefined },
+      );
+      assert.deepEqual(withoutMain.fallback, selected.fallback);
+    }
+  }
+});
+
+test("other categories and unknown sizes keep the CMS main image fallback", () => {
+  for (const [item, variant] of [
+    [
+      { ...product, category: "product-category-sourdough" },
+      product.variants[0],
+    ],
+    [product, { ...product.variants[0], id: "loaf" }],
+  ] as const) {
+    const selection = getProductImage(item, variant);
+    assert.equal(selection.image, mainImage);
+    assert.equal(selection.path, "image");
+    assert.equal(selection.fallback, undefined);
   }
 });
 
