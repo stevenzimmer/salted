@@ -14,6 +14,7 @@ import {
   jsonb,
 } from "drizzle-orm/pg-core";
 import type Stripe from "stripe";
+import type { EmailPayload } from "../commerce/email-types";
 const timestamps = () => ({
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
@@ -159,6 +160,43 @@ export const orders = pgTable(
     ),
   ],
 );
+// Durable transactional outbox. Each audience has its own delivery/idempotency key.
+export const orderEmails = pgTable(
+  "order_emails",
+  {
+    id: uuid().defaultRandom().primaryKey(),
+    orderId: uuid("order_id")
+      .notNull()
+      .references(() => orders.id),
+    audience: text({ enum: ["customer", "business"] }).notNull(),
+    status: text({ enum: ["pending", "sending", "sent", "review"] })
+      .notNull()
+      .default("pending"),
+    payload: jsonb().$type<EmailPayload>(),
+    firstAttemptAt: timestamp("first_attempt_at", { withTimezone: true }),
+    leaseId: uuid("lease_id"),
+    leaseUntil: timestamp("lease_until", { withTimezone: true }),
+    providerId: text("provider_id"),
+    sentAt: timestamp("sent_at", { withTimezone: true }),
+    ...timestamps(),
+  },
+  (t) => [
+    uniqueIndex("order_email_audience").on(t.orderId, t.audience),
+    index("order_email_pending").on(t.status, t.updatedAt),
+    check(
+      "order_email_audience_check",
+      sql`${t.audience} in ('customer','business')`,
+    ),
+    check(
+      "order_email_status",
+      sql`${t.status} in ('pending','sending','sent','review')`,
+    ),
+    check(
+      "order_email_sent",
+      sql`${t.status} <> 'sent' or (${t.providerId} is not null and ${t.sentAt} is not null)`,
+    ),
+  ],
+);
 export const checkoutAttempts = pgTable(
   "checkout_attempts",
   {
@@ -271,6 +309,66 @@ export const checkoutRateLimits = pgTable("checkout_rate_limits", {
   requests: integer().notNull(),
 });
 
+// Requests are independent of paid commerce orders and reserve no inventory.
+export const specialOrderRequests = pgTable(
+  "special_order_requests",
+  {
+    id: uuid().defaultRandom().primaryKey(),
+    requestKey: uuid("request_key").notNull(),
+    fingerprint: text().notNull(),
+    name: text().notNull(),
+    email: text().notNull(),
+    phone: text().notNull(),
+    requestedDate: date("requested_date").notNull(),
+    products: text().notNull(),
+    marketingOptIn: boolean("marketing_opt_in").notNull().default(false),
+    marketingConsentAt: timestamp("marketing_consent_at", {
+      withTimezone: true,
+    }),
+    marketingConsentSource: text("marketing_consent_source"),
+    marketingConsentVersion: text("marketing_consent_version"),
+    marketingConsentText: text("marketing_consent_text"),
+    notificationStatus: text("notification_status", {
+      enum: ["pending", "sending", "sent", "review"],
+    })
+      .notNull()
+      .default("pending"),
+    notificationPayload: jsonb("notification_payload").$type<EmailPayload>(),
+    firstAttemptAt: timestamp("first_attempt_at", { withTimezone: true }),
+    leaseId: uuid("lease_id"),
+    leaseUntil: timestamp("lease_until", { withTimezone: true }),
+    providerId: text("provider_id"),
+    sentAt: timestamp("sent_at", { withTimezone: true }),
+    ...timestamps(),
+  },
+  (t) => [
+    uniqueIndex("special_order_request_key").on(t.requestKey),
+    index("special_order_notification_pending").on(
+      t.notificationStatus,
+      t.updatedAt,
+    ),
+    check(
+      "special_order_contact",
+      sql`char_length(trim(${t.name})) between 2 and 120 and char_length(${t.email}) between 3 and 254 and ${t.email} = lower(trim(${t.email})) and char_length(${t.phone}) between 10 and 30 and char_length(trim(${t.products})) between 10 and 3000`,
+    ),
+    check(
+      "special_order_consent",
+      sql`
+      (${t.marketingOptIn} = false and ${t.marketingConsentAt} is null and ${t.marketingConsentSource} is null and ${t.marketingConsentVersion} is null and ${t.marketingConsentText} is null)
+      or (${t.marketingOptIn} = true and ${t.marketingConsentAt} is not null and ${t.marketingConsentSource} is not null and ${t.marketingConsentSource} = 'special_order_form' and ${t.marketingConsentVersion} is not null and ${t.marketingConsentVersion} ~ '^[a-f0-9]{64}$' and ${t.marketingConsentText} is not null and char_length(trim(${t.marketingConsentText})) between 1 and 2000)
+    `,
+    ),
+    check(
+      "special_order_notification_status",
+      sql`${t.notificationStatus} in ('pending','sending','sent','review')`,
+    ),
+    check(
+      "special_order_notification_sent",
+      sql`${t.notificationStatus} <> 'sent' or (${t.providerId} is not null and ${t.sentAt} is not null)`,
+    ),
+  ],
+);
+
 export const marketingSubscriptions = pgTable(
   "marketing_subscriptions",
   {
@@ -279,6 +377,9 @@ export const marketingSubscriptions = pgTable(
     subscribed: boolean().notNull().default(false),
     lastConsentOrderId: uuid("last_consent_order_id").references(
       () => orders.id,
+    ),
+    lastConsentSpecialOrderId: uuid("last_consent_special_order_id").references(
+      () => specialOrderRequests.id,
     ),
     lastConsentAt: timestamp("last_consent_at", { withTimezone: true }),
     unsubscribedAt: timestamp("unsubscribed_at", { withTimezone: true }),
@@ -295,7 +396,7 @@ export const marketingSubscriptions = pgTable(
     check(
       "marketing_preference_state",
       sql`
-    (${t.subscribed} = true and ${t.lastConsentOrderId} is not null and ${t.lastConsentAt} is not null and ${t.unsubscribedAt} is null and ${t.unsubscribeSource} is null)
+    (${t.subscribed} = true and num_nonnulls(${t.lastConsentOrderId}, ${t.lastConsentSpecialOrderId}) = 1 and ${t.lastConsentAt} is not null and ${t.unsubscribedAt} is null and ${t.unsubscribeSource} is null)
     or (${t.subscribed} = false and ${t.unsubscribedAt} is not null and ${t.unsubscribeSource} is not null and ${t.unsubscribeSource} in ('public_form','signed_link'))
   `,
     ),

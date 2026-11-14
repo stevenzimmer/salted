@@ -14,6 +14,7 @@ import {
   processedStripeEvents,
   marketingSubscriptions,
   checkoutRateLimits,
+  orderEmails,
 } from "../src/db/schema";
 import { createOrRecoverSession } from "../src/commerce/checkout";
 import {
@@ -36,6 +37,9 @@ import {
   unsubscribeSubscription,
 } from "../src/marketing/preferences";
 import { pruneRateLimitBuckets } from "../src/commerce/maintenance";
+import { deliverOrderEmails } from "../src/commerce/email";
+import type { EmailPayload } from "../src/commerce/email-types";
+import { initialOrderEmailCopy } from "../scripts/migrations/order-email";
 if (
   !process.env.TEST_DATABASE_URL ||
   process.env.TEST_DATABASE_URL === process.env.DATABASE_URL
@@ -204,6 +208,7 @@ async function fixture() {
             ),
           );
         await db.delete(orderItems).where(inArray(orderItems.orderId, ids));
+        await db.delete(orderEmails).where(inArray(orderEmails.orderId, ids));
         await db
           .delete(checkoutAttempts)
           .where(inArray(checkoutAttempts.orderId, ids));
@@ -1012,6 +1017,235 @@ test("preference persistence shares the paid-order transaction and a failure rol
     paid.customer_details!.email = email;
     await dbTest((db) => applySession(db, paid));
     assert.equal(await dbTest((db) => canSendMarketingEmail(db, email)), true);
+  } finally {
+    await f.cleanup();
+  }
+});
+
+function emailDependencies(
+  a: Attempt,
+  send: (payload: EmailPayload, key: string) => Promise<string>,
+) {
+  return {
+    database: dbTest,
+    origin: "https://saltedfocaccia.com",
+    secret: "qa-only-order-confirmation-secret-32-characters",
+    copy: async () => ({
+      orderEmail: initialOrderEmailCopy,
+      pickupGuidance: "Published pickup guidance.",
+    }),
+    payment: async (id: string) => ({
+      id,
+      livemode: false,
+      status: "succeeded" as const,
+      amount: 1200,
+      currency: "usd",
+      latest_charge: {
+        receipt_url: `https://pay.stripe.com/receipts/${a.id}`,
+        livemode: false,
+        paid: true,
+        amount: 1200,
+        currency: "usd",
+      },
+    }),
+    send,
+  };
+}
+const emailRows = (a: Attempt) =>
+  dbTest((db) =>
+    db.select().from(orderEmails).where(eq(orderEmails.orderId, a.orderId)),
+  );
+
+test("only a verified paid transition atomically queues one email for each audience", async () => {
+  const f = await fixture();
+  try {
+    const a = await f.create();
+    assert.equal((await emailRows(a)).length, 0);
+    const paid = session(a);
+    await assert.rejects(
+      dbTest((db) => applySession(db, { ...paid, amount_total: 1 })),
+    );
+    assert.equal((await emailRows(a)).length, 0);
+    const event = f.event("checkout.session.completed");
+    await dbTest((db) => applySession(db, paid, event));
+    await dbTest((db) => applySession(db, paid, event));
+    await dbTest((db) =>
+      applySession(
+        db,
+        paid,
+        f.event("checkout.session.async_payment_succeeded"),
+      ),
+    );
+    const queued = await emailRows(a);
+    assert.equal(queued.length, 2);
+    assert.deepEqual(queued.map((row) => row.audience).sort(), [
+      "business",
+      "customer",
+    ]);
+    assert.ok(
+      queued.every((row) => row.status === "pending" && row.payload === null),
+    );
+    assert.equal((await f.savedOrder(a)).notificationStatus, "pending");
+  } finally {
+    await f.cleanup();
+  }
+});
+
+test("a failed customer copy retries with its original payload and key while the successful business copy stays sent", async () => {
+  const f = await fixture();
+  try {
+    const a = await f.create();
+    const paid = session(a);
+    await dbTest((db) => applySession(db, paid));
+    const requests: { payload: EmailPayload; key: string }[] = [];
+    const dependencies = emailDependencies(a, async (payload, key) => {
+      requests.push({ payload, key });
+      if (payload.to.endsWith("@example.invalid"))
+        throw new Error("Synthetic uncertain provider failure");
+      return "email-business";
+    });
+    await assert.rejects(deliverOrderEmails(a.orderId, dependencies));
+    const first = await emailRows(a);
+    assert.equal(
+      first.find((row) => row.audience === "business")?.status,
+      "sent",
+    );
+    assert.equal(
+      first.find((row) => row.audience === "customer")?.status,
+      "pending",
+    );
+    assert.equal((await f.savedOrder(a)).paymentStatus, "paid");
+    const customer = requests.find((request) =>
+      request.payload.to.endsWith("@example.invalid"),
+    );
+    assert.ok(customer);
+    assert.equal(requests[0].payload.from, "feedme@saltedfocaccia.com");
+    assert.equal(requests[0].payload.to, "feedme@saltedfocaccia.com");
+    await deliverOrderEmails(a.orderId, {
+      ...dependencies,
+      copy: async () => {
+        throw new Error("Retries must use persisted wording");
+      },
+      payment: async () => {
+        throw new Error("Retries must use persisted receipt");
+      },
+      send: async (payload, key) => {
+        assert.deepEqual(payload, customer.payload);
+        assert.equal(key, customer.key);
+        return "email-customer";
+      },
+    });
+    assert.ok(
+      (await emailRows(a)).every(
+        (row) => row.status === "sent" && row.providerId,
+      ),
+    );
+    assert.equal((await f.savedOrder(a)).notificationStatus, "sent");
+    await dbTest((db) =>
+      applySession(db, paid, f.event("checkout.session.completed")),
+    );
+    await deliverOrderEmails(a.orderId, {
+      ...dependencies,
+      send: async () => {
+        assert.fail("Duplicate events cannot resend confirmations");
+      },
+    });
+  } finally {
+    await f.cleanup();
+  }
+});
+
+test("parallel delivery workers send each audience at most once", async () => {
+  const f = await fixture();
+  try {
+    const a = await f.create();
+    await dbTest((db) => applySession(db, session(a)));
+    const keys = new Set<string>();
+    const dependencies = emailDependencies(a, async (_payload, key) => {
+      assert.equal(keys.has(key), false);
+      keys.add(key);
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      return `email-${keys.size}`;
+    });
+    await Promise.allSettled([
+      deliverOrderEmails(a.orderId, dependencies),
+      deliverOrderEmails(a.orderId, dependencies),
+    ]);
+    await deliverOrderEmails(a.orderId, dependencies);
+    assert.equal(keys.size, 2);
+    assert.ok((await emailRows(a)).every((row) => row.status === "sent"));
+  } finally {
+    await f.cleanup();
+  }
+});
+
+test("ambiguous sends beyond the provider retention window require review without automatic resends", async () => {
+  const f = await fixture();
+  try {
+    const a = await f.create();
+    await dbTest((db) => applySession(db, session(a)));
+    const dependencies = emailDependencies(a, async () => {
+      throw new Error("Synthetic lost response");
+    });
+    await assert.rejects(deliverOrderEmails(a.orderId, dependencies));
+    await dbTest((db) =>
+      db
+        .update(orderEmails)
+        .set({ firstAttemptAt: new Date(Date.now() - 25 * 60 * 60_000) })
+        .where(eq(orderEmails.orderId, a.orderId)),
+    );
+    await assert.rejects(
+      deliverOrderEmails(a.orderId, {
+        ...dependencies,
+        send: async () => {
+          assert.fail("Do not resend after idempotency expires");
+        },
+      }),
+    );
+    assert.ok((await emailRows(a)).every((row) => row.status === "review"));
+    assert.equal((await f.savedOrder(a)).notificationStatus, "review");
+  } finally {
+    await f.cleanup();
+  }
+});
+
+test("unverified receipts and unpaid or refunded orders never send confirmations", async () => {
+  const f = await fixture();
+  try {
+    const a = await f.create();
+    const dependencies = emailDependencies(a, async () => {
+      assert.fail("No message should be sent");
+    });
+    await deliverOrderEmails(a.orderId, dependencies);
+    await dbTest((db) => applySession(db, session(a)));
+    await assert.rejects(
+      deliverOrderEmails(a.orderId, {
+        ...dependencies,
+        payment: async (id) => ({
+          id,
+          livemode: true,
+          status: "succeeded",
+          amount: 1200,
+          currency: "usd",
+          latest_charge: null,
+        }),
+      }),
+    );
+    assert.ok((await emailRows(a)).every((row) => row.firstAttemptAt === null));
+    await dbTest((db) =>
+      recordRefund(
+        db,
+        {
+          livemode: false,
+          payment_intent: `pi_qa_${a.id}`,
+          currency: "usd",
+          amount: 1200,
+          refunded: true,
+        },
+        f.event("charge.refunded"),
+      ),
+    );
+    await deliverOrderEmails(a.orderId, dependencies);
   } finally {
     await f.cleanup();
   }

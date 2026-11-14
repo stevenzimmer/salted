@@ -65,3 +65,7 @@ The browser suite completes real sandbox payments both unchecked and checked, to
 - The additional price-review UI scenario passed (`1 passed (9.6s)`): changing newsletter consent kept an already-acknowledged price review valid. This one UI test intercepted the checkout response and created no payment or reservation; the two payment tests used real Stripe/Neon operations.
 - The operator CSV included all consent fields and used file mode 0600. The temporary verification export was removed afterward.
 - The pre-existing operator QA menu, port-3000 dev server and port-3000 Stripe listener were preserved. Temporary port-3001 verification processes were stopped. No website was deployed and no live payments or newsletter delivery were enabled.
+
+## Special-order request consent
+
+The explicitly requested [special-order form](special-orders.md) also captures optional affirmative consent. Current preferences can reference either a paid checkout order or a saved special-order request. The same timestamp ordering and withdrawal protections apply; saved retries never resubscribe after a newer withdrawal. Special-order consent does not require payment.

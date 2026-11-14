@@ -36,6 +36,20 @@
       "when": 1794110092404,
       "tag": "0004_typical_darwin",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794634386318,
+      "tag": "0005_yellow_miss_america",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794664811317,
+      "tag": "0006_loose_tusk",
+      "breakpoints": true
     }
   ]
 }

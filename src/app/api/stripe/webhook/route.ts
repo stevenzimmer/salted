@@ -5,7 +5,9 @@ import { verifyWebhook } from "@/commerce/webhook";
 import { applySession, recordRefund } from "@/commerce/store";
 import { withDatabase } from "@/db/client";
 import { processedStripeEvents } from "@/db/schema";
+import { deliverSessionEmails } from "@/commerce/email";
 export const runtime = "nodejs";
+export const maxDuration = 60;
 export async function POST(request: Request) {
   let event;
   try {
@@ -26,7 +28,6 @@ export async function POST(request: Request) {
         .where(eq(processedStripeEvents.stripeEventId, event.id))
         .limit(1),
     );
-    if (seen.length) return NextResponse.json({ received: true });
     if (
       [
         "checkout.session.completed",
@@ -45,6 +46,8 @@ export async function POST(request: Request) {
       await withDatabase((db) =>
         applySession(db, session, { id: event.id, type: event.type }),
       );
+      // Duplicate payment events must still recover a previously failed email.
+      await deliverSessionEmails(session.id);
     } else if (event.type === "charge.refunded") {
       const charge = await stripeClient().charges.retrieve(
         event.data.object.id,
@@ -53,6 +56,7 @@ export async function POST(request: Request) {
         recordRefund(db, charge, { id: event.id, type: event.type }),
       );
     } else {
+      if (seen.length) return NextResponse.json({ received: true });
       await withDatabase((db) =>
         db
           .insert(processedStripeEvents)

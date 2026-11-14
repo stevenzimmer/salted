@@ -362,21 +362,19 @@
       "dateLabel": "Your ideal date",
       "productsLabel": "What are you dreaming of?",
       "productsPlaceholder": "Tell us about the flavors, sizes, and bread you have in mind.",
-      "quantityLabel": "Approximate quantity",
-      "quantityPlaceholder": "How many breads?",
-      "eventTypeLabel": "What’s the occasion?",
-      "eventTypePlaceholder": "A gathering, a birthday, just because…",
-      "notesLabel": "Anything else?",
-      "notesPlaceholder": "Questions or details we should know.",
-      "optional": "Optional",
+      "productsDescription": "Tell us which breads, flavors, and sizes you have in mind, the approximate quantity, the type of event or occasion, and any additional notes or questions.",
       "disclaimer": "No payment is collected with a request. Every special order needs bakery approval.",
-      "submit": "Preview my request",
-      "note": "Preview form · your information stays in this browser and is not sent or persisted.",
-      "successEyebrow": "Looking good",
-      "successHeading": "Your request preview\nis ready.",
-      "successBody": "Your details passed the form check. This is a preview, so nothing was sent to the bakery or saved on a server.",
-      "successNote": "When special orders launch, the bakery will review each request before approval and payment. Submission won’t guarantee acceptance.",
-      "restart": "Start another preview"
+      "submit": "Send my request",
+      "note": "Your request is saved for bakery review. It does not confirm availability or place a paid order.",
+      "successEyebrow": "Request received",
+      "successHeading": "Your request\nis with us.",
+      "successBody": "Thank you for sharing your plans. Your request has been saved for the bakery to review.",
+      "successNote": "Every special order needs bakery approval before payment. Sending a request does not guarantee acceptance.",
+      "restart": "Send another request",
+      "submitting": "Sending…",
+      "submitError": "We couldn’t confirm your request. Please retry, or contact the bakery if the problem continues.",
+      "rateLimited": "Too many requests. Please wait a few minutes before trying again.",
+      "consentChanged": "The newsletter wording changed. Refresh and review it again, or uncheck the newsletter option to send your request."
     },
     "validation": {
       "name": "Please enter your name.",
@@ -384,13 +382,23 @@
       "phone": "Enter a phone number with 10–15 digits.",
       "date": "Choose a valid date.",
       "leadTime": "Please allow at least {days} days.",
-      "products": "Tell us a little more about the bread you have in mind (at least 10 characters).",
-      "quantity": "Enter an approximate quantity between 1 and 1,000."
+      "products": "Tell us a little more about the bread you have in mind (at least 10 characters)."
     },
     "seo": {
       "_type": "seo",
       "title": "Special orders",
-      "description": "Something good for your gathering. Preview a Salted Focaccia special-order request."
+      "description": "Something good for your gathering. Send a Salted Focaccia special-order request for bakery review."
+    },
+    "notificationEmail": {
+      "subject": "New special-order request",
+      "heading": "A new special-order request",
+      "nameLabel": "Name",
+      "emailLabel": "Email",
+      "phoneLabel": "Phone",
+      "dateLabel": "Requested date",
+      "productsLabel": "Products, quantities, occasion and notes",
+      "consentLabel": "Newsletter opt-in",
+      "footer": "Reply to this email to contact the customer. This request awaits bakery review and approval."
     }
   },
   {

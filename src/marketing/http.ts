@@ -15,6 +15,7 @@ export function validPreferenceOrigin(request: Request): boolean {
 }
 export async function limitPreferenceRequests(
   request: Request,
+  purpose: "unsubscribe" | "special-order" = "unsubscribe",
 ): Promise<boolean> {
   const secret = process.env.RATE_LIMIT_SECRET;
   if (!secret || secret.length < 32)
@@ -24,7 +25,7 @@ export async function limitPreferenceRequests(
     "local";
   const bucket = Math.floor(Date.now() / preferenceLimits.windowMs);
   const key = createHmac("sha256", secret)
-    .update(`unsubscribe:${ip}:${bucket}`)
+    .update(`${purpose}:${ip}:${bucket}`)
     .digest("hex");
   const [row] = await withDatabase((db) =>
     db

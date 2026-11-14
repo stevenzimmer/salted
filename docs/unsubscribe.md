@@ -87,3 +87,7 @@ If Playwright's bundled browser is unavailable, set `PLAYWRIGHT_CHROMIUM_EXECUTA
 - Local signing-secret generation displayed no value. No website deployment, live Stripe change, campaign delivery or provider enrollment was performed. Temporary QA server processes were stopped; the pre-existing port-3000 development server and Stripe listener were preserved.
 
 Initial sandboxed network attempts could not reach Neon/Sanity and succeeded after network approval. Playwright's expected bundled Chromium was absent, so the existing installed Chromium was used. An initial browser assertion matched Next's additional route-announcer alert; the selector was scoped to the form's error element and the full suite passed afterward.
+
+## Special-order request consent
+
+The explicitly requested [special-order form](special-orders.md) also captures optional affirmative consent. Current preferences can reference either a paid checkout order or a saved special-order request. The same timestamp ordering and withdrawal protections apply; saved retries never resubscribe after a newer withdrawal. Special-order consent does not require payment.

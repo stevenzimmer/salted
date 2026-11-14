@@ -14,6 +14,8 @@ import { listPickupDates } from "../src/commerce/pickups";
 import { reconcileCheckouts } from "../src/commerce/checkout";
 import { CommerceError } from "../src/commerce/validation";
 import { pruneRateLimitBuckets } from "../src/commerce/maintenance";
+import { retrySpecialOrderNotifications } from "../src/special-orders/email";
+import { retryOrderEmails } from "../src/commerce/email";
 async function main() {
   const command = process.argv[2];
   try {
@@ -41,10 +43,20 @@ async function main() {
         pruneRateLimitBuckets(db),
       );
       console.log(JSON.stringify({ removedRateLimitBuckets }));
+    } else if (command === "special-order-emails") {
+      const result = await retrySpecialOrderNotifications();
+      console.log(JSON.stringify(result));
+      if (result.failed || result.needsReview) process.exitCode = 1;
+    } else if (command === "emails") {
+      const result = await retryOrderEmails();
+      console.log(JSON.stringify(result));
+      if (result.failed || result.needsReview) process.exitCode = 1;
     } else if (command === "reconcile") {
       const result = await reconcileCheckouts();
-      console.log(JSON.stringify(result));
-      if (result.failed) process.exitCode = 1;
+      const emails = await retryOrderEmails();
+      console.log(JSON.stringify({ ...result, emails }));
+      if (result.failed || emails.failed || emails.needsReview)
+        process.exitCode = 1;
     } else if (command === "check") {
       await withDatabase(async (db) => {
         const result = await db.execute(
@@ -167,7 +179,7 @@ async function main() {
       );
     } else
       throw new Error(
-        "Use migrate, pickup, reconcile, prune-rate-limits, check or export. CMS menu synchronization has been retired.",
+        "Use migrate, pickup, reconcile, emails, prune-rate-limits, check or export. CMS menu synchronization has been retired.",
       );
   } catch (error) {
     // Driver/Stripe errors may include connection strings or response bodies.

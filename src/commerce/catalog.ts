@@ -3,11 +3,15 @@ import {
   COMMERCE_CATALOG_QUERY,
   MARKETING_CONSENT_QUERY,
   PICKUP_BLACKOUT_DATES_QUERY,
+  ORDER_EMAIL_QUERY,
+  SPECIAL_ORDERS_QUERY,
 } from "../sanity/lib/queries";
 import type {
   COMMERCE_CATALOG_QUERY_RESULT,
   MARKETING_CONSENT_QUERY_RESULT,
   PICKUP_BLACKOUT_DATES_QUERY_RESULT,
+  ORDER_EMAIL_QUERY_RESULT,
+  SPECIAL_ORDERS_QUERY_RESULT,
 } from "../../sanity.types";
 import {
   CommerceError,
@@ -30,6 +34,18 @@ const client = () =>
 export const fetchCatalog = () =>
   client().fetch<COMMERCE_CATALOG_QUERY_RESULT>(
     COMMERCE_CATALOG_QUERY,
+    {},
+    { cache: "no-store" },
+  );
+export const fetchOrderEmailCopy = () =>
+  client().fetch<ORDER_EMAIL_QUERY_RESULT>(
+    ORDER_EMAIL_QUERY,
+    {},
+    { cache: "no-store" },
+  );
+export const fetchSpecialOrderPage = () =>
+  client().fetch<SPECIAL_ORDERS_QUERY_RESULT>(
+    SPECIAL_ORDERS_QUERY,
     {},
     { cache: "no-store" },
   );

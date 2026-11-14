@@ -332,17 +332,26 @@ const singletons = Object.entries(copyFields).map(([name, groups]) =>
           fieldset: isAnnouncement ? "announcementBar" : undefined,
           fields: fields.map((field: string) =>
             name === "commerceCopy" &&
-            group === "product" &&
-            field === "filters"
-              ? productFilters
-              : name === "commerceCopy" && group === "marketingConsent"
-                ? defineField({
-                    ...text(field),
-                    description:
-                      "Optional newsletter checkbox wording. Clearing it removes the signup option. The checkbox always starts unchecked.",
-                    validation: (rule) => rule.max(2000),
-                  })
-                : text(field),
+            group === "orderEmail" &&
+            field === "pickupDirectionsUrl"
+              ? defineField({
+                  name: field,
+                  title: title(field),
+                  type: "url",
+                  validation: (rule) => rule.uri({ scheme: ["https"] }),
+                })
+              : name === "commerceCopy" &&
+                  group === "product" &&
+                  field === "filters"
+                ? productFilters
+                : name === "commerceCopy" && group === "marketingConsent"
+                  ? defineField({
+                      ...text(field),
+                      description:
+                        "Optional newsletter checkbox wording. Clearing it removes the signup option. The checkbox always starts unchecked.",
+                      validation: (rule) => rule.max(2000),
+                    })
+                  : text(field),
           ),
         });
         return isAnnouncement

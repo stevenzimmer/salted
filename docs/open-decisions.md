@@ -16,7 +16,7 @@ These business decisions were recorded after Phase 2. Draft editorial content is
 | Missed-pickup policy                         | Visible TODO pending approval                                                                                                |
 | Sales tax                                    | No tax claims or calculation; product subtotal only                                                                          |
 | Special-order lead time                      | Configurable temporary five calendar days                                                                                    |
-| Special-order capacity and approval          | Request → bakery review → approval → payment; no real submission                                                             |
+| Special-order capacity and approval          | Request → bakery review → approval → payment; real request capture now implemented (see special-orders.md)                   |
 | Special-order minimum and fee                | $40 product minimum + $10 additional fee, configured separately                                                              |
 | SMS reminder timing                          | Deferred; future consent must be optional                                                                                    |
 | Gift certificates and gift cards             | Deferred; confirm requirements before implementation                                                                         |

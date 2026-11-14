@@ -4,9 +4,13 @@ import { marketingSubscriptions } from "../db/schema";
 import { marketingEmail } from "../lib/marketing-input";
 
 type PreferenceDatabase = Database | Transaction;
-export async function recordPaidMarketingConsent(
+type ConsentInput = { email: string; consentAt: Date } & (
+  | { orderId: string; specialOrderId?: never }
+  | { orderId?: never; specialOrderId: string }
+);
+async function recordMarketingConsent(
   db: PreferenceDatabase,
-  input: { email: string; orderId: string; consentAt: Date },
+  input: ConsentInput,
 ) {
   const email = marketingEmail.parse(input.email);
   await db
@@ -14,14 +18,16 @@ export async function recordPaidMarketingConsent(
     .values({
       email,
       subscribed: true,
-      lastConsentOrderId: input.orderId,
+      lastConsentOrderId: input.orderId ?? null,
+      lastConsentSpecialOrderId: input.specialOrderId ?? null,
       lastConsentAt: input.consentAt,
     })
     .onConflictDoUpdate({
       target: marketingSubscriptions.email,
       set: {
         subscribed: true,
-        lastConsentOrderId: input.orderId,
+        lastConsentOrderId: input.orderId ?? null,
+        lastConsentSpecialOrderId: input.specialOrderId ?? null,
         lastConsentAt: input.consentAt,
         unsubscribedAt: null,
         unsubscribeSource: null,
@@ -45,6 +51,18 @@ export async function recordPaidMarketingConsent(
         ),
       ),
     });
+}
+export async function recordPaidMarketingConsent(
+  db: PreferenceDatabase,
+  input: { email: string; orderId: string; consentAt: Date },
+) {
+  await recordMarketingConsent(db, input);
+}
+export async function recordSpecialOrderMarketingConsent(
+  db: PreferenceDatabase,
+  input: { email: string; specialOrderId: string; consentAt: Date },
+) {
+  await recordMarketingConsent(db, input);
 }
 export async function unsubscribeEmail(
   db: PreferenceDatabase,

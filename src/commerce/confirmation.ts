@@ -1,13 +1,20 @@
 import "server-only";
-import { and, eq } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 import { withDatabase } from "../db/client";
 import { orders, orderItems, pickupDates } from "../db/schema";
 import { stripeClient } from "./config";
+import { verifyConfirmationToken } from "./confirmation-token";
 export async function orderConfirmation(
   sessionId: string | undefined,
   ownerHash: string | undefined,
+  emailToken?: string,
 ) {
-  if (!ownerHash || !sessionId || !/^cs_test_[a-zA-Z0-9]+$/.test(sessionId))
+  const emailOrderId = verifyConfirmationToken(emailToken);
+  if (
+    (!ownerHash && !emailOrderId) ||
+    !sessionId ||
+    !/^cs_test_[a-zA-Z0-9]+$/.test(sessionId)
+  )
     return null;
   const local = await withDatabase(async (db) => {
     const [row] = await db
@@ -17,7 +24,10 @@ export async function orderConfirmation(
       .where(
         and(
           eq(orders.stripeCheckoutSessionId, sessionId),
-          eq(orders.ownerHash, ownerHash),
+          or(
+            ownerHash ? eq(orders.ownerHash, ownerHash) : undefined,
+            emailOrderId ? eq(orders.id, emailOrderId) : undefined,
+          ),
         ),
       );
     if (!row) return null;
@@ -39,6 +49,8 @@ export async function orderConfirmation(
     return null;
   // This read does not fulfill orders. Webhooks and manual reconciliation own writes.
   return {
+    canClearCart:
+      local.order.ownerHash === ownerHash && emailOrderId !== local.order.id,
     paid:
       session.payment_status === "paid" &&
       session.status === "complete" &&

@@ -10,6 +10,7 @@ import {
   pickupDates,
   reservations,
   processedStripeEvents,
+  orderEmails,
 } from "../db/schema";
 import {
   CommerceError,
@@ -316,9 +317,17 @@ export async function applySession(
           customerName: session.customer_details.name,
           customerEmail: session.customer_details.email,
           customerPhone: session.customer_details.phone,
+          notificationStatus: "pending",
           updatedAt: new Date(),
         })
         .where(eq(orders.id, order.id));
+      await tx
+        .insert(orderEmails)
+        .values([
+          { orderId: order.id, audience: "customer" },
+          { orderId: order.id, audience: "business" },
+        ])
+        .onConflictDoNothing();
       if (order.marketingOptIn && order.marketingConsentAt) {
         await recordPaidMarketingConsent(tx, {
           email: session.customer_details.email,

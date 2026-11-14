@@ -9,6 +9,8 @@ import { ownerCapability } from "@/commerce/http";
 import { orderConfirmation } from "@/commerce/confirmation";
 import { ConfirmationRefresh } from "@/components/commerce/confirmation-refresh";
 import { VerifiedCartClear } from "@/components/commerce/verified-cart-clear";
+import { cookies } from "next/headers";
+import { CONFIRMATION_COOKIE } from "@/commerce/confirmation-token";
 export async function generateMetadata() {
   const { commerce } = await getGlobalContent();
   return {
@@ -29,7 +31,11 @@ export default async function SuccessPage({
   ]);
   let order = null;
   try {
-    order = await orderConfirmation(session_id, owner?.ownerHash);
+    order = await orderConfirmation(
+      session_id,
+      owner?.ownerHash,
+      (await cookies()).get(CONFIRMATION_COOKIE)?.value,
+    );
   } catch {
     /* A missing service must never render a paid confirmation. */
   }
@@ -52,7 +58,9 @@ export default async function SuccessPage({
       <Text className="page-description" value={body} />
       {order?.paid ? (
         <>
-          <VerifiedCartClear orderNumber={order.number} items={order.items} />
+          {order.canClearCart ? (
+            <VerifiedCartClear orderNumber={order.number} items={order.items} />
+          ) : null}
           <div className="confirmation-details">
             <p className="eyebrow">{order.number}</p>
             <Text as="h2" value={pickupLabel(order.pickup.date)} />
@@ -66,7 +74,10 @@ export default async function SuccessPage({
                 </li>
               ))}
             </ul>
-            <p className="font-medium mb-4"><span className="font-semibold">Order total</span>:&nbsp; {money(order.total)}</p>
+            <p className="font-medium mb-4">
+              <span className="font-semibold">Order total</span>:&nbsp;{" "}
+              {money(order.total)}
+            </p>
             <Text className="mt-4 text-sm" value={copy?.pickupGuidance} />
             {hasText(copy?.storageLink) ? (
               <Link href="/storage-heating" className="inline-link mt-4">

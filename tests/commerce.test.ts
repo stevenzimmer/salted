@@ -186,10 +186,7 @@ const validRequest: SpecialOrderInput = {
   email: "bread@example.com",
   phone: "(916) 555-0100",
   date: "2026-10-29",
-  products: "Four pans of classic focaccia",
-  quantity: "4",
-  eventType: "Dinner",
-  notes: "",
+  products: "Four pans of classic focaccia for a dinner. Please slice for sharing.",
 };
 
 test("special orders accept five Pacific calendar days without creating a submission", () => {
@@ -200,7 +197,7 @@ test("special orders accept five Pacific calendar days without creating a submis
   );
 });
 
-test("special orders reject missing contact details, invalid calendar dates, and invalid quantities", () => {
+test("special orders reject missing contact details, invalid calendar dates, and insufficient request details", () => {
   const errors = validateSpecialOrder(
     {
       ...validRequest,
@@ -208,7 +205,6 @@ test("special orders reject missing contact details, invalid calendar dates, and
       email: "invalid",
       phone: "123",
       date: "2026-02-30",
-      quantity: "0",
       products: "bread",
     },
     now,
@@ -219,12 +215,8 @@ test("special orders reject missing contact details, invalid calendar dates, and
     "name",
     "phone",
     "products",
-    "quantity",
   ]);
   assert.ok(
     validateSpecialOrder({ ...validRequest, date: "not-a-date" }, now).date,
-  );
-  assert.ok(
-    validateSpecialOrder({ ...validRequest, quantity: "1.5" }, now).quantity,
   );
 });

@@ -1,6 +1,6 @@
 # Salted Focaccia
 
-Next.js 16 / React 19 bakery storefront with Sanity 6 editorial content, an embedded Studio, and Visual Editing. The approved Phase 1 layout and browser cart remain in place. Phase 3 adds Neon/Drizzle orders and default-open pickup Fridays with CMS blackouts, guest Stripe-hosted Checkout and verified webhook orders. Stripe checkout is the default and is test-only; Draft Mode and special orders remain local previews and messaging is deferred.
+Next.js 16 / React 19 bakery storefront with Sanity 6 editorial content, an embedded Studio, and Visual Editing. The approved Phase 1 layout and browser cart remain in place. Phase 3 adds Neon/Drizzle orders and default-open pickup Fridays with CMS blackouts, guest Stripe-hosted Checkout and verified webhook orders. Stripe checkout is the default and is test-only; Draft Mode keeps checkout previews. Special-order requests save to Postgres, capture optional newsletter consent and queue a bakery notification. See [special-order setup and recovery](docs/special-orders.md).
 
 ## Local setup
 
@@ -103,7 +103,7 @@ Google Analytics (`G-FF1JFYJLTV`) remains on website routes. It records preview 
 
 See [deployment](docs/deployment.md) before any push or deployment. This phase does not push or deploy. Add Sanity environment values to the appropriate Vercel environments before a future authorized deployment, using the explicit Viewer token for reads. The temporary seed token is not needed in Vercel.
 
-See [CMS content map](docs/cms-content-map.md), [architecture](docs/architecture.md), and [open decisions](docs/open-decisions.md). Postgres now owns orders/inventory/reservations; verified Stripe webhooks and manual reconciliation own payment completion. Messaging remains deferred to Phase 4.
+See [CMS content map](docs/cms-content-map.md), [architecture](docs/architecture.md), and [open decisions](docs/open-decisions.md). Postgres now owns orders/inventory/reservations; verified Stripe webhooks and manual reconciliation own payment completion. Paid-order email confirmations are the requested messaging extension; SMS remains deferred. See [order emails](docs/order-emails.md).
 
 ## Header and footer navigation
 
@@ -187,7 +187,7 @@ npm run commerce:export -- 2026-11-20 /private/operator/pickup.csv
 npm run commerce:reconcile
 ```
 
-Use `npm run commerce:reconcile` for manual payment recovery and `npm run commerce:prune-rate-limits` to remove rate-limit records older than 24 hours. These operator commands require private database credentials; no background job or public recovery endpoint is installed. No website push/deployment, live payment activation, live Stripe resources, custom email or SMS are included. See [integration plan](docs/stripe-integration-plan.md), [architecture/setup](docs/commerce-architecture.md), [inventory and initialization](docs/inventory-lifecycle.md), [webhook testing](docs/stripe-webhook-testing.md), [verification evidence](docs/phase-3-verification.md), [launch decisions](docs/phase-3-open-decisions.md), and [Vercel environments](docs/deployment.md).
+Use `npm run commerce:reconcile` for manual payment recovery and `npm run commerce:prune-rate-limits` to remove rate-limit records older than 24 hours. These operator commands require private database credentials; no background job or public recovery endpoint is installed. No website push/deployment, live payment activation, live Stripe resources or SMS are included. Paid-order emails are documented in [order emails](docs/order-emails.md). See [integration plan](docs/stripe-integration-plan.md), [architecture/setup](docs/commerce-architecture.md), [inventory and initialization](docs/inventory-lifecycle.md), [webhook testing](docs/stripe-webhook-testing.md), [verification evidence](docs/phase-3-verification.md), [launch decisions](docs/phase-3-open-decisions.md), and [Vercel environments](docs/deployment.md).
 
 ## Optional newsletter consent
 

@@ -5,7 +5,10 @@ import { specialOrderConfig } from "@/data/special-order-config";
 import { money } from "@/lib/format";
 import { hasCopy, hasText } from "@/sanity/lib/content";
 import { fetchContent } from "@/sanity/lib/fetch-content";
-import { SPECIAL_ORDERS_QUERY } from "@/sanity/lib/queries";
+import {
+  MARKETING_CONSENT_QUERY,
+  SPECIAL_ORDERS_QUERY,
+} from "@/sanity/lib/queries";
 import { contentMetadata } from "@/sanity/lib/metadata";
 export async function generateMetadata() {
   return contentMetadata(
@@ -14,7 +17,10 @@ export async function generateMetadata() {
   );
 }
 export default async function SpecialOrdersPage() {
-  const page = await fetchContent(SPECIAL_ORDERS_QUERY);
+  const [page, marketingConsentLabel] = await Promise.all([
+    fetchContent(SPECIAL_ORDERS_QUERY),
+    fetchContent(MARKETING_CONSENT_QUERY),
+  ]);
   if (!page) return null;
   const p = page.planning;
   const workflow = [
@@ -66,7 +72,11 @@ export default async function SpecialOrdersPage() {
             ) : null}
           </aside>
         ) : null}
-        <SpecialOrderForm copy={page.form} validation={page.validation} />
+        <SpecialOrderForm
+          copy={page.form}
+          validation={page.validation}
+          marketingConsentLabel={marketingConsentLabel}
+        />
       </div>
     </div>
   );

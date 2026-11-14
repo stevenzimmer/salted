@@ -81,9 +81,11 @@ Retain Phase 2 Sanity public configuration and server-only Viewer token. Do not 
 
 Before enabling staged **test** checkout: apply migrations to a dedicated staged database, publish/review active products/sizes and commerce copy, review published blackout Fridays under Pickup Info → Pickup blackout dates, set sandbox key and hosted webhook secret, allow webhook delivery through deployment protection, configure the private rate-limit setting, and authorize a deployment. Payment recovery is available through the operator-only `commerce:reconcile` command, and expired request buckets through `commerce:prune-rate-limits`; no scheduled hosting configuration is required. Verify actual hosted Stripe events and paid-order state, then test checkout from the staged URL.
 
-Stripe payment receipts are controlled in the matching Stripe Dashboard customer-email settings. Enable successful-payment receipts, confirm sender/business information, test receipt behavior, and review refund receipts if used. This app collects guest email but sends no custom messages. Phase 4 can consume confirmed orders and `notification_status=not_scheduled` with its own idempotent delivery records; the current phase never marks a custom email/SMS sent.
+Stripe payment receipts are controlled in the matching Stripe Dashboard customer-email settings. Enable successful-payment receipts, confirm sender/business information, test receipt behavior, and review refund receipts if used. The requested [paid-order confirmations](order-emails.md) and [special-order notifications](special-orders.md) use durable Postgres delivery records and Resend. Other Phase 4 messaging and SMS remain deferred.
 
 `NEXT_PUBLIC_SITE_URL` is embedded by Next at build time. Set the correct origin before building; changing only the `next start` environment cannot repair a mismatched built checkout origin.
+
+Before deploying real special-order requests, apply migration `0006_loose_tusk.sql` to the intended application database after isolated QA verification, run `npm run cms:activate-special-orders`, and review the published form/email copy. Configure `RESEND_API_KEY` and `EMAIL_FROM` for the verified sending domain. The destination is `feedme@saltedfocaccia.com`. Without the key, requests still save and notifications remain pending; use `npm run special-orders:retry-emails` after configuration. This implementation does not deploy or change hosted environment variables.
 
 ## Unsubscribe setup
 

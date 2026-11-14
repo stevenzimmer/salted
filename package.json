@@ -24,7 +24,7 @@
     "commerce:check": "node --env-file-if-exists=.env.local --import tsx scripts/commerce.ts check",
     "commerce:export": "node --env-file-if-exists=.env.local --import tsx scripts/commerce.ts export",
     "cms:migrate-commerce-copy": "node --env-file-if-exists=.env.local --import tsx scripts/migrate-commerce-copy.ts",
-    "test:integration": "node --env-file-if-exists=.env.local --import tsx --test tests/commerce.integration.ts",
+    "test:integration": "node --env-file-if-exists=.env.local --import tsx --test tests/*.integration.ts",
     "test:e2e": "node --env-file-if-exists=.env.local node_modules/@playwright/test/cli.js test",
     "stripe:listen": "node --env-file-if-exists=.env.local --import tsx scripts/stripe-listen.ts",
     "cms:migrate-marketing-consent": "node --env-file-if-exists=.env.local --import tsx scripts/migrate-marketing-consent.ts",
@@ -33,7 +33,15 @@
     "commerce:pickup": "node --env-file-if-exists=.env.local --import tsx scripts/commerce.ts pickup",
     "cms:migrate-manual-menu-copy": "node --env-file-if-exists=.env.local --import tsx scripts/migrate-manual-menu-copy.ts",
     "cms:migrate-size-tooltip": "node --env-file-if-exists=.env.local --import tsx scripts/migrate-size-tooltip.ts",
-    "commerce:prune-rate-limits": "node --env-file-if-exists=.env.local --import tsx scripts/commerce.ts prune-rate-limits"
+    "special-orders:qa": "node --env-file-if-exists=.env.local --import tsx scripts/special-orders-qa.ts",
+    "special-orders:retry-emails": "node --env-file-if-exists=.env.local --import tsx scripts/commerce.ts special-order-emails",
+    "cms:activate-special-orders": "node --env-file-if-exists=.env.local --import tsx scripts/activate-special-orders.ts",
+    "cms:migrate-special-order-form": "node --env-file-if-exists=.env.local --import tsx scripts/migrate-special-order-form.ts",
+    "commerce:prune-rate-limits": "node --env-file-if-exists=.env.local --import tsx scripts/commerce.ts prune-rate-limits",
+    "cms:migrate-order-email": "node --env-file-if-exists=.env.local --import tsx scripts/migrate-order-email.ts",
+    "commerce:emails": "node --env-file-if-exists=.env.local --import tsx scripts/commerce.ts emails",
+    "db:migrate-test": "node --env-file-if-exists=.env.local --import tsx scripts/migrate-test-db.ts",
+    "email:preview": "node --import tsx scripts/preview-order-email.tsx"
   },
   "engines": {
     "node": "^22.12.0 || ^24.0.0 || >=26.0.0"
@@ -57,6 +65,7 @@
     "react": "^19.3.1",
     "react-day-picker": "^10.0.2",
     "react-dom": "^19.3.1",
+    "react-email": "^6.11.13",
     "sanity": "^6.22.0",
     "server-only": "^0.0.1",
     "stripe": "^23.1.0",

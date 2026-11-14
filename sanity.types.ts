@@ -187,6 +187,28 @@ export type CommerceCopy = {
   _updatedAt: string;
   _rev: string;
   internalName: string;
+  orderEmail?: {
+    customerSubject?: string;
+    customerHeading?: string;
+    customerBody?: string;
+    businessSubject?: string;
+    businessHeading?: string;
+    businessBody?: string;
+    pickupLabel?: string;
+    pickupAddress?: string;
+    pickupDirectionsLabel?: string;
+    pickupDirectionsUrl?: string;
+    pickupGuidance?: string;
+    orderLabel?: string;
+    totalLabel?: string;
+    customerLabel?: string;
+    receiptLink?: string;
+    confirmationLink?: string;
+    footer?: string;
+    openConfirmation?: string;
+    openingConfirmation?: string;
+    confirmationError?: string;
+  };
   unsubscribe?: {
     eyebrow?: string;
     title?: string;
@@ -461,21 +483,30 @@ export type SpecialOrdersPage = {
     dateLabel?: string;
     productsLabel?: string;
     productsPlaceholder?: string;
-    quantityLabel?: string;
-    quantityPlaceholder?: string;
-    eventTypeLabel?: string;
-    eventTypePlaceholder?: string;
-    notesLabel?: string;
-    notesPlaceholder?: string;
-    optional?: string;
+    productsDescription?: string;
     disclaimer?: string;
     submit?: string;
+    submitting?: string;
+    submitError?: string;
+    rateLimited?: string;
+    consentChanged?: string;
     note?: string;
     successEyebrow?: string;
     successHeading?: string;
     successBody?: string;
     successNote?: string;
     restart?: string;
+  };
+  notificationEmail?: {
+    subject?: string;
+    heading?: string;
+    nameLabel?: string;
+    emailLabel?: string;
+    phoneLabel?: string;
+    dateLabel?: string;
+    productsLabel?: string;
+    consentLabel?: string;
+    footer?: string;
   };
   validation?: {
     name?: string;
@@ -484,7 +515,6 @@ export type SpecialOrdersPage = {
     date?: string;
     leadTime?: string;
     products?: string;
-    quantity?: string;
   };
   seo?: Seo;
 };
@@ -950,6 +980,28 @@ export type GLOBAL_QUERY_RESULT = {
     _updatedAt: string;
     _rev: string;
     internalName: string;
+    orderEmail?: {
+      customerSubject?: string;
+      customerHeading?: string;
+      customerBody?: string;
+      businessSubject?: string;
+      businessHeading?: string;
+      businessBody?: string;
+      pickupLabel?: string;
+      pickupAddress?: string;
+      pickupDirectionsLabel?: string;
+      pickupDirectionsUrl?: string;
+      pickupGuidance?: string;
+      orderLabel?: string;
+      totalLabel?: string;
+      customerLabel?: string;
+      receiptLink?: string;
+      confirmationLink?: string;
+      footer?: string;
+      openConfirmation?: string;
+      openingConfirmation?: string;
+      confirmationError?: string;
+    };
     unsubscribe?: {
       eyebrow?: string;
       title?: string;
@@ -1517,21 +1569,30 @@ export type SPECIAL_ORDERS_QUERY_RESULT = {
     dateLabel?: string;
     productsLabel?: string;
     productsPlaceholder?: string;
-    quantityLabel?: string;
-    quantityPlaceholder?: string;
-    eventTypeLabel?: string;
-    eventTypePlaceholder?: string;
-    notesLabel?: string;
-    notesPlaceholder?: string;
-    optional?: string;
+    productsDescription?: string;
     disclaimer?: string;
     submit?: string;
+    submitting?: string;
+    submitError?: string;
+    rateLimited?: string;
+    consentChanged?: string;
     note?: string;
     successEyebrow?: string;
     successHeading?: string;
     successBody?: string;
     successNote?: string;
     restart?: string;
+  };
+  notificationEmail?: {
+    subject?: string;
+    heading?: string;
+    nameLabel?: string;
+    emailLabel?: string;
+    phoneLabel?: string;
+    dateLabel?: string;
+    productsLabel?: string;
+    consentLabel?: string;
+    footer?: string;
   };
   validation?: {
     name?: string;
@@ -1540,7 +1601,6 @@ export type SPECIAL_ORDERS_QUERY_RESULT = {
     date?: string;
     leadTime?: string;
     products?: string;
-    quantity?: string;
   };
   seo?: Seo;
 } | null;
@@ -1658,6 +1718,35 @@ export type COMMERCE_CATALOG_QUERY_RESULT = Array<{
 export type MARKETING_CONSENT_QUERY_RESULT = string | null;
 
 // Source: src/sanity/lib/queries.ts
+// Variable: ORDER_EMAIL_QUERY
+// Query: *[_type == "commerceCopy" && _id == "commerceCopy"][0]{orderEmail, "pickupGuidance": checkout.pickupGuidance}
+export type ORDER_EMAIL_QUERY_RESULT = {
+  orderEmail: {
+    customerSubject?: string;
+    customerHeading?: string;
+    customerBody?: string;
+    businessSubject?: string;
+    businessHeading?: string;
+    businessBody?: string;
+    pickupLabel?: string;
+    pickupAddress?: string;
+    pickupDirectionsLabel?: string;
+    pickupDirectionsUrl?: string;
+    pickupGuidance?: string;
+    orderLabel?: string;
+    totalLabel?: string;
+    customerLabel?: string;
+    receiptLink?: string;
+    confirmationLink?: string;
+    footer?: string;
+    openConfirmation?: string;
+    openingConfirmation?: string;
+    confirmationError?: string;
+  } | null;
+  pickupGuidance: string | null;
+} | null;
+
+// Source: src/sanity/lib/queries.ts
 // Variable: PICKUP_BLACKOUT_DATES_QUERY
 // Query: *[_type == "pickupPage" && _id == "pickupPage"][0].blackoutDates
 export type PICKUP_BLACKOUT_DATES_QUERY_RESULT = Array<string> | null;
@@ -1679,6 +1768,7 @@ declare global {
     '*[_type == "termsPage" && _id == "termsPage"][0]': TERMS_QUERY_RESULT;
     '*[_type == "product"]{_id, id, active, displayName, variants[]{id, active, label, price}}': COMMERCE_CATALOG_QUERY_RESULT;
     '*[_type == "commerceCopy" && _id == "commerceCopy"][0].marketingConsent.label': MARKETING_CONSENT_QUERY_RESULT;
+    '*[_type == "commerceCopy" && _id == "commerceCopy"][0]{orderEmail, "pickupGuidance": checkout.pickupGuidance}': ORDER_EMAIL_QUERY_RESULT;
     '*[_type == "pickupPage" && _id == "pickupPage"][0].blackoutDates': PICKUP_BLACKOUT_DATES_QUERY_RESULT;
   }
 }
