@@ -8,7 +8,7 @@ type ProductSelection = {
   product: Product;
   options: ProductVariant[];
   variant: ProductVariant | undefined;
-  setVariantId: (id: string) => void;
+  setVariantId: (id: string | null) => void;
 };
 
 const ProductSelectionContext = createContext<ProductSelection | null>(null);
@@ -20,8 +20,10 @@ export function ProductSelectionProvider({
   product: Product;
   children: ReactNode;
 }) {
-  const [variantId, setVariantId] = useState<string | null>(null);
   const options = product.variants.filter((option) => hasText(option.label));
+  const [variantId, setVariantId] = useState<string | null>(() =>
+    options.length === 1 && options[0].active !== false ? options[0].id : null,
+  );
   const variant = options.find(
     (option) => option.id === variantId && option.active !== false,
   );

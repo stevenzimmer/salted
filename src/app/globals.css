@@ -566,8 +566,6 @@ img {
   /* Keep the solid stop above all copy, even when the text wraps. */
   background: linear-gradient(
     to top,
-    /* var(--copper-ink) 0%, */
-    /* var(--lavender) calc(100% - 112px), */
     color-mix(in srgb, var(--lavender) 70%, transparent) calc(100% - 72px),
     color-mix(in srgb, var(--lavender) 70%, transparent) calc(100% - 32px),
     transparent 100%
@@ -606,11 +604,9 @@ img {
   gap: 10px;
 }
 .product-heading h3 {
-  max-width: 75%;
-  font-size: 18px;
-  font-weight: 500;
-  line-height: 1.35;
-  letter-spacing: -0.035em;
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.2;
 }
 .product-heading a:hover {
   text-decoration: underline;
@@ -622,10 +618,9 @@ img {
   font-size: 11px;
 }
 .product-description {
-  margin-top: 5px;
-  color: inherit;
+  /* margin-top: 5px; */
   font-size: 13px;
-  line-height: 1.8;
+  line-height: 1.2;
 }
 .product-reveal {
   /* Reserve the details' space so the heading stays fixed during the fade. */
@@ -634,9 +629,11 @@ img {
 @media (hover: hover) and (pointer: fine) {
   .product-scrim,
   .product-reveal {
+    opacity: 1;
+  }
+  .product-reveal {
     opacity: 0;
   }
-  .product-card:is(:hover, :focus-within) .product-scrim,
   .product-card:is(:hover, :focus-within) .product-reveal {
     opacity: 1;
   }
@@ -793,8 +790,6 @@ img {
     margin-top: 4px;
   }
   .product-reveal .product-description {
-    flex: 1;
-    min-width: 0;
     margin-top: 0;
   }
   .product-reveal .product-details-link {
@@ -1929,9 +1924,6 @@ img {
   .product-image {
     aspect-ratio: 4/4.6;
   }
-  .product-heading h3 {
-    font-size: 23px;
-  }
   .product-price {
     font-size: 13px;
   }
@@ -2045,9 +2037,6 @@ img {
   }
   .product-grid {
     gap: 35px 20px;
-  }
-  .product-heading h3 {
-    font-size: 18px;
   }
   .product-price {
     font-size: 10px;
@@ -2273,9 +2262,6 @@ img {
   }
   .product-image {
     aspect-ratio: 4/4.5;
-  }
-  .product-heading h3 {
-    font-size: 24px;
   }
   .product-price {
     padding-top: 5px;

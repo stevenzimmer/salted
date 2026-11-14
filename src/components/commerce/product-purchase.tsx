@@ -1,5 +1,11 @@
 "use client";
-import { useId, useState, type ChangeEvent } from "react";
+import {
+  useId,
+  useState,
+  type ChangeEvent,
+  type KeyboardEvent,
+  type MouseEvent,
+} from "react";
 import { ArrowUpRight } from "lucide-react";
 import { Tooltip } from "radix-ui";
 import { QuantitySelector } from "./quantity-selector";
@@ -38,17 +44,31 @@ export function ProductPurchase({ detailed = false }: { detailed?: boolean }) {
     setQuantity(1);
     setOutcome(null);
   }
+  function handleVariantClick(event: MouseEvent<HTMLInputElement>) {
+    if (event.currentTarget.value !== variant?.id) return;
+    setVariantId(null);
+    setQuantity(1);
+    setOutcome(null);
+  }
+  function handleVariantKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key !== " " || event.currentTarget.value !== variant?.id) return;
+    event.preventDefault();
+    setVariantId(null);
+    setQuantity(1);
+    setOutcome(null);
+  }
   function handleAdd() {
     if (!variant) return;
-    setOutcome(
-      addItem({
-        productId: product.id,
-        variantId: variant.id,
-        quantity: safeQuantity,
-      })
-        ? "added"
-        : "blocked",
-    );
+    const added = addItem({
+      productId: product.id,
+      variantId: variant.id,
+      quantity: safeQuantity,
+    });
+    setOutcome(added ? "added" : "blocked");
+    if (added) {
+      setVariantId(null);
+      setQuantity(1);
+    }
   }
   const addButton = (
     <button
@@ -93,6 +113,8 @@ export function ProductPurchase({ detailed = false }: { detailed?: boolean }) {
                     value={option.id}
                     checked={option.id === variant?.id}
                     disabled={unavailable}
+                    onClick={handleVariantClick}
+                    onKeyDown={handleVariantKeyDown}
                     onChange={handleVariantChange}
                   />
                   <span>
