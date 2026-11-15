@@ -8,7 +8,7 @@ export function Spark({ className, ...props }: SVGProps<SVGSVGElement>) {
       height="1.2em"
       {...props}
       className={cn(
-        "brand-spark inline-block shrink-0 align-[-0.15em]",
+        "brand-spark inline-block shrink-0",
         className,
       )}
       viewBox="0 0 40 48"

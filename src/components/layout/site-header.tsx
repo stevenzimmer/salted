@@ -45,7 +45,7 @@ export function SiteHeader({ settings }: { settings: SiteSettings | null }) {
 
   return (
     <header className="site-header">
-      <div className="shell flex min-h-24 items-center justify-between gap-6 py-3">
+      <div className="shell flex py-2 items-center justify-between gap-6">
         {hasText(settings?.brand?.wordmark) ? (
           <Link href="/" aria-label="Home" className="shrink-0">
             <Wordmark

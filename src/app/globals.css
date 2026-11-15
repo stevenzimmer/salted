@@ -40,7 +40,7 @@
 }
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 30px;
+  scroll-padding-top: 100px;
 }
 body {
   margin: 0;
@@ -142,9 +142,9 @@ img {
 }
 .wordmark-spark {
   display: inline-block;
-  width: 0.16em;
-  height: 0.192em;
-  margin-inline-start: 0.08em;
+  width: 0.184em;
+  height: 0.2208em;
+  margin-inline-start: 0.02em;
   vertical-align: baseline;
   color: var(--copper-ink);
 }
@@ -163,28 +163,31 @@ img {
 }
 .announcement {
   display: flex;
-  min-height: 35px;
   align-items: center;
   justify-content: center;
-  padding: 8px 18px;
+  padding: 10px 12px;
   background: var(--copper-ink);
   color: var(--cream);
   font-family: var(--font-display), sans-serif;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   letter-spacing: 0.12em;
-  line-height: 1.3;
+  line-height: 1.2;
   text-align: center;
   text-transform: lowercase;
 }
 .site-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--cream);
   border-bottom: 1px solid #29252124;
 }
 .nav-link {
   max-width: 100%;
   overflow-wrap: anywhere;
   display: inline-flex;
-  min-height: 44px;
+  min-height: 36px;
   align-items: center;
   font-family: var(--font-display), sans-serif;
   font-size: 18px;
@@ -1029,8 +1032,8 @@ img {
 }
 .brand-seal {
   display: block;
-  width: 127px;
-  height: 127px;
+  width: 160px;
+  height: 160px;
   flex-shrink: 0;
   color: var(--copper-ink);
   transform: rotate(-12deg);
@@ -1975,8 +1978,7 @@ img {
     min-height: 78px;
   }
   .announcement {
-    min-height: 37px;
-    font-size: 10px;
+    font-size: 12px;
     letter-spacing: 0.07em;
   }
   .hero {

@@ -73,12 +73,13 @@ export default async function SuccessPage({
             <p>
               {pickupWindowLabel(order.pickup.startTime, order.pickup.endTime)}
             </p>
+            <Text className="mt-3" as="h2" value="Pickup address" />
             <Text
               className="mt-4 whitespace-pre-line"
               value={pickupCopy?.pickupAddress}
             />
             {directionsUrl && hasText(pickupCopy?.pickupDirectionsLabel) ? (
-              <Link href={directionsUrl} className="inline-link mt-2">
+              <Link target="_blank" href={directionsUrl} className="inline-link mt-2">
                 {pickupCopy.pickupDirectionsLabel}
               </Link>
             ) : null}
@@ -106,7 +107,7 @@ export default async function SuccessPage({
         <ConfirmationRefresh label={copy?.refresh} />
       ) : null}
       {hasText(commerce?.confirmation?.cta) ? (
-        <Link className="button-primary mt-8" href="/#products">
+        <Link className="button-primary" href="/#products">
           {commerce.confirmation.cta}
           <ArrowUpRight size={17} />
         </Link>
