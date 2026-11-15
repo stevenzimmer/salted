@@ -3,12 +3,12 @@ import {
   hasRecipeCardContent,
 } from "@/sanity/lib/card-content";
 import Link from "next/link";
-import { ArrowUpRight, ArrowRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { Hero } from "@/components/home/hero";
 import { InstagramSection } from "@/components/home/instagram-section";
 import { ProductStorefront } from "@/components/home/product-storefront";
 import { ProductCard } from "@/components/commerce/product-card";
-import { RecipeCard } from "@/components/recipes/recipe-card";
+// import { RecipeCard } from "@/components/recipes/recipe-card";
 import { Text } from "@/components/cms/text";
 import { hasCopy, hasText } from "@/sanity/lib/content";
 import { getGlobalContent } from "@/sanity/lib/data";

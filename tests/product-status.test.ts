@@ -163,8 +163,9 @@ test("CMS mapping retains inactive sizes for disabled controls, without advertis
     children: createElement(ProductCard, { product: mapped }),
   };
   const html = renderToStaticMarkup(createElement(CartProvider, cartProps));
-  assert.match(html, /class="product-price">\$15/);
-  assert.doesNotMatch(html, /class="product-price">\$8/);
+  assert.equal(mapped.variants[0].price, 800);
+  assert.equal(mapped.variants[1].price, 1500);
+  assert.doesNotMatch(html, /class="product-price"/);
 });
 
 function renderUnavailable(copy?: CommerceCopy["inactiveProduct"]) {

@@ -203,7 +203,7 @@ test("missing thumbnails leave no initial image box even when a size has a photo
     cleared,
   );
   assert.doesNotMatch(card, /<img|class="product-image"|product-scrim/);
-  assert.match(card, /cms-product-no-image/);
+  assert.match(card, /class="product-copy(?: [^"]*)?"/);
   const page = render(detail(cleared), cleared);
   assert.doesNotMatch(page, /<img|product-detail-image/);
   assert.match(page, /cms-single-column/);

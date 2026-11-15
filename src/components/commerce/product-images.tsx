@@ -6,7 +6,7 @@ import Image from "next/image";
 import type { Product } from "@/types/content";
 import { CmsImage } from "@/components/cms/image";
 import { Text } from "@/components/cms/text";
-import { clean } from "@/sanity/lib/content";
+import { clean, hasText } from "@/sanity/lib/content";
 import { getProductImage } from "@/lib/product-image";
 import { useProductSelection } from "./product-selection";
 
@@ -48,18 +48,16 @@ function ProductImage({
 }
 
 export function ProductCardImage({
-  children,
   preload = false,
   sizes,
 }: {
-  children?: ReactNode;
   preload?: boolean;
   sizes: string;
 }) {
   const { product, variant } = useProductSelection();
   const selection = getProductImage(product, variant);
   const hasImage = Boolean(selection.image || selection.fallback);
-  if (!hasImage && !children) return null;
+  if (!hasImage && !hasText(product.badge)) return null;
 
   return (
     <div className={hasImage ? "product-image" : "cms-product-no-image"}>
@@ -79,14 +77,6 @@ export function ProductCardImage({
         </>
       ) : null}
       <Text as="span" className="product-badge" value={product.badge} />
-      {children ? (
-        <div className="product-overlay absolute inset-x-0 bottom-0 z-20">
-          {hasImage ? (
-            <span className="product-scrim" aria-hidden="true" />
-          ) : null}
-          {children}
-        </div>
-      ) : null}
     </div>
   );
 }

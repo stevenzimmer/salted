@@ -30,15 +30,19 @@ export function ProductCard({
   const copyVisible =
     [
       product.name,
-      product.badge,
       product.shortDescription,
       showDetailsLink ? copy?.details : undefined,
     ].some(hasText) || price !== undefined;
-  if (!hasImage(product.image) && !copyVisible && !product.variants.length)
+  if (
+    !hasImage(product.image) &&
+    !hasText(product.badge) &&
+    !copyVisible &&
+    !product.variants.length
+  )
     return null;
   return (
     <ProductSelectionProvider product={product}>
-      <article className="product-card" data-variant={variant}>
+      <article className="product-card h-full relative" data-variant={variant}>
         <ProductCardImage
           preload={preload}
           sizes={
@@ -46,51 +50,50 @@ export function ProductCard({
               ? "(max-width: 767px) 100vw, 45vw"
               : "(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 25vw"
           }
-        >
-          {copyVisible ? (
-            <>
-              {hasText(product.name) || price !== undefined ? (
-                <div className="product-heading">
-                  {hasText(product.name) ? (
-                    <Heading>
-                      <Link href={`/products/${product.slug}`}>
-                        {product.name}
-                      </Link>
-                    </Heading>
-                  ) : null}
-                  {price !== undefined ? (
-                    <span className="product-price">
-                      {activeVariants.length > 1 && hasText(copy?.from) ? (
-                        <>{copy.from} </>
-                      ) : null}
-                      {money(price)}
-                    </span>
-                  ) : null}
-                </div>
-              ) : null}
-              {hasText(product.shortDescription) ||
-              (showDetailsLink && hasText(copy?.details)) ? (
-                <div className="product-reveal">
-                  <div>
-                    <Text
-                      className="product-description"
-                      value={product.shortDescription}
-                    />
-                    {showDetailsLink && hasText(copy?.details) ? (
-                      <Link
-                        className="product-details-link"
-                        href={`/products/${product.slug}`}
-                      >
-                        {copy.details}
-                        <ArrowUpRight size={13} aria-hidden="true" />
-                      </Link>
+        />
+        {copyVisible ? (
+          <div className="product-copy lg:min-h-12">
+            {hasText(product.name) || price !== undefined ? (
+              <div className="product-heading">
+                {hasText(product.name) ? (
+                  <Heading>
+                    <Link href={`/products/${product.slug}`}>
+                      {product.name}
+                    </Link>
+                  </Heading>
+                ) : null}
+                {/* {price !== undefined ? (
+                  <span className="product-price">
+                    {activeVariants.length > 1 && hasText(copy?.from) ? (
+                      <>{copy.from} </>
                     ) : null}
-                  </div>
+                    {money(price)}
+                  </span>
+                ) : null} */}
+              </div>
+            ) : null}
+            {hasText(product.shortDescription) ||
+            (showDetailsLink && hasText(copy?.details)) ? (
+              <div className="product-reveal">
+                <div>
+                  <Text
+                    className="product-description"
+                    value={product.shortDescription}
+                  />
+                  {showDetailsLink && hasText(copy?.details) ? (
+                    <Link
+                      className="product-details-link"
+                      href={`/products/${product.slug}`}
+                    >
+                      {copy.details}
+                      <ArrowUpRight size={13} aria-hidden="true" />
+                    </Link>
+                  ) : null}
                 </div>
-              ) : null}
-            </>
-          ) : null}
-        </ProductCardImage>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
         {variant === "default" ? <ProductPurchase /> : null}
       </article>
     </ProductSelectionProvider>
