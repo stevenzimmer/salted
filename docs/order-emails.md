@@ -1,5 +1,7 @@
 # Paid order confirmation emails
 
+Friday 9am Pacific pickup reminders use the same template branding and delivery transport. See [pickup-reminders.md](pickup-reminders.md) for scheduling, CMS copy, activation and recovery. Their delivery records are separate from the confirmation outbox.
+
 The requested transactional email extension uses Resend and React Email. A verified paid Stripe Session atomically queues two `order_emails` records in the payment transaction. One goes to Stripe’s verified customer email; the other goes to `feedme@saltedfocaccia.com`. Both are sent from `feedme@saltedfocaccia.com`. The business copy also includes saved customer contacts. Each recipient has a separate delivery record and provider idempotency key.
 
 Emails include the saved order number, items, sizes, quantities, totals, immutable pickup date/window in local time, without timezone labels, published pickup guidance, the actual Stripe charge’s receipt URL, and a secure link opening `/order/success`. No address, policy or dietary claims are invented. `email-wordmark.png` is derived from the requested `hero-wordmark.svg` on the cream background for email compatibility. The SVG is unchanged.
@@ -20,7 +22,7 @@ See [Resend idempotency](https://resend.com/docs/dashboard/emails/idempotency-ke
 
 Webhooks await delivery after payment commits. Missing configuration or provider failure returns HTTP 503 for Stripe to retry. Duplicate event IDs still attempt outstanding emails; sent copies stay sent. Failure never undoes payment. Success-page reads send nothing. Checkout recovery can queue notifications; the next webhook or private reconciliation dispatches them.
 
-Persisted payloads and short database leases serialize workers without network calls inside transactions. A stable key and identical payload cover uncertain provider responses. `npm run commerce:emails` retries pending delivery privately; `npm run commerce:reconcile` recovers payments then retries emails. No scheduled jobs or public maintenance endpoints are added. Historical paid orders are not backfilled. Fully refunded orders do not send outstanding confirmations.
+Persisted payloads and short database leases serialize workers without network calls inside transactions. A stable key and identical payload cover uncertain provider responses. `npm run commerce:emails` retries pending delivery privately; `npm run commerce:reconcile` recovers payments then retries emails. Confirmation/payment recovery remains private; the separate pickup reminder job does not run either operation. Historical paid orders are not backfilled. Fully refunded orders do not send outstanding confirmations.
 
 Resend retains idempotency keys for 24 hours. Ambiguous attempts older than 23 hours move to `review` instead of risking duplicates. An authorized operator must investigate `salted-order/<order_emails.id>` in Resend. If accepted, record its provider ID and sent timestamp. Reset the state/attempt timestamp only after definitive absence is established. Never blindly retry an ambiguous send. Outbox payloads contain customer information, receipt links and order capabilities; apply order-data access and retention rules. `sent` means provider acceptance, not proof of inbox delivery. Provider delivery/bounce webhooks and an admin interface are deferred.
 

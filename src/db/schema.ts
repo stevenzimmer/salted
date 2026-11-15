@@ -197,6 +197,39 @@ export const orderEmails = pgTable(
     ),
   ],
 );
+// Separate from confirmations: reminder delivery never changes payment notification state.
+export const pickupReminders = pgTable(
+  "pickup_reminders",
+  {
+    id: uuid().defaultRandom().primaryKey(),
+    orderId: uuid("order_id")
+      .notNull()
+      .references(() => orders.id),
+    status: text({ enum: ["pending", "sending", "sent", "review"] })
+      .notNull()
+      .default("pending"),
+    payload: jsonb().$type<EmailPayload>().notNull(),
+    firstAttemptAt: timestamp("first_attempt_at", {
+      withTimezone: true,
+    }).notNull(),
+    leaseId: uuid("lease_id"),
+    leaseUntil: timestamp("lease_until", { withTimezone: true }),
+    providerId: text("provider_id"),
+    sentAt: timestamp("sent_at", { withTimezone: true }),
+    ...timestamps(),
+  },
+  (t) => [
+    uniqueIndex("pickup_reminder_order").on(t.orderId),
+    check(
+      "pickup_reminder_status",
+      sql`${t.status} in ('pending','sending','sent','review')`,
+    ),
+    check(
+      "pickup_reminder_sent",
+      sql`${t.status} <> 'sent' or (${t.providerId} is not null and ${t.sentAt} is not null)`,
+    ),
+  ],
+);
 export const checkoutAttempts = pgTable(
   "checkout_attempts",
   {

@@ -191,6 +191,9 @@ export type CommerceCopy = {
     customerSubject?: string;
     customerHeading?: string;
     customerBody?: string;
+    reminderSubject?: string;
+    reminderHeading?: string;
+    reminderBody?: string;
     businessSubject?: string;
     businessHeading?: string;
     businessBody?: string;
@@ -984,6 +987,9 @@ export type GLOBAL_QUERY_RESULT = {
       customerSubject?: string;
       customerHeading?: string;
       customerBody?: string;
+      reminderSubject?: string;
+      reminderHeading?: string;
+      reminderBody?: string;
       businessSubject?: string;
       businessHeading?: string;
       businessBody?: string;
@@ -1725,6 +1731,9 @@ export type ORDER_EMAIL_QUERY_RESULT = {
     customerSubject?: string;
     customerHeading?: string;
     customerBody?: string;
+    reminderSubject?: string;
+    reminderHeading?: string;
+    reminderBody?: string;
     businessSubject?: string;
     businessHeading?: string;
     businessBody?: string;

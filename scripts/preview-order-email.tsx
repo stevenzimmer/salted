@@ -5,6 +5,8 @@ import {
   type OrderEmailDetails,
 } from "../src/emails/order-confirmation";
 import { initialOrderEmailCopy } from "./migrations/order-email";
+import { initialPickupReminderCopy } from "./migrations/pickup-reminder";
+import { PickupReminderEmail } from "../src/emails/pickup-reminder";
 
 // Synthetic preview only; never reads order data or sends mail.
 async function main() {
@@ -48,6 +50,22 @@ async function main() {
     );
     await writeFile(`${directory}/${audience}.html`, html, { mode: 0o600 });
   }
+  const reminder = (
+    <PickupReminderEmail
+      order={order}
+      copy={{ ...initialOrderEmailCopy, ...initialPickupReminderCopy }}
+      confirmationUrl="https://saltedfocaccia.com/order/open#confirmation=preview"
+      wordmarkUrl="http://localhost:8766/email-wordmark.png"
+    />
+  );
+  await writeFile(`${directory}/pickup-reminder.html`, await render(reminder), {
+    mode: 0o600,
+  });
+  await writeFile(
+    `${directory}/pickup-reminder.txt`,
+    await render(reminder, { plainText: true }),
+    { mode: 0o600 },
+  );
   console.log(
     `Synthetic email previews written to ${directory}. No emails sent.`,
   );

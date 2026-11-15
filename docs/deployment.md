@@ -62,6 +62,8 @@ Open the Vercel-protected staging URL directly and sign in before using its Pres
 
 ## Phase 3 environment separation
 
+The requested Friday pickup reminder extension adds two authenticated weekly cron entries in `vercel.json`, compatible with Hobby's per-job frequency limit. Pacific-time validation admits only one sending run between 9–10am Friday; the other entry does no work. Before deploying, complete the migration and CMS setup in [pickup-reminders.md](pickup-reminders.md), configure server-only `CRON_SECRET` and `PICKUP_REMINDERS_ENABLED=true` in the intended Production environment, and keep Fluid compute enabled for the 300-second function. Leave the flag off in Preview. Failed or unfinished sends require private manual recovery; there are no scheduled five-minute retries. This configuration does not activate until an explicitly authorized production deployment; payment recovery and cleanup remain private operator commands.
+
 This work does not push or deploy the website. Neon infrastructure setup is separate from Vercel deployment. Keep `.vercel/` and `.neon` local and gitignored.
 
 | Variable                             | Development                                    | Preview / staged test                                             | Later production                            |

@@ -44,7 +44,7 @@ export type OrderConfirmationEmailProps = {
   audience: "customer" | "business";
   copy: CommerceCopy["orderEmail"] | null;
   pickupGuidance?: string | null;
-  receiptUrl: string;
+  receiptUrl?: string;
   confirmationUrl: string;
   wordmarkUrl: string;
 };
@@ -203,7 +203,7 @@ export function OrderConfirmationEmail({
                 {copy.confirmationLink}
               </Button>
             ) : null}
-            {hasText(copy?.receiptLink) ? (
+            {receiptUrl && hasText(copy?.receiptLink) ? (
               <Text>
                 <Link
                   href={receiptUrl}

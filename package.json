@@ -42,7 +42,9 @@
     "cms:migrate-order-email": "node --env-file-if-exists=.env.local --import tsx scripts/migrate-order-email.ts",
     "commerce:emails": "node --env-file-if-exists=.env.local --import tsx scripts/commerce.ts emails",
     "db:migrate-test": "node --env-file-if-exists=.env.local --import tsx scripts/migrate-test-db.ts",
-    "email:preview": "node --import tsx scripts/preview-order-email.tsx"
+    "email:preview": "node --import tsx scripts/preview-order-email.tsx",
+    "cms:migrate-pickup-reminder": "node --env-file-if-exists=.env.local --import tsx scripts/migrate-pickup-reminder.ts",
+    "commerce:pickup-reminders": "node --env-file-if-exists=.env.local --import tsx scripts/commerce.ts pickup-reminders"
   },
   "engines": {
     "node": "^22.12.0 || ^24.0.0 || >=26.0.0"
