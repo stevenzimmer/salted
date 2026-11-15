@@ -1576,12 +1576,27 @@ img {
   font-weight: 500;
   text-transform: lowercase;
 }
-.storage-guide p {
+.storage-guide p,
+.storage-guide-body ul,
+.storage-guide-body ol {
   max-width: 420px;
   margin-top: 15px;
   color: #6d6259;
   font-size: 14px;
   line-height: 1.9;
+}
+.storage-guide-body ul,
+.storage-guide-body ol {
+  padding-left: 24px;
+}
+.storage-guide-body ul {
+  list-style: disc;
+}
+.storage-guide-body ol {
+  list-style: decimal;
+}
+.storage-guide-body li + li {
+  margin-top: 6px;
 }
 .legal-content {
   max-width: 800px;
@@ -2240,7 +2255,9 @@ img {
   .storage-guide h2 {
     font-size: 29px;
   }
-  .storage-guide p {
+  .storage-guide p,
+  .storage-guide-body ul,
+  .storage-guide-body ol {
     font-size: 12px;
   }
 }

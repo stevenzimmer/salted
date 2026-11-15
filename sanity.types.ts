@@ -435,13 +435,13 @@ export type StorageHeatingPage = {
   guide?: {
     note?: string;
     shortTermTitle?: string;
-    shortTermBody?: string;
+    shortTermBody?: PortableText;
     freezerTitle?: string;
-    freezerBody?: string;
+    freezerBody?: PortableText;
     ovenTitle?: string;
-    ovenBody?: string;
+    ovenBody?: PortableText;
     servingTitle?: string;
-    servingBody?: string;
+    servingBody?: PortableText;
   };
   seo?: Seo;
 };
@@ -1623,13 +1623,13 @@ export type STORAGE_QUERY_RESULT = {
   guide?: {
     note?: string;
     shortTermTitle?: string;
-    shortTermBody?: string;
+    shortTermBody?: PortableText;
     freezerTitle?: string;
-    freezerBody?: string;
+    freezerBody?: PortableText;
     ovenTitle?: string;
-    ovenBody?: string;
+    ovenBody?: PortableText;
     servingTitle?: string;
-    servingBody?: string;
+    servingBody?: PortableText;
   };
   seo?: Seo;
 } | null;

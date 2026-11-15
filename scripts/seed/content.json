@@ -413,13 +413,73 @@
     "guide": {
       "note": "Draft guide · instructions awaiting bakery approval",
       "shortTermTitle": "Short-term storage",
-      "shortTermBody": "Storage method and timing will be added after bakery approval.",
+      "shortTermBody": [
+        {
+          "_type": "block",
+          "_key": "text",
+          "style": "normal",
+          "markDefs": [],
+          "children": [
+            {
+              "_type": "span",
+              "_key": "text",
+              "text": "Storage method and timing will be added after bakery approval.",
+              "marks": []
+            }
+          ]
+        }
+      ],
       "freezerTitle": "Into the freezer",
-      "freezerBody": "Freezing, wrapping, and thawing guidance will be added after bakery approval.",
+      "freezerBody": [
+        {
+          "_type": "block",
+          "_key": "text",
+          "style": "normal",
+          "markDefs": [],
+          "children": [
+            {
+              "_type": "span",
+              "_key": "text",
+              "text": "Freezing, wrapping, and thawing guidance will be added after bakery approval.",
+              "marks": []
+            }
+          ]
+        }
+      ],
       "ovenTitle": "Back to the oven",
-      "ovenBody": "Product-specific reheating temperatures and times are awaiting bakery approval.",
+      "ovenBody": [
+        {
+          "_type": "block",
+          "_key": "text",
+          "style": "normal",
+          "markDefs": [],
+          "children": [
+            {
+              "_type": "span",
+              "_key": "text",
+              "text": "Product-specific reheating temperatures and times are awaiting bakery approval.",
+              "marks": []
+            }
+          ]
+        }
+      ],
       "servingTitle": "Bring it to the table",
-      "servingBody": "Serving suggestions and finishing touches will be shared with the final guide."
+      "servingBody": [
+        {
+          "_type": "block",
+          "_key": "text",
+          "style": "normal",
+          "markDefs": [],
+          "children": [
+            {
+              "_type": "span",
+              "_key": "text",
+              "text": "Serving suggestions and finishing touches will be shared with the final guide.",
+              "marks": []
+            }
+          ]
+        }
+      ]
     },
     "seo": {
       "_type": "seo",

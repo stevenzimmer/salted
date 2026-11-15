@@ -2589,7 +2589,8 @@
             "shortTermBody": {
               "type": "objectAttribute",
               "value": {
-                "type": "string"
+                "type": "inline",
+                "name": "portableText"
               },
               "optional": true
             },
@@ -2603,7 +2604,8 @@
             "freezerBody": {
               "type": "objectAttribute",
               "value": {
-                "type": "string"
+                "type": "inline",
+                "name": "portableText"
               },
               "optional": true
             },
@@ -2617,7 +2619,8 @@
             "ovenBody": {
               "type": "objectAttribute",
               "value": {
-                "type": "string"
+                "type": "inline",
+                "name": "portableText"
               },
               "optional": true
             },
@@ -2631,7 +2634,8 @@
             "servingBody": {
               "type": "objectAttribute",
               "value": {
-                "type": "string"
+                "type": "inline",
+                "name": "portableText"
               },
               "optional": true
             }

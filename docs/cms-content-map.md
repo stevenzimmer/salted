@@ -77,6 +77,23 @@ Studio image fields require files under 400 KB (400,000 bytes). File selection, 
 
 ## Conditional-rendering contract
 
+### Storage & reheating rich text
+
+The four fixed `storageHeatingPage.guide` body fields (`shortTermBody`,
+`freezerBody`, `ovenBody`, `servingBody`) use the shared Portable Text editor.
+Editors can add paragraphs, bullets, numbered lists, bold, italic and links;
+Shift+Enter inserts a line break. Titles and the draft notice remain plain text.
+Empty body blocks disappear, and clearing both a title and its body removes that
+section. Displayed text retains Visual Editing encoding.
+
+For existing datasets, deploy the compatible storefront renderer before running
+`npm run cms:migrate-storage-rich-text` (preview with `-- --dry-run`). The migration
+converts only existing string values, preserving wording, line breaks, empty
+values, unrelated fields and separate published/draft versions. It uses revision
+guards and one transaction, and can be rerun without changing rich-text values.
+Do not use the seed command to migrate existing editorial documents. The new
+renderer also accepts legacy strings while the migration is pending.
+
 `hasText` cleans stega before checking whitespace while rendering the original encoded string. `hasCopy` ignores structural fields; `hasImage` requires a valid asset and accessible alt/decorative metadata; `hasItems` checks arrays; `hasPortableTextContent`/`visibleBlocks` remove empty encoded blocks. Optional sections, columns, lists, image wrappers, headings and CTAs are guarded at their owning component. Empty form labels become screen-reader-only code labels. Invalid/deleted/blank-label variants cannot become selectable cart options. Image removal never falls back to local or remote placeholder URLs.
 
 ## Launch menu controls

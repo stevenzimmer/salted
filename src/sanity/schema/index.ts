@@ -351,7 +351,22 @@ const singletons = Object.entries(copyFields).map(([name, groups]) =>
                         "Optional newsletter checkbox wording. Clearing it removes the signup option. The checkbox always starts unchecked.",
                       validation: (rule) => rule.max(2000),
                     })
-                  : text(field),
+                  : name === "storageHeatingPage" &&
+                      group === "guide" &&
+                      [
+                        "shortTermBody",
+                        "freezerBody",
+                        "ovenBody",
+                        "servingBody",
+                      ].includes(field)
+                    ? defineField({
+                        name: field,
+                        title: title(field),
+                        type: "portableText",
+                        description:
+                          "Use paragraphs, bulleted or numbered lists, and inline formatting. Press Shift+Enter for a line break.",
+                      })
+                    : text(field),
           ),
         });
         return isAnnouncement

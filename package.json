@@ -33,6 +33,7 @@
     "commerce:pickup": "node --env-file-if-exists=.env.local --import tsx scripts/commerce.ts pickup",
     "cms:migrate-manual-menu-copy": "node --env-file-if-exists=.env.local --import tsx scripts/migrate-manual-menu-copy.ts",
     "cms:migrate-size-tooltip": "node --env-file-if-exists=.env.local --import tsx scripts/migrate-size-tooltip.ts",
+    "cms:migrate-storage-rich-text": "node --env-file-if-exists=.env.local --import tsx scripts/migrate-storage-rich-text.ts",
     "special-orders:qa": "node --env-file-if-exists=.env.local --import tsx scripts/special-orders-qa.ts",
     "special-orders:retry-emails": "node --env-file-if-exists=.env.local --import tsx scripts/commerce.ts special-order-emails",
     "cms:activate-special-orders": "node --env-file-if-exists=.env.local --import tsx scripts/activate-special-orders.ts",
