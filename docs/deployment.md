@@ -73,11 +73,14 @@ This work does not push or deploy the website. Neon infrastructure setup is sepa
 | `TEST_DATABASE_URL`                  | separate migrated QA branch                    | test runner only                                                  | do not install                              |
 | `STRIPE_SECRET_KEY`                  | matching sandbox test key                      | matching sandbox test key                                         | distinct live restricted key after approval |
 | `STRIPE_WEBHOOK_SECRET`              | actual local CLI secret                        | sandbox endpoint secret for exact hosted origin                   | distinct live endpoint secret               |
+| `ORDER_CONFIRMATION_SECRET`          | dedicated stable random secret, 32+ chars      | separate stable server-only secret, 32+ chars                     | dedicated stable random secret, 32+ chars   |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | matching test mode (unused by hosted redirect) | matching sandbox, optional                                        | matching live mode, optional                |
 | `RATE_LIMIT_SECRET`                  | random 32+ chars                               | unique per environment                                            | separate random production secret           |
 | `NEXT_PUBLIC_SITE_URL`               | exact local origin/port                        | exact stable staged or preview origin                             | approved canonical production origin        |
 
 Checkout defaults to Stripe without an enable flag. The Stripe client still rejects missing or live keys; live activation requires a separately approved code change. Draft Mode keeps the local preview flow.
+
+Paid-checkout webhooks await confirmation emails after saving payment. Configure `RESEND_API_KEY` and `ORDER_CONFIRMATION_SECRET` before the authorized deployment; a missing confirmation secret prevents email payload creation and returns HTTP 503 even when the order is already paid. See [order email setup and recovery](order-emails.md). Do not substitute the Stripe signing secret or rotate an existing confirmation secret as a routine webhook fix, since rotation invalidates earlier order links.
 
 Retain Phase 2 Sanity public configuration and server-only Viewer token. Do not put a Sanity Editor token or migration write token into Vercel. Published catalog validation uses read-only Sanity credentials; all database writes occur in server/operator code with private credentials. `SANITY_API_TOKEN` is a server-only compatibility alias, not a browser credential.
 

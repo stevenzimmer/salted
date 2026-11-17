@@ -11,7 +11,7 @@ import {
 import { priceCart } from "../src/commerce/catalog";
 import { pickupCutoff } from "../src/commerce/pickups";
 import { sessionParams } from "../src/commerce/checkout";
-import { verifyWebhook } from "../src/commerce/webhook";
+import { verifyWebhook, webhookFailureReason } from "../src/commerce/webhook";
 import { stripeClient } from "../src/commerce/config";
 const input = () => ({
   marketingOptIn: false,
@@ -29,6 +29,29 @@ const catalog = [
     variants: [{ id: "loaf", active: true, label: "Loaf", price: 1250 }],
   },
 ];
+test("webhook diagnostics classify configuration failures without exposing error data", () => {
+  assert.equal(
+    webhookFailureReason(
+      new Error("A dedicated order confirmation secret is required."),
+    ),
+    "order_confirmation_secret_missing_or_invalid",
+  );
+  assert.equal(
+    webhookFailureReason(new Error("Transactional email is not configured.")),
+    "transactional_email_not_configured",
+  );
+  const sensitiveError = Object.assign(
+    new Error("query failed: customer@example.com whsec_private"),
+    { cause: new Error("postgres://user:password@private.example/db") },
+  );
+  for (const error of [
+    sensitiveError,
+    "sk_test_private",
+    null,
+    { message: "private" },
+  ])
+    assert.equal(webhookFailureReason(error), "processing_failed");
+});
 test("default Stripe checkout still requires configured test keys", () => {
   const before = process.env.STRIPE_SECRET_KEY;
   try {

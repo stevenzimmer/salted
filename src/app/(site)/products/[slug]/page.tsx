@@ -4,7 +4,7 @@ import {
 } from "@/sanity/lib/card-content";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, ArrowUpRight } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { ProductPurchase } from "@/components/commerce/product-purchase";
 import { ProductUnavailable } from "@/components/commerce/product-unavailable";
 import { ProductDetailLayout } from "@/components/commerce/product-images";
@@ -61,12 +61,12 @@ export default async function ProductPage({ params }: Props) {
     product.ingredients.length ||
     product.allergens.length ||
     product.dietaryLabels.length;
-  const storage =
-    hasText(product.storageSummary) ||
-    hasText(product.reheatingSummary) ||
-    hasText(c?.storageBody) ||
-    hasText(c?.storageCta);
-  const pickup = hasText(c?.pickupBody) || hasText(c?.pickupCta);
+  // const storage =
+  //   hasText(product.storageSummary) ||
+  //   hasText(product.reheatingSummary) ||
+  //   hasText(c?.storageBody) ||
+  //   hasText(c?.storageCta);
+  // const pickup = hasText(c?.pickupBody) || hasText(c?.pickupCta);
   const gallery = product.gallery?.filter(hasImage) ?? [];
   const copy =
     [
@@ -77,9 +77,9 @@ export default async function ProductPage({ params }: Props) {
     ].some(hasText) ||
     product.variants.length ||
     (!product.active && hasCopy(commerce?.inactiveProduct)) ||
-    food ||
-    (hasText(c?.storageHeading) && storage) ||
-    (hasText(c?.pickupHeading) && pickup);
+    food;
+    // (hasText(c?.storageHeading) && storage) ||
+    // (hasText(c?.pickupHeading) && pickup);
   return (
     <div className="shell">
       {hasText(c?.back) ? (
@@ -124,9 +124,7 @@ export default async function ProductPage({ params }: Props) {
               ) : (
                 <ProductUnavailable copy={commerce?.inactiveProduct} />
               )}
-              {(food && hasText(c?.foodSummary)) ||
-              (storage && hasText(c?.storageHeading)) ||
-              (pickup && hasText(c?.pickupHeading)) ? (
+              {(food && hasText(c?.foodSummary)) ? (
                 <div className="product-information">
                   {food && hasText(c?.foodSummary) ? (
                     <details>
@@ -164,7 +162,7 @@ export default async function ProductPage({ params }: Props) {
                       </div>
                     </details>
                   ) : null}
-                  {storage && hasText(c?.storageHeading) ? (
+                  {/* {storage && hasText(c?.storageHeading) ? (
                     <details>
                       <summary>{c.storageHeading}</summary>
                       <div className="detail-content">
@@ -182,8 +180,8 @@ export default async function ProductPage({ params }: Props) {
                         ) : null}
                       </div>
                     </details>
-                  ) : null}
-                  {pickup && hasText(c?.pickupHeading) ? (
+                  ) : null} */}
+                  {/* {pickup && hasText(c?.pickupHeading) ? (
                     <details>
                       <summary>{c.pickupHeading}</summary>
                       <div className="detail-content">
@@ -196,7 +194,7 @@ export default async function ProductPage({ params }: Props) {
                         ) : null}
                       </div>
                     </details>
-                  ) : null}
+                  ) : null} */}
                 </div>
               ) : null}
             </div>
