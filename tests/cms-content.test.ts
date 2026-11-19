@@ -191,20 +191,34 @@ test("missing assets and missing meaningful alt text do not leave image wrappers
   assert.match(html, /cms-single-column/);
 });
 test("the hero keeps the existing photo first and adds valid gallery photos in editorial order", () => {
-  const homepage = { ...page(), heroImage: image };
+  const caption = encoded("Fresh from the oven");
+  const homepage = { ...page(), heroImage: { ...image, caption } };
   const single = renderHero(homepage);
   assert.match(single, /path=heroImage/);
+  assert.ok(single.includes(`>${caption}</figcaption></figure>`));
   assert.doesNotMatch(single, /aria-roledescription="carousel"/);
 
   const html = renderHero({
     ...homepage,
     heroPhotos: [
       { ...image, _key: "missing-alt", alt: encoded(" ") },
-      { ...image, _key: "second", alt: encoded("Sliced loaf") },
-      { ...image, _key: "third", decorative: true },
+      {
+        ...image,
+        _key: "second",
+        alt: encoded("Sliced loaf"),
+        caption: "The crumb",
+      },
+      { ...image, _key: "third", decorative: true, caption: encoded(" ") },
     ],
   });
   assert.match(html, /aria-roledescription="carousel"/);
+  assert.deepEqual(
+    Array.from(
+      html.matchAll(/<figcaption[^>]*>([^<]*)<\/figcaption>/g),
+      (match) => match[1],
+    ),
+    [caption, "The crumb"],
+  );
   assert.deepEqual(
     Array.from(html.matchAll(/<img[^>]*alt="([^"]*)"/g), (match) => match[1]),
     ["Focaccia", "Sliced loaf", ""],
@@ -219,7 +233,10 @@ test("the hero can display gallery photos alone and drops an entirely cleared ga
   const single = renderHero({ ...page(), heroPhotos: [photo] });
   assert.match(single, /path=heroPhotos:only/);
   assert.match(single, /cms-single-column/);
-  assert.doesNotMatch(single, /loading="lazy"|aria-roledescription="carousel"/);
+  assert.doesNotMatch(
+    single,
+    /loading="lazy"|aria-roledescription="carousel"|<figcaption/,
+  );
   assert.equal(
     renderHero({ ...page(), heroPhotos: [{ ...photo, asset: undefined }] }),
     "",

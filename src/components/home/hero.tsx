@@ -23,17 +23,24 @@ export function Hero({ page }: { page: Homepage }) {
     id: path,
     name: image.decorative ? `Photo ${index + 1}` : clean(image.alt),
     content: (
-      <CmsImage
-        image={image}
-        aspectRatio={4 / 3}
-        documentType={page._type}
-        documentId={page._id}
-        path={path}
-        fill={false}
-        preload={index === 0}
-        sizes="(max-width: 767px) 100vw, 45vw"
-        className="aspect-[4/3] w-full border border-border bg-muted object-cover"
-      />
+      <figure>
+        <CmsImage
+          image={image}
+          aspectRatio={4 / 3}
+          documentType={page._type}
+          documentId={page._id}
+          path={path}
+          fill={false}
+          preload={index === 0}
+          sizes="(max-width: 767px) 100vw, 45vw"
+          className="aspect-[4/3] w-full border border-border bg-muted object-cover"
+        />
+        <Text
+          as="figcaption"
+          value={image.caption}
+          className="mt-2 px-2 text-center text-sm text-pretty wrap-anywhere text-muted-foreground italic"
+        />
+      </figure>
     ),
   }));
   if (!hasColumn && !slides.length) return null;
