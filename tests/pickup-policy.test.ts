@@ -1,7 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { buildPickupSchedule } from "../src/commerce/schedule-model";
-import { pickupDateForCart, validPickupDates } from "../src/lib/availability";
+import {
+  nextMenuPickup,
+  pickupDateForCart,
+  validPickupDates,
+} from "../src/lib/availability";
 import { blackoutDatesInput, pickupCutoff } from "../src/lib/pickup-policy";
 import { scheduleInput } from "../src/lib/schedule-validation";
 import type { Catalog } from "../src/commerce/catalog";
@@ -20,6 +24,22 @@ const catalog: Catalog = [
 ];
 const cart = [{ productId: "bread", variantId: "loaf", quantity: 20 }];
 const now = new Date("2026-11-07T19:00:00Z");
+
+test("the menu shows the first orderable Friday and hides dates without offerings", () => {
+  const schedule = buildPickupSchedule(catalog, ["2026-11-20", "2026-11-27"]);
+  const cutoff = pickupCutoff("2026-11-13");
+  assert.equal(
+    nextMenuPickup(schedule, new Date(cutoff.getTime() - 1))?.date,
+    "2026-11-13",
+  );
+  assert.equal(nextMenuPickup(schedule, cutoff)?.date, "2026-12-04");
+  assert.equal(
+    nextMenuPickup(buildPickupSchedule(catalog, []), cutoff)?.date,
+    "2026-11-20",
+  );
+  assert.equal(nextMenuPickup(buildPickupSchedule([], []), now), undefined);
+  assert.equal(nextMenuPickup({ dates: [], availability: [] }, now), undefined);
+});
 
 test("future Fridays open by default with no database rows, weekly menus, stock or upper calendar horizon", () => {
   const schedule = scheduleInput.parse(

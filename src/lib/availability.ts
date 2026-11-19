@@ -16,6 +16,14 @@ export function isPickupOpen(date: PickupDate, now = new Date()): boolean {
   );
 }
 
+export function nextMenuPickup(schedule: MockSchedule, now = new Date()) {
+  const recurring = schedule.recurring;
+  if (!recurring?.offerings.length) return undefined;
+  return upcomingFridays(recurring.blackoutDates, now).find((date) =>
+    isPickupOpen(date, now),
+  );
+}
+
 export function inventoryFor(
   availability: ProductAvailability[],
   pickupDateId: string,

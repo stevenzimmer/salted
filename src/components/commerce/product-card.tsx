@@ -11,22 +11,26 @@ import { ProductSelectionProvider } from "./product-selection";
 type ProductCardProps = {
   product: Product;
   copy?: CommerceCopy["product"];
-  variant?: "default" | "preview";
+  variant?: "default" | "preview" | "storefront";
   preload?: boolean;
-  showDetailsLink?: boolean;
 };
 export function ProductCard({
   product,
   copy,
   variant = "default",
   preload = false,
-  showDetailsLink = true,
 }: ProductCardProps) {
   const Heading = variant === "preview" ? "h2" : "h3";
-  const activeVariants = product.variants.filter(
-    (option) => option.active !== false,
-  );
-  const price = activeVariants[0]?.price;
+  const showDetailsLink = variant !== "storefront";
+  const activePrices = product.variants
+    .filter((option) => option.active !== false)
+    .map((option) => option.price);
+  const price =
+    product.active && activePrices.length
+      ? Math.min(...activePrices)
+      : undefined;
+  const showFrom =
+    activePrices.some((amount) => amount !== price) && hasText(copy?.from);
   const copyVisible =
     [
       product.name,
@@ -52,7 +56,7 @@ export function ProductCard({
           }
         />
         {copyVisible ? (
-          <div className="product-copy lg:min-h-12">
+          <div className="product-copy xl:min-h-18">
             {hasText(product.name) || price !== undefined ? (
               <div className="product-heading">
                 {hasText(product.name) ? (
@@ -62,14 +66,12 @@ export function ProductCard({
                     </Link>
                   </Heading>
                 ) : null}
-                {/* {price !== undefined ? (
-                  <span className="product-price">
-                    {activeVariants.length > 1 && hasText(copy?.from) ? (
-                      <>{copy.from} </>
-                    ) : null}
+                {price !== undefined ? (
+                  <p className="product-price">
+                    {showFrom ? <>{copy?.from} </> : null}
                     {money(price)}
-                  </span>
-                ) : null} */}
+                  </p>
+                ) : null}
               </div>
             ) : null}
             {hasText(product.shortDescription) ||
@@ -94,7 +96,7 @@ export function ProductCard({
             ) : null}
           </div>
         ) : null}
-        {variant === "default" ? <ProductPurchase /> : null}
+        {variant !== "preview" ? <ProductPurchase /> : null}
       </article>
     </ProductSelectionProvider>
   );

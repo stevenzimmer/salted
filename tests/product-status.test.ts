@@ -165,7 +165,30 @@ test("CMS mapping retains inactive sizes for disabled controls, without advertis
   const html = renderToStaticMarkup(createElement(CartProvider, cartProps));
   assert.equal(mapped.variants[0].price, 800);
   assert.equal(mapped.variants[1].price, 1500);
-  assert.doesNotMatch(html, /class="product-price"/);
+  assert.match(html, /<p class="product-price">\$15<\/p>/);
+});
+
+test("product card pricing reflects the range of purchasable sizes in any order", () => {
+  const product = products[0];
+  const [small, medium, large] = product.variants;
+  function cardPrice(variants: Product["variants"], active = true) {
+    const html = renderToStaticMarkup(
+      createElement(ProductCard, {
+        product: { ...product, active, variants },
+        copy: { from: "Starting at" },
+        variant: "preview",
+      }),
+    );
+    return html.match(/<p class="product-price">([^<]*)<\/p>/)?.[1];
+  }
+  assert.equal(
+    cardPrice([large, { ...small, active: false }, medium]),
+    "Starting at $15",
+  );
+  assert.equal(cardPrice([small]), "$8");
+  assert.equal(cardPrice([small, { ...medium, price: small.price }]), "$8");
+  assert.equal(cardPrice([{ ...small, active: false }]), undefined);
+  assert.equal(cardPrice([small], false), undefined);
 });
 
 function renderUnavailable(copy?: CommerceCopy["inactiveProduct"]) {

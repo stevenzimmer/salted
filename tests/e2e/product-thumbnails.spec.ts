@@ -77,7 +77,7 @@ test("product cards and detail pages start with default thumbnails and change im
     })
     .click();
   for (const product of products) {
-    const card = page.locator('.product-card[data-variant="default"]').filter({
+    const card = page.locator('.product-card[data-variant="storefront"]').filter({
       has: page.locator(`.product-heading a[href="/products/${product.slug}"]`),
     });
     await expect(card).toHaveCount(1);

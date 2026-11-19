@@ -1,9 +1,12 @@
 import {
   hasProductCardContent,
-  hasRecipeCardContent,
+  // hasRecipeCardContent,
 } from "@/sanity/lib/card-content";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, CalendarDays } from "lucide-react";
+import { storefrontSchedule } from "@/commerce/schedule";
+import { nextMenuPickup } from "@/lib/availability";
+import { pickupLabel } from "@/lib/format";
 import { Hero } from "@/components/home/hero";
 import { InstagramSection } from "@/components/home/instagram-section";
 import { ProductStorefront } from "@/components/home/product-storefront";
@@ -14,7 +17,7 @@ import { hasCopy, hasText } from "@/sanity/lib/content";
 import { getGlobalContent } from "@/sanity/lib/data";
 import { fetchContent } from "@/sanity/lib/fetch-content";
 import { HOME_QUERY } from "@/sanity/lib/queries";
-import { mapRecipe } from "@/sanity/lib/mappers";
+// import { mapRecipe } from "@/sanity/lib/mappers";
 import { contentMetadata } from "@/sanity/lib/metadata";
 import { SectionHeading } from "@/components/content/section-heading";
 
@@ -22,11 +25,13 @@ export async function generateMetadata() {
   return contentMetadata((await fetchContent(HOME_QUERY))?.page?.seo, "/");
 }
 export default async function HomePage() {
-  const [data, { settings, commerce, products }] = await Promise.all([
+  const [data, { settings, commerce, products }, schedule] = await Promise.all([
     fetchContent(HOME_QUERY),
     getGlobalContent(),
+    storefrontSchedule(),
   ]);
   const visibleProducts = products.filter(hasProductCardContent);
+  const pickup = nextMenuPickup(schedule);
   const page = data?.page;
   if (!page) return null;
   const how = page.howItWorks;
@@ -39,11 +44,11 @@ export default async function HomePage() {
       description: how?.stepThreeBody,
     },
   ].filter((step) => hasText(step.title) || hasText(step.description));
-  const recipes =
-    page.recipes?.flatMap((recipe) =>
-      recipe?.active ? [mapRecipe(recipe)] : [],
-    ) ?? [];
-  const visibleRecipes = recipes.filter(hasRecipeCardContent);
+  // const recipes =
+  //   page.recipes?.flatMap((recipe) =>
+  //     recipe?.active ? [mapRecipe(recipe)] : [],
+  //   ) ?? [];
+  // const visibleRecipes = recipes.filter(hasRecipeCardContent);
   const reviews =
     page.reviews?.filter(
       (review) =>
@@ -56,7 +61,7 @@ export default async function HomePage() {
         ].some(hasText),
     ) ?? [];
   const p = page.productsSection,
-    r = page.recipesPreview,
+    // r = page.recipesPreview,
     v = page.reviewsSection;
   return (
     <>
@@ -105,6 +110,26 @@ export default async function HomePage() {
               ) : null
             }
           />
+          {pickup && visibleProducts.length > 0 ? (
+            <p className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+              <CalendarDays
+                size={16}
+                aria-hidden="true"
+                className="text-(--copper-ink)"
+              />
+              {hasText(commerce?.product?.pickupHeading) ? (
+                <>
+                  <span>{commerce.product.pickupHeading}</span>
+                  <span aria-hidden="true">·</span>
+                </>
+              ) : (
+                <span className="sr-only">Next available pickup</span>
+              )}
+              <time dateTime={pickup.date} className="font-semibold">
+                {pickupLabel(pickup.date)}
+              </time>
+            </p>
+          ) : null}
           <ProductStorefront
             copy={commerce?.product}
             items={visibleProducts.map((product) => ({
@@ -114,7 +139,7 @@ export default async function HomePage() {
                 <ProductCard
                   product={product}
                   copy={commerce?.product}
-                  showDetailsLink={false}
+                  variant="storefront"
                 />
               ),
             }))}
