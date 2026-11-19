@@ -3,16 +3,43 @@ import { Wordmark } from "@/components/brand/wordmark";
 import { Spark } from "@/components/brand/spark";
 import { CmsImage } from "@/components/cms/image";
 import { Text } from "@/components/cms/text";
-import { hasCopy, hasImage, hasText } from "@/sanity/lib/content";
+import { HeroProductCarousel } from "@/components/home/hero-product-carousel";
+import { clean, hasCopy, hasImage, hasText } from "@/sanity/lib/content";
 import type { Homepage } from "../../../sanity.types";
 
 export function Hero({ page }: { page: Homepage }) {
   const hero = page.hero;
   const hasColumn = hasCopy(hero);
-  if (!hasColumn && !hasImage(page.heroImage)) return null;
+  const photos = [
+    ...(hasImage(page.heroImage)
+      ? [{ path: "heroImage", image: page.heroImage }]
+      : []),
+    ...(page.heroPhotos ?? []).filter(hasImage).map((image) => ({
+      path: `heroPhotos[_key==${JSON.stringify(image._key)}]`,
+      image,
+    })),
+  ];
+  const slides = photos.map(({ image, path }, index) => ({
+    id: path,
+    name: image.decorative ? `Photo ${index + 1}` : clean(image.alt),
+    content: (
+      <CmsImage
+        image={image}
+        aspectRatio={4 / 3}
+        documentType={page._type}
+        documentId={page._id}
+        path={path}
+        fill={false}
+        preload={index === 0}
+        sizes="(max-width: 767px) 100vw, 45vw"
+        className="aspect-[4/3] w-full border border-border bg-muted object-cover"
+      />
+    ),
+  }));
+  if (!hasColumn && !slides.length) return null;
   return (
     <section
-      className={`shell hero section-pad ${!hasColumn || !hasImage(page.heroImage) ? "cms-single-column" : ""}`}
+      className={`shell hero section-pad ${!hasColumn || !slides.length ? "cms-single-column" : ""}`}
       aria-label="Welcome"
     >
       {hasColumn ? (
@@ -46,19 +73,18 @@ export function Hero({ page }: { page: Homepage }) {
           ) : null}
         </div>
       ) : null}
-      {hasImage(page.heroImage) ? (
+      {slides.length > 0 ? (
         <div className="hero-visual min-w-0 self-center">
-          <CmsImage
-            image={page.heroImage}
-            aspectRatio={4 / 3}
-            documentType={page._type}
-            documentId={page._id}
-            path="heroImage"
-            fill={false}
-            preload
-            sizes="(max-width: 767px) 100vw, 45vw"
-            className="aspect-[4/3] w-full border border-border bg-muted object-cover"
-          />
+          {slides.length === 1 ? (
+            slides[0].content
+          ) : (
+            <HeroProductCarousel
+              items={slides}
+              label="Bakery photos"
+              itemLabel="photo"
+              autoAdvance={false}
+            />
+          )}
         </div>
       ) : null}
     </section>

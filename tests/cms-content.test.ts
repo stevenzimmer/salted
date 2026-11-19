@@ -2,6 +2,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { ImageConfigContext } from "next/dist/shared/lib/image-config-context.shared-runtime";
+import { imageConfigDefault } from "next/dist/shared/lib/image-config";
+import nextConfig from "../next.config";
 import { stegaEncodeSourceMap } from "@sanity/client/stega";
 import {
   hasText,
@@ -55,6 +58,15 @@ function page(hero: Homepage["hero"] = {}): Homepage {
     internalName: "Home",
     hero,
   };
+}
+function renderHero(homepage: Homepage) {
+  return renderToStaticMarkup(
+    createElement(
+      ImageConfigContext.Provider,
+      { value: { ...imageConfigDefault, ...nextConfig.images } },
+      createElement(Hero, { page: homepage }),
+    ),
+  );
 }
 function settings(): SiteSettings {
   return {
@@ -178,11 +190,46 @@ test("missing assets and missing meaningful alt text do not leave image wrappers
   assert.doesNotMatch(html, /hero-visual|<img/);
   assert.match(html, /cms-single-column/);
 });
+test("the hero keeps the existing photo first and adds valid gallery photos in editorial order", () => {
+  const homepage = { ...page(), heroImage: image };
+  const single = renderHero(homepage);
+  assert.match(single, /path=heroImage/);
+  assert.doesNotMatch(single, /aria-roledescription="carousel"/);
+
+  const html = renderHero({
+    ...homepage,
+    heroPhotos: [
+      { ...image, _key: "missing-alt", alt: encoded(" ") },
+      { ...image, _key: "second", alt: encoded("Sliced loaf") },
+      { ...image, _key: "third", decorative: true },
+    ],
+  });
+  assert.match(html, /aria-roledescription="carousel"/);
+  assert.deepEqual(
+    Array.from(html.matchAll(/<img[^>]*alt="([^"]*)"/g), (match) => match[1]),
+    ["Focaccia", "Sliced loaf", ""],
+  );
+  assert.match(html, /path=heroPhotos:second/);
+  assert.match(html, /path=heroPhotos:third/);
+  assert.doesNotMatch(html, /missing-alt/);
+  assert.equal((html.match(/loading="lazy"/g) ?? []).length, 2);
+});
+test("the hero can display gallery photos alone and drops an entirely cleared gallery", () => {
+  const photo = { ...image, _key: "only" };
+  const single = renderHero({ ...page(), heroPhotos: [photo] });
+  assert.match(single, /path=heroPhotos:only/);
+  assert.match(single, /cms-single-column/);
+  assert.doesNotMatch(single, /loading="lazy"|aria-roledescription="carousel"/);
+  assert.equal(
+    renderHero({ ...page(), heroPhotos: [{ ...photo, asset: undefined }] }),
+    "",
+  );
+});
 test("an entirely cleared hero and announcement have no section, padding, or ornaments", () => {
   assert.equal(
     renderToStaticMarkup(
       createElement(Hero, {
-        page: page({ headline: encoded(" "), cta: encoded("") })
+        page: page({ headline: encoded(" "), cta: encoded("") }),
       }),
     ),
     "",

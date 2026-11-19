@@ -3900,6 +3900,28 @@
         },
         "optional": true
       },
+      "heroPhotos": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "array",
+          "of": {
+            "type": "object",
+            "attributes": {
+              "_key": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "string"
+                }
+              }
+            },
+            "rest": {
+              "type": "inline",
+              "name": "imageWithAlt"
+            }
+          }
+        },
+        "optional": true
+      },
       "featuredRecipes": {
         "type": "objectAttribute",
         "value": {

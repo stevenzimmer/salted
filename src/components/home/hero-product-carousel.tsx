@@ -53,6 +53,7 @@ type HeroProductCarouselProps = {
   items: { id: string; name: string; content: ReactNode }[];
   label?: string;
   itemLabel?: string;
+  autoAdvance?: boolean;
   showPlaybackControl?: boolean;
   playLabel?: string;
   pauseLabel?: string;
@@ -62,6 +63,7 @@ export function HeroProductCarousel({
   items,
   label = "Explore the menu",
   itemLabel = "product",
+  autoAdvance = true,
   showPlaybackControl = false,
   playLabel,
   pauseLabel,
@@ -78,7 +80,11 @@ export function HeroProductCarousel({
     () => false,
   );
   const isAutoAdvancing =
-    environmentAllowsAutoplay && !isPaused && !isHovered && !hasFocus;
+    autoAdvance &&
+    environmentAllowsAutoplay &&
+    !isPaused &&
+    !isHovered &&
+    !hasFocus;
 
   useEffect(() => {
     if (!isAutoAdvancing || items.length < 2) return;
@@ -222,7 +228,7 @@ export function HeroProductCarousel({
             <div
               role="group"
               aria-label={`Choose a ${itemLabel}`}
-              className="flex"
+              className="flex min-w-0 flex-wrap justify-center"
             >
               {items.map((item, index) => (
                 <button

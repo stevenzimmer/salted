@@ -410,7 +410,18 @@ const singletons = Object.entries(copyFields).map(([name, groups]) =>
         : []),
       ...(name === "homepage"
         ? [
-            image("heroImage", "1600 × 1200 px (4:3)"),
+            defineField({
+              ...image("heroImage", "1600 × 1200 px (4:3)"),
+              title: "First hero photo",
+            }),
+            defineField({
+              name: "heroPhotos",
+              title: "Additional hero photos",
+              type: "array",
+              description: `Drag to reorder the photos that follow the first hero photo. ${imageDescription("1600 × 1200 px (4:3)")}`,
+              components: { input: LimitedImageArrayInput },
+              of: [defineArrayMember({ type: "imageWithAlt" })],
+            }),
             references("featuredRecipes", "recipe"),
             references("featuredReviews", "review"),
             defineField({

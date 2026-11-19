@@ -647,6 +647,11 @@ export type Homepage = {
     pause?: string;
   };
   heroImage?: ImageWithAlt;
+  heroPhotos?: Array<
+    {
+      _key: string;
+    } & ImageWithAlt
+  >;
   featuredRecipes?: Array<
     {
       _key: string;
@@ -1263,6 +1268,11 @@ export type HOME_QUERY_RESULT = {
       pause?: string;
     };
     heroImage?: ImageWithAlt;
+    heroPhotos?: Array<
+      {
+        _key: string;
+      } & ImageWithAlt
+    >;
     featuredRecipes?: Array<
       {
         _key: string;
