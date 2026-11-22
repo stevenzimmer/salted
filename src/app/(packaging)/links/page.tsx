@@ -1,4 +1,5 @@
-import Image from "next/image";
+import { Wordmark } from "@/components/brand/wordmark";
+
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { cache } from "react";
 import { Text } from "@/components/cms/text";
@@ -36,16 +37,9 @@ export default async function LinksPage() {
     <main className="min-h-svh border-t-4 border-primary px-6 pt-[clamp(3.5rem,11svh,7rem)] pb-12 sm:px-8">
       <div className="mx-auto flex max-w-sm flex-col gap-9">
         <div className="flex flex-col items-center gap-5">
-          <h1 className="w-[min(76%,17rem)]">
-            <Image
-              src="/images/brand/hero-wordmark.svg"
-              alt="Salted Focaccia"
-              width={2555}
-              height={771}
-              loading="eager"
-              className="h-auto w-full"
-            />
-          </h1>
+           <div className="hero-brand">
+                      <Wordmark className="hero-wordmark" />
+                    </div>
           <Text
             value={page?.intro?.blurb}
             className="max-w-[28ch] text-center text-base leading-relaxed text-pretty wrap-anywhere italic sm:text-lg"
