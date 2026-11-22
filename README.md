@@ -193,7 +193,7 @@ Friday pickup reminders use React Email and Resend, with editable reminder wordi
 
 ## Optional newsletter consent
 
-The pickup step offers an unchecked, optional newsletter checkbox above **Continue to Stripe**. Edit its wording in **Commerce Copy → Marketing Consent → Label**; clearing the label removes the control. Opt-in is saved with a timestamp, source, accepted wording and wording hash on the order, then associated with the actual guest email from the verified Stripe payment. Existing orders default to opted out.
+The pickup step offers an unchecked, optional newsletter checkbox above **Continue to Payment**. Edit its wording in **Commerce Copy → Marketing Consent → Label**; clearing the label removes the control. Opt-in is saved with a timestamp, source, accepted wording and wording hash on the order, then associated with the actual guest email from the verified Stripe payment. Existing orders default to opted out.
 
 Apply the database migration and initialize the new copy slot with `npm run cms:migrate-marketing-consent`. The copy migration preserves existing editorial content and drafts. No newsletters are sent and no email-provider contacts are created. See [consent setup and data lifecycle](docs/marketing-consent.md).
 

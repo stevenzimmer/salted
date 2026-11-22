@@ -69,13 +69,13 @@ test("server-provided Fridays remain selectable without client availability refr
     }),
   );
   await dialog
-    .getByRole("button", { name: "Continue to Stripe", exact: true })
+    .getByRole("button", { name: "Continue to Payment", exact: true })
     .click();
   await expect(dialog.getByRole("alert")).toHaveText(
     "This Friday is unavailable.",
   );
   await expect(
-    dialog.getByRole("button", { name: "Continue to Stripe", exact: true }),
+    dialog.getByRole("button", { name: "Continue to Payment", exact: true }),
   ).toBeEnabled();
   expect(availabilityRequests).toEqual([]);
 });

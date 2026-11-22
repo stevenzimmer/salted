@@ -12,7 +12,7 @@ async function main() {
       "A server-only Sanity write token is required for this one-time migration.",
     );
   const checkout = {
-    pay: "Continue to Stripe",
+    pay: "Continue to Payment",
     busy: "Preparing checkout…",
     priceChanged:
       "A price in your bag has changed. Review the current prices before payment.",

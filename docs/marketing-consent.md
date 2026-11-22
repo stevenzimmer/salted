@@ -1,6 +1,6 @@
 # Marketing email consent
 
-The pickup step in the existing cart drawer includes an optional newsletter checkbox immediately above **Continue to Stripe**. It starts unchecked, is never required to purchase, and is disabled while checkout is being created. Checkbox wording is stored in **Studio → Commerce Copy → Marketing Consent → Label**. Clearing that optional label removes the checkbox and its wrapper. Editing the wording requires a new affirmative choice; the browser never carries a checked value over to revised wording.
+The pickup step in the existing cart drawer includes an optional newsletter checkbox immediately above **Continue to Payment**. It starts unchecked, is never required to purchase, and is disabled while checkout is being created. Checkbox wording is stored in **Studio → Commerce Copy → Marketing Consent → Label**. Clearing that optional label removes the checkbox and its wrapper. Editing the wording requires a new affirmative choice; the browser never carries a checked value over to revised wording.
 
 [Stripe's hosted promotional-consent option](https://docs.stripe.com/payments/checkout/compliant-promotional-emails) is not enabled: its displayed/default state depends on jurisdiction. Salted owns this explicit unchecked choice before redirecting to hosted payment. No email is requested twice. The verified payment webhook attaches Stripe's submitted guest email to the same internal order that holds the consent snapshot.
 

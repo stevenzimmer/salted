@@ -48,7 +48,7 @@ async function fillCard(page: Page, number: string) {
 async function redirectToStripe(page: Page) {
   const dialog = await selectPickup(page);
   await dialog
-    .getByRole("button", { name: "Continue to Stripe", exact: true })
+    .getByRole("button", { name: "Continue to Payment", exact: true })
     .click();
   await expect(page).toHaveURL(/^https:\/\/checkout\.stripe\.com\//, {
     timeout: 45000,
@@ -70,7 +70,7 @@ test("default Stripe checkout submits the bag from the pickup step", async ({
   );
   const dialog = await selectPickup(page);
   const pay = dialog.getByRole("button", {
-    name: "Continue to Stripe",
+    name: "Continue to Payment",
     exact: true,
   });
   await expect(pay).toBeEnabled();

@@ -41,7 +41,7 @@ test.describe("newsletter choice through real sandbox checkout", () => {
         await expect(checkbox).toBeChecked();
       }
       const pay = dialog.getByRole("button", {
-        name: "Continue to Stripe",
+        name: "Continue to Payment",
         exact: true,
       });
       await expect(pay).toBeEnabled();
@@ -167,7 +167,7 @@ test("newsletter choice does not invalidate an acknowledged price review", async
     });
   });
   const pay = dialog.getByRole("button", {
-    name: "Continue to Stripe",
+    name: "Continue to Payment",
     exact: true,
   });
   await pay.click();

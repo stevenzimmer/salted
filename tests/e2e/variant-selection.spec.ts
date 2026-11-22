@@ -72,6 +72,6 @@ test("active sizes can be selected, added and updated before choosing a pickup d
     dialog.getByRole("status").filter({ hasText: /^Selected / }),
   ).toHaveCount(0);
   await expect(
-    dialog.getByRole("button", { name: "Continue to Stripe", exact: true }),
+    dialog.getByRole("button", { name: "Continue to Payment", exact: true }),
   ).toHaveCount(0);
 });

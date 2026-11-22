@@ -85,7 +85,7 @@ test.describe("default Friday menu with real sandbox payments", () => {
         request.url().endsWith("/api/commerce/checkout"),
     );
     await dialog
-      .getByRole("button", { name: "Continue to Stripe", exact: true })
+      .getByRole("button", { name: "Continue to Payment", exact: true })
       .click();
     attemptIds.push(
       checkoutInput.parse((await checkoutRequest).postDataJSON()).requestKey,
