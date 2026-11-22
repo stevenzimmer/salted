@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  experimental: { agentUpgrade: "security" },
   // Keep ws optional native addons out of the server bundle.
   serverExternalPackages: ["@neondatabase/serverless", "ws"],
   turbopack: { root: process.cwd() },
