@@ -23,10 +23,20 @@ async function main() {
   }
   if (!Array.isArray(input) || !input.every(isDocument))
     throw new Error("Invalid seed document file");
-  const documents = input;
-  if (new Set(documents.map((doc) => doc._id)).size !== documents.length)
+  if (new Set(input.map((doc) => doc._id)).size !== input.length)
     throw new Error("Duplicate seed document IDs");
+  const onlyArg = process.argv.find(
+    (arg) => arg === "--only" || arg.startsWith("--only="),
+  );
+  const only = onlyArg?.slice("--only=".length);
+  if (onlyArg && (!only || !Object.hasOwn(copyFields, only)))
+    throw new Error("Use --only=<singleton ID> to seed one document.");
+  const asDraft = process.argv.includes("--draft");
+  if (asDraft && !only)
+    throw new Error("Use --draft with --only=<singleton ID>.");
+  const documents = only ? input.filter((doc) => doc._id === only) : input;
   for (const [type, groups] of Object.entries(copyFields)) {
+    if (only && type !== only) continue;
     const document = documents.find((doc) => doc._id === type);
     if (!document) throw new Error(`Missing singleton ${type}`);
     for (const [group, fields] of Object.entries(groups)) {
@@ -127,7 +137,9 @@ async function main() {
     if (migrated.length) {
       let transaction = client.transaction();
       for (const doc of migrated)
-        transaction = transaction.createIfNotExists(doc);
+        transaction = transaction.createIfNotExists(
+          asDraft ? { ...doc, _id: `drafts.${doc._id}` } : doc,
+        );
       await transaction.commit();
     }
     console.log(

@@ -41,6 +41,7 @@ The exact editable string-field inventory is `src/sanity/schema/copy-fields.ts`.
 | specialOrdersPage      | validation (name/email/phone/date/leadTime/products/quantity)                                                                                                          | /special-orders                                    | SpecialOrderForm                                             | Error text stega when shown; validation logic stays code-owned          |
 | aboutPage              | intro, story, image                                                                                                                                                    | /about                                             | AboutPage, LogoMark, CmsImage                                | Text stega, image annotation                                            |
 | storageHeatingPage     | intro, guide (four fixed instructional title/body slots and draft notice)                                                                                              | /storage-heating                                   | StoragePage                                                  | Text stega                                                              |
+| linksPage              | intro.blurb, links[].label/href/openInNewTab and item order, seo                                                                                                         | /links                                             | LinksPage                                                    | Blurb and link labels use text stega                                    |
 | recipesPage            | intro, listing.note/empty                                                                                                                                              | /recipes                                           | RecipesPage, PageIntro                                       | Text stega                                                              |
 | privacyPage, termsPage | intro, updatedText, restricted Portable Text body, seo                                                                                                                 | /privacy, /terms                                   | LegalPage, RichText                                          | Text stega; SEO through Structure                                       |
 | productCategory        | title (editable category name); product and filter category references                                                                                                 | Studio category management and storefront matching | ProductStorefront                                            | Stable document IDs for matching; no fixed category enumeration         |
@@ -76,6 +77,18 @@ The seasonal feature, About preview, and storage callout were commented out in t
 Studio image fields require files under 400 KB (400,000 bytes). File selection, drag and drop (including product gallery batches), and paste reject oversized files before upload. Asset validation also blocks publishing oversized images selected from existing assets; cleared image fields remain optional. JPEG (`.jpg` / `.jpeg`) and WebP (`.webp`) are recommended formats, and each image field describes recommended dimensions for its placement. Dimensions and formats are guidance, not additional publishing requirements. Existing assets and editorial documents are not modified.
 
 ## Conditional-rendering contract
+
+### Packaging links
+
+In Studio, open **Links** to edit the blurb and add, remove or drag to reorder
+the link cards. Each card has its own destination and new-tab switch. Clearing
+the blurb removes it. Clearing the link text or destination hides that card.
+The Salted wordmark and page layout are part of the website design.
+
+To initialize the starter content in a dataset, run
+`npm run cms:seed -- --only=linksPage --draft`. This creates a draft for editorial
+review and preserves any existing Links document. Publish it in Studio when the
+blurb and destinations are ready for packaging.
 
 ### Storage & reheating rich text
 

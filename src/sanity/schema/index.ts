@@ -128,6 +128,33 @@ const objects = [
     preview: { select: { title: "label", subtitle: "href" } },
   }),
   defineType({
+    name: "landingLink",
+    title: "Landing page link",
+    type: "object",
+    fields: [
+      defineField({ name: "label", title: "Link text", type: "string" }),
+      defineField({
+        name: "href",
+        title: "Destination",
+        type: "string",
+        description: "Use a site path like /#products or a full web URL.",
+        validation: (rule) =>
+          rule.custom((value) =>
+            !hasText(value) || navigationHref(value)
+              ? true
+              : "Enter a valid link destination.",
+          ),
+      }),
+      defineField({
+        name: "openInNewTab",
+        title: "Open in a new tab",
+        type: "boolean",
+        initialValue: false,
+      }),
+    ],
+    preview: { select: { title: "label", subtitle: "href" } },
+  }),
+  defineType({
     name: "imageWithAlt",
     title: "Image",
     type: "image",
@@ -433,6 +460,19 @@ const singletons = Object.entries(copyFields).map(([name, groups]) =>
         : []),
       ...(name === "aboutPage"
         ? [image("image", "1200 × 1440 px (5:6 portrait)")]
+        : []),
+      ...(name === "linksPage"
+        ? [
+            defineField({
+              name: "links",
+              title: "Links",
+              type: "array",
+              description:
+                "Add, remove or drag to reorder links on /links. Entries without link text or a destination are hidden.",
+              of: [{ type: "landingLink" }],
+              options: { sortable: true },
+            }),
+          ]
         : []),
       ...(name === "privacyPage" || name === "termsPage"
         ? [

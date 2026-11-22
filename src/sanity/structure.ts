@@ -16,6 +16,7 @@ export const structure: StructureResolver = (S) =>
           "specialOrdersPage",
           "aboutPage",
           "storageHeatingPage",
+          "linksPage",
           "recipesPage",
           "privacyPage",
           "termsPage",

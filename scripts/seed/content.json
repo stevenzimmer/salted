@@ -402,6 +402,40 @@
     }
   },
   {
+    "_id": "linksPage",
+    "_type": "linksPage",
+    "internalName": "Links",
+    "intro": {
+      "blurb": "Well, hello, bread person."
+    },
+    "links": [
+      {
+        "_key": "storefront",
+        "_type": "landingLink",
+        "label": "Shop focaccia",
+        "href": "/#products",
+        "openInNewTab": false
+      },
+      {
+        "_key": "instagram",
+        "_type": "landingLink",
+        "label": "Find us on Instagram",
+        "href": "https://www.instagram.com/saltedfocaccia/",
+        "openInNewTab": true
+      },
+      {
+        "_key": "storage",
+        "_type": "landingLink",
+        "label": "Storage + reheating",
+        "href": "/storage-heating",
+        "openInNewTab": false
+      }
+    ],
+    "seo": {
+      "title": "Salted Focaccia Links"
+    }
+  },
+  {
     "_id": "storageHeatingPage",
     "_type": "storageHeatingPage",
     "internalName": "storageHeatingPage",

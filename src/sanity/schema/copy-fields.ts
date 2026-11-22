@@ -141,6 +141,7 @@ export const copyFields = {
       "servingBody",
     ],
   },
+  linksPage: { intro: ["blurb"] },
   recipesPage: {
     intro: ["eyebrow", "title", "description"],
     listing: ["note", "empty"],
@@ -315,6 +316,7 @@ export const singletonTitles = {
   specialOrdersPage: "Special Orders",
   aboutPage: "About",
   storageHeatingPage: "Storage & Reheating",
+  linksPage: "Links",
   recipesPage: "Recipes Page",
   privacyPage: "Privacy Policy",
   termsPage: "Terms",

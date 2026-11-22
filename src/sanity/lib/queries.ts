@@ -29,6 +29,9 @@ export const SPECIAL_ORDERS_QUERY = defineQuery(
 export const STORAGE_QUERY = defineQuery(
   `*[_type == "storageHeatingPage" && _id == "storageHeatingPage"][0]`,
 );
+export const LINKS_QUERY = defineQuery(
+  `*[_type == "linksPage" && _id == "linksPage"][0]`,
+);
 export const RECIPES_PAGE_QUERY = defineQuery(
   `*[_type == "recipesPage" && _id == "recipesPage"][0]`,
 );

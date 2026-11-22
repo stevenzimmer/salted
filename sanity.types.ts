@@ -423,6 +423,24 @@ export type RecipesPage = {
   seo?: Seo;
 };
 
+export type LinksPage = {
+  _id: string;
+  _type: "linksPage";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  internalName: string;
+  intro?: {
+    blurb?: string;
+  };
+  links?: Array<
+    {
+      _key: string;
+    } & LandingLink
+  >;
+  seo?: Seo;
+};
+
 export type StorageHeatingPage = {
   _id: string;
   _type: "storageHeatingPage";
@@ -779,6 +797,13 @@ export type SanityImageHotspot = {
   width: number;
 };
 
+export type LandingLink = {
+  _type: "landingLink";
+  label?: string;
+  href?: string;
+  openInNewTab?: boolean;
+};
+
 export type NavigationItem = {
   _type: "navigationItem";
   label?: string;
@@ -898,6 +923,7 @@ export type AllSanitySchemaTypes =
   | TermsPage
   | PrivacyPage
   | RecipesPage
+  | LinksPage
   | StorageHeatingPage
   | SpecialOrdersPage
   | PickupPage
@@ -912,6 +938,7 @@ export type AllSanitySchemaTypes =
   | ProductVariant
   | SanityImageCrop
   | SanityImageHotspot
+  | LandingLink
   | NavigationItem
   | SanityImagePaletteSwatch
   | SanityImagePalette
@@ -1651,6 +1678,27 @@ export type STORAGE_QUERY_RESULT = {
 } | null;
 
 // Source: src/sanity/lib/queries.ts
+// Variable: LINKS_QUERY
+// Query: *[_type == "linksPage" && _id == "linksPage"][0]
+export type LINKS_QUERY_RESULT = {
+  _id: "linksPage";
+  _type: "linksPage";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  internalName: string;
+  intro?: {
+    blurb?: string;
+  };
+  links?: Array<
+    {
+      _key: string;
+    } & LandingLink
+  >;
+  seo?: Seo;
+} | null;
+
+// Source: src/sanity/lib/queries.ts
 // Variable: RECIPES_PAGE_QUERY
 // Query: *[_type == "recipesPage" && _id == "recipesPage"][0]
 export type RECIPES_PAGE_QUERY_RESULT = {
@@ -1782,6 +1830,7 @@ declare global {
     '*[_type == "pickupPage" && _id == "pickupPage"][0]': PICKUP_QUERY_RESULT;
     '*[_type == "specialOrdersPage" && _id == "specialOrdersPage"][0]': SPECIAL_ORDERS_QUERY_RESULT;
     '*[_type == "storageHeatingPage" && _id == "storageHeatingPage"][0]': STORAGE_QUERY_RESULT;
+    '*[_type == "linksPage" && _id == "linksPage"][0]': LINKS_QUERY_RESULT;
     '*[_type == "recipesPage" && _id == "recipesPage"][0]': RECIPES_PAGE_QUERY_RESULT;
     '*[_type == "privacyPage" && _id == "privacyPage"][0]': PRIVACY_QUERY_RESULT;
     '*[_type == "termsPage" && _id == "termsPage"][0]': TERMS_QUERY_RESULT;

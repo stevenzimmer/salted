@@ -15,6 +15,7 @@ export const resolve: PresentationPluginOptions["resolve"] = {
     specialOrdersPage: page("Special orders", "/special-orders"),
     aboutPage: page("About", "/about"),
     storageHeatingPage: page("Storage & reheating", "/storage-heating"),
+    linksPage: page("Links", "/links"),
     recipesPage: page("Recipes", "/recipes"),
     privacyPage: page("Privacy", "/privacy"),
     termsPage: page("Terms", "/terms"),
