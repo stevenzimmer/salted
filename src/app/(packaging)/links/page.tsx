@@ -34,23 +34,25 @@ export default async function LinksPage() {
 
   return (
     <main className="min-h-svh border-t-4 border-primary px-6 pt-[clamp(3.5rem,11svh,7rem)] pb-12 sm:px-8">
-      <div className="mx-auto max-w-sm">
-        <h1 className="mx-auto w-[min(76%,17rem)]">
-          <Image
-            src="/images/brand/hero-wordmark.svg"
-            alt="Salted Focaccia"
-            width={2555}
-            height={771}
-            loading="eager"
-            className="h-auto w-full"
+      <div className="mx-auto flex max-w-sm flex-col gap-9">
+        <div className="flex flex-col items-center gap-5">
+          <h1 className="w-[min(76%,17rem)]">
+            <Image
+              src="/images/brand/hero-wordmark.svg"
+              alt="Salted Focaccia"
+              width={2555}
+              height={771}
+              loading="eager"
+              className="h-auto w-full"
+            />
+          </h1>
+          <Text
+            value={page?.intro?.blurb}
+            className="max-w-[28ch] text-center text-base leading-relaxed text-pretty wrap-anywhere italic sm:text-lg"
           />
-        </h1>
-        <Text
-          value={page?.intro?.blurb}
-          className="mx-auto mt-5 max-w-[28ch] text-center text-base leading-relaxed text-pretty wrap-anywhere italic sm:text-lg"
-        />
+        </div>
         {links.length > 0 ? (
-          <nav aria-label="Salted Focaccia links" className="mt-9">
+          <nav aria-label="Salted Focaccia links">
             <ul className="grid gap-3">
               {links.map(({ key, label, href, newTab }) => {
                 const Arrow = newTab ? ArrowUpRight : ArrowRight;
