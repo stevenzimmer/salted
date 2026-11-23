@@ -17,6 +17,7 @@ import { hasText, clean, interpolate } from "@/sanity/lib/content";
 import { Text } from "@/components/cms/text";
 import { MarketingConsentCheckbox } from "@/components/commerce/marketing-consent-checkbox";
 import { specialOrderConfig } from "@/data/special-order-config";
+import { trackSpecialOrderEvent } from "@/lib/analytics";
 
 const initial: SpecialOrderInput = {
   name: "",
@@ -43,11 +44,20 @@ export function SpecialOrderForm({
     "submitError" | "rateLimited" | "consentChanged" | null
   >(null);
   const submitting = useRef(false);
+  const started = useRef(false);
   const attempt = useRef<{ signature: string; key: string } | null>(null);
+
+  function trackStart() {
+    if (started.current) return;
+    started.current = true;
+    trackSpecialOrderEvent("special_order_form_start");
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (submitting.current) return;
+    // Also cover autofilled forms submitted without a change event.
+    trackStart();
     const form = event.currentTarget;
     const data = new FormData(form);
     setSubmissionError(null);
@@ -97,6 +107,7 @@ export function SpecialOrderForm({
         );
         return;
       }
+      trackSpecialOrderEvent("special_order_form_submit");
       setSubmitted(true);
     } catch {
       setSubmissionError("submitError");
@@ -151,6 +162,7 @@ export function SpecialOrderForm({
             className="button-outline mt-7"
             onClick={() => {
               attempt.current = null;
+              started.current = false;
               setMarketingOptIn(false);
               setSubmitted(false);
             }}
@@ -167,6 +179,7 @@ export function SpecialOrderForm({
     <form
       className="special-order-form"
       onSubmit={handleSubmit}
+      onChange={trackStart}
       aria-busy={pending}
       noValidate
     >

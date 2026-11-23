@@ -3,13 +3,20 @@ import assert from "node:assert/strict";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { GoogleAnalytics } from "@next/third-parties/google";
-import { trackAddToCart, trackCheckoutEvent } from "../src/lib/analytics";
+import { stegaEncodeSourceMap } from "@sanity/client/stega";
+import {
+  trackAddToCart,
+  trackCheckoutEvent,
+  trackSpecialOrderEvent,
+  trackProductFilterSelect,
+} from "../src/lib/analytics";
 
 import { products } from "./fixtures/catalog";
 
 test("checkout analytics is safe on the server", () => {
   assert.doesNotThrow(() => {
-    trackCheckoutEvent("order_preview_view", { has_valid_pickup_date: false });
+    trackCheckoutEvent("checkout_closed", { step_name: "bag", item_count: 0 });
+    trackSpecialOrderEvent("special_order_form_start");
   });
 });
 
@@ -25,15 +32,16 @@ test("early views are queued before the Google script loads", () => {
     // Initialize the same GA integration used by the layout, without loading
     // Google's network script or sending any test data to the real property.
     renderToStaticMarkup(createElement(GoogleAnalytics, { gaId: "G-TEST" }));
-    trackCheckoutEvent("order_preview_view", { has_valid_pickup_date: false });
+    trackCheckoutEvent("checkout_closed", { step_name: "bag", item_count: 0 });
 
     assert.equal(browser.dataLayer?.length, 1);
     const command = Array.from(browser.dataLayer[0] as IArguments);
     assert.deepEqual(command, [
       "event",
-      "order_preview_view",
+      "checkout_closed",
       {
-        has_valid_pickup_date: false,
+        step_name: "bag",
+        item_count: 0,
         flow_version: "checkout_preview_v1",
         preview_mode: true,
       },
@@ -76,12 +84,94 @@ test("a blocked analytics queue cannot break checkout", () => {
       );
     });
     assert.doesNotThrow(() => {
+      trackSpecialOrderEvent("special_order_form_submit");
+      trackProductFilterSelect({
+        filter_id: "all",
+        filter_label: "All",
+        category_id: "all",
+        show_all: true,
+        result_count: 2,
+      });
       trackCheckoutEvent("checkout_back", {
         from_step: "pickup",
         to_step: "bag",
         item_count: 1,
       });
     });
+  } finally {
+    if (originalWindow)
+      Object.defineProperty(globalThis, "window", originalWindow);
+    else Reflect.deleteProperty(globalThis, "window");
+  }
+});
+
+test("special-order events contain only fixed form metadata and no checkout preview flags", () => {
+  const originalWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
+  const browser: { dataLayer?: unknown[] } = {};
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    value: browser,
+  });
+
+  try {
+    renderToStaticMarkup(createElement(GoogleAnalytics, { gaId: "G-TEST" }));
+    trackSpecialOrderEvent("special_order_form_start");
+    trackSpecialOrderEvent("special_order_form_submit");
+    assert.deepEqual(
+      browser.dataLayer?.map((entry) => Array.from(entry as IArguments)),
+      [
+        ["event", "special_order_form_start", { form_id: "special_order" }],
+        ["event", "special_order_form_submit", { form_id: "special_order" }],
+      ],
+    );
+  } finally {
+    if (originalWindow)
+      Object.defineProperty(globalThis, "window", originalWindow);
+    else Reflect.deleteProperty(globalThis, "window");
+  }
+});
+
+test("product filter analytics cleans CMS labels and preserves zero results", () => {
+  const originalWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
+  const browser = { dataLayer: [] as unknown[] };
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    value: browser,
+  });
+  try {
+    renderToStaticMarkup(createElement(GoogleAnalytics, { gaId: "G-TEST" }));
+    const { label } = stegaEncodeSourceMap(
+      { label: "Seasonal" },
+      {
+        documents: [{ _id: "commerceCopy", _type: "commerceCopy" }],
+        paths: ["$['product']['filters'][0]['label']"],
+        mappings: {
+          "$['label']": {
+            type: "value",
+            source: { type: "documentValue", document: 0, path: 0 },
+          },
+        },
+      },
+      { enabled: true, studioUrl: "/studio", filter: () => true },
+    );
+    trackProductFilterSelect({
+      filter_id: "seasonal-filter",
+      filter_label: label,
+      category_id: "category-seasonal",
+      show_all: false,
+      result_count: 0,
+    });
+    assert.deepEqual(Array.from(browser.dataLayer[0] as IArguments), [
+      "event",
+      "product_filter_select",
+      {
+        filter_id: "seasonal-filter",
+        filter_label: "Seasonal",
+        category_id: "category-seasonal",
+        show_all: false,
+        result_count: 0,
+      },
+    ]);
   } finally {
     if (originalWindow)
       Object.defineProperty(globalThis, "window", originalWindow);

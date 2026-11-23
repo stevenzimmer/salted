@@ -49,9 +49,6 @@ type CheckoutEvents = {
   checkout_closed: CartContext & {
     step_name: CheckoutStep;
   };
-  order_preview_view: {
-    has_valid_pickup_date: boolean;
-  };
 };
 
 export function trackAddToCart(item: CartItem, products: Product[]): void {
@@ -80,18 +77,42 @@ export function trackCheckoutEvent<Name extends keyof CheckoutEvents>(
   name: Name,
   parameters: CheckoutEvents[Name],
 ): void {
+  sendEvent(name, {
+    ...parameters,
+    flow_version: "checkout_preview_v1",
+    preview_mode: true,
+  });
+}
+
+export function trackSpecialOrderEvent(
+  name: "special_order_form_start" | "special_order_form_submit",
+): void {
+  // Fixed metadata only: never include contacts, request text or request keys.
+  sendEvent(name, { form_id: "special_order" });
+}
+
+export function trackProductFilterSelect(parameters: {
+  filter_id: string;
+  filter_label: string;
+  category_id: string;
+  show_all: boolean;
+  result_count: number;
+}): void {
+  sendEvent("product_filter_select", {
+    ...parameters,
+    filter_label: clean(parameters.filter_label),
+  });
+}
+
+function sendEvent(name: string, parameters: object): void {
   if (typeof window === "undefined") return;
 
   try {
     // A page-view effect can run before the after-hydration GA script creates
     // its queue. The script preserves this queue when it initializes.
     window.dataLayer ??= [];
-    sendGAEvent("event", name, {
-      ...parameters,
-      flow_version: "checkout_preview_v1",
-      preview_mode: true,
-    });
+    sendGAEvent("event", name, parameters);
   } catch {
-    // Analytics must never prevent a cart update or checkout navigation.
+    // Analytics must never prevent a customer interaction or submission.
   }
 }

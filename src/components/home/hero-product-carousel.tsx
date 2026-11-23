@@ -213,7 +213,7 @@ export function HeroProductCarousel({
       </div>
       {items.length > 1 ? (
         <>
-          <div className="mt-4 flex items-center justify-between min-[360px]:gap-2">
+          <div className="flex items-center justify-between min-[360px]:gap-2">
             <Button
               type="button"
               variant="outline"

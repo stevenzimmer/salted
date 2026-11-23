@@ -5,6 +5,7 @@ import { clean, hasText } from "@/sanity/lib/content";
 import { Text } from "@/components/cms/text";
 import { useState } from "react";
 import type { ReactNode } from "react";
+import { trackProductFilterSelect } from "@/lib/analytics";
 
 export function ProductStorefront({
   items,
@@ -50,7 +51,20 @@ export function ProductStorefront({
                   key={filter.key}
                   type="button"
                   aria-pressed={currentFilter?.key === filter.key}
-                  onClick={() => setSelectedKey(filter.key)}
+                  onClick={() => {
+                    if (currentFilter?.key === filter.key) return;
+                    setSelectedKey(filter.key);
+                    trackProductFilterSelect({
+                      filter_id: filter.key,
+                      filter_label: filter.label,
+                      category_id: filter.showAll ? "all" : filter.category,
+                      show_all: filter.showAll,
+                      result_count: items.filter(
+                        (item) =>
+                          filter.showAll || item.category === filter.category,
+                      ).length,
+                    });
+                  }}
                 >
                   {filter.label}
                 </button>

@@ -5,7 +5,7 @@ export const initialPickupReminderCopy = {
   reminderSubject: "Your Friday focaccia is calling",
   reminderHeading: "You have a hot date. With focaccia.",
   reminderBody:
-    "Cancel your plans to forget your bread. It’s pickup Friday! Swing by during the window below, grab your order, and let your weekend get a little salty. Your delicious agenda is below.",
+    "It’s pickup Friday! Swing by during the pickup window, grab your order, and let your weekend get a little salty.",
 };
 
 export function migratePickupReminderCopy(document: Record<string, unknown>) {

@@ -6,6 +6,14 @@ The server validates bounded inputs, calendar dates and lead time. It requires t
 
 The browser keeps a random request key in memory for an unchanged submission. Database uniqueness and a content fingerprint deduplicate concurrent and uncertain retries. Changed content needs a new key. A saved retry acknowledges the original request without replaying consent or revalidating an old date/wording. Reloading the page starts a new form attempt; contact data is not stored in the browser.
 
+## Google Analytics
+
+The browser sends `special_order_form_start` once on the first field change (or submit attempt for autofilled forms). Visiting the page or focusing a field does not trigger it. Validation errors, API failures and retries stay in the same form attempt.
+
+`special_order_form_submit` fires only after the API returns a successful `submitted` response. It measures a saved bakery-review request, not an approved order or delivered notification. Choosing to start another request resets start tracking. Reloading or revisiting also starts a fresh attempt.
+
+Both events use the existing website GA4 integration and send only fixed `form_id: special_order` metadata. They carry no contact details, field values, consent choice or request key, and no checkout preview flags. They become available to GA after deployment and collection; the submit event can then be marked as a key event in GA Admin if desired. These events do not backfill earlier visits. Browser tests intercept the API and block Google collection, so they create no requests or analytics traffic.
+
 ## Optional newsletter consent
 
 The checkbox shares **Commerce Copy → Marketing Consent → Label** with checkout. It is optional, unchecked and omitted when its wording is cleared. Affirmative submissions must match the current published CMS wording. The request stores its timestamp, exact accepted text, SHA-256 version and `special_order_form` source.
