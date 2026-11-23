@@ -3,6 +3,7 @@ import {
   hasRecipeCardContent,
 } from "@/sanity/lib/card-content";
 import { notFound } from "next/navigation";
+import { draftMode } from "next/headers";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { ProductPurchase } from "@/components/commerce/product-purchase";
@@ -21,12 +22,21 @@ import { getGlobalContent } from "@/sanity/lib/data";
 import { mapProduct, mapRecipe } from "@/sanity/lib/mappers";
 import { contentMetadata } from "@/sanity/lib/metadata";
 import { hasCopy, hasImage, hasText } from "@/sanity/lib/content";
+import {
+  productShareCard,
+  productShareImagePath,
+  shareCardMetadata,
+} from "@/lib/og/cards";
 
 type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
   const product = await fetchContent(PRODUCT_QUERY, { slug });
-  return contentMetadata(
+  const shareProduct = (await draftMode()).isEnabled
+    ? await fetchContent(PRODUCT_QUERY, { slug }, { publishedOnly: true })
+    : product;
+  const mapped = shareProduct && mapProduct(shareProduct);
+  const metadata = contentMetadata(
     {
       ...product?.seo,
       title: product?.seo?.title ?? product?.displayName,
@@ -34,6 +44,12 @@ export async function generateMetadata({ params }: Props) {
     },
     `/products/${encodeURIComponent(slug)}`,
   );
+  return mapped
+    ? {
+        ...metadata,
+        ...shareCardMetadata(productShareImagePath(slug), productShareCard(mapped)),
+      }
+    : metadata;
 }
 export default async function ProductPage({ params }: Props) {
   const { slug } = await params;

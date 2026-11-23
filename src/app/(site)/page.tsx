@@ -3,6 +3,7 @@ import {
   // hasRecipeCardContent,
 } from "@/sanity/lib/card-content";
 import Link from "next/link";
+import { draftMode } from "next/headers";
 import { ArrowUpRight, CalendarDays } from "lucide-react";
 import { storefrontSchedule } from "@/commerce/schedule";
 import { nextMenuPickup } from "@/lib/availability";
@@ -20,9 +21,21 @@ import { HOME_QUERY } from "@/sanity/lib/queries";
 // import { mapRecipe } from "@/sanity/lib/mappers";
 import { contentMetadata } from "@/sanity/lib/metadata";
 import { SectionHeading } from "@/components/content/section-heading";
+import {
+  homeShareCard,
+  homeShareImagePath,
+  shareCardMetadata,
+} from "@/lib/og/cards";
 
 export async function generateMetadata() {
-  return contentMetadata((await fetchContent(HOME_QUERY))?.page?.seo, "/");
+  const page = (await fetchContent(HOME_QUERY))?.page;
+  const sharePage = (await draftMode()).isEnabled
+    ? (await fetchContent(HOME_QUERY, {}, { publishedOnly: true }))?.page
+    : page;
+  return {
+    ...contentMetadata(page?.seo, "/"),
+    ...shareCardMetadata(homeShareImagePath, homeShareCard(sharePage ?? {})),
+  };
 }
 export default async function HomePage() {
   const [data, { settings, commerce, products }, schedule] = await Promise.all([

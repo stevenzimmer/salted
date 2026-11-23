@@ -50,7 +50,7 @@ export function Hero({ page }: { page: Homepage }) {
       aria-label="Welcome"
     >
       {hasColumn ? (
-        <div>
+        <div className="pt-6 lg:pt-12">
           {hasText(hero?.caption) || hasText(hero?.location) ? (
             <p className="eyebrow hero-eyebrow">
               {hasText(hero?.caption) ? (

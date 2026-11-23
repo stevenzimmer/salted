@@ -10,9 +10,10 @@ import { isSanityConfigured } from "../env";
 export async function fetchContent<Q extends keyof SanityQueries>(
   query: Q,
   params: QueryParams = {},
+  { publishedOnly = false }: { publishedOnly?: boolean } = {},
 ): Promise<StegaBranded<SanityQueries[Q]> | null> {
   if (!isSanityConfigured) return null;
-  const draft = (await draftMode()).isEnabled;
+  const draft = !publishedOnly && (await draftMode()).isEnabled;
   const perspective = draft
     ? await resolvePerspectiveFromCookies({ cookies: await cookies() })
     : "published";

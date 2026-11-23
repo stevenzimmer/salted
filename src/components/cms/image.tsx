@@ -10,9 +10,11 @@ export function imageUrl(
   image: ImageWithAlt | null | undefined,
   width = 1600,
   aspectRatio?: number,
+  format?: "jpg",
 ) {
   if (!hasImage(image)) return undefined;
-  const url = builder.image(image).width(width).auto("format");
+  const source = builder.image(image).width(width);
+  const url = format ? source.format(format) : source.auto("format");
   // Code owns the display ratio; Sanity owns crop and focal-point selection.
   return (
     aspectRatio ? url.height(Math.round(width / aspectRatio)).fit("crop") : url
