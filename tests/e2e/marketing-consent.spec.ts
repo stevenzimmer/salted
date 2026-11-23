@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { withDatabase } from "../../src/db/client";
 import { orders } from "../../src/db/schema";
 import { hash } from "../../src/commerce/validation";
+import { fillStripePaymentForm } from "./stripe-payment-form";
 
 test.describe("newsletter choice through real sandbox checkout", () => {
   test.skip(
@@ -41,8 +42,7 @@ test.describe("newsletter choice through real sandbox checkout", () => {
         await expect(checkbox).toBeChecked();
       }
       const pay = dialog.getByRole("button", {
-        name: "Continue to Payment",
-        exact: true,
+        name: /^Continue to (?:Payment|Stripe)$/i,
       });
       await expect(pay).toBeEnabled();
       await pay.click();
@@ -50,31 +50,11 @@ test.describe("newsletter choice through real sandbox checkout", () => {
         timeout: 45000,
       });
       const email = `qa-marketing-${optedIn ? "opt-in" : "opt-out"}@example.com`;
-      await page
-        .getByRole("textbox", { name: "email@example.com", exact: true })
-        .fill(email);
-      await page
-        .getByRole("textbox", { name: "Full name", exact: true })
-        .fill("Synthetic Marketing QA");
-      await page
-        .getByRole("textbox", { name: "Card number", exact: true })
-        .fill("4242424242424242");
-      await page
-        .getByRole("textbox", { name: "Expiration", exact: true })
-        .fill("1230");
-      await page
-        .getByRole("textbox", {
-          name: "Credit or debit card CVC/CVV",
-          exact: true,
-        })
-        .fill("123");
-      await page
-        .getByRole("textbox", { name: "Cardholder name", exact: true })
-        .fill("Synthetic Marketing QA");
-      await page
-        .getByRole("textbox", { name: "ZIP", exact: true })
-        .fill("95677");
-      await page.getByRole("button", { name: "Pay", exact: true }).click();
+      const form = await fillStripePaymentForm(page, {
+        email,
+        name: "Synthetic Marketing QA",
+      });
+      await form.getByRole("button", { name: "Pay", exact: true }).click();
       await expect(page).toHaveURL(/\/order\/success\?session_id=cs_test_/, {
         timeout: 60000,
       });
@@ -167,8 +147,7 @@ test("newsletter choice does not invalidate an acknowledged price review", async
     });
   });
   const pay = dialog.getByRole("button", {
-    name: "Continue to Payment",
-    exact: true,
+    name: /^Continue to (?:Payment|Stripe)$/i,
   });
   await pay.click();
   const review = dialog.getByRole("button", {

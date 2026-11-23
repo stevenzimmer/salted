@@ -1095,7 +1095,12 @@ test("a failed customer copy retries with its original payload and key while the
   const f = await fixture();
   try {
     const a = await f.create();
-    const paid = session(a);
+    const email = "qa-contact@example.invalid";
+    const phone = "+19165550142";
+    const paid = {
+      ...session(a),
+      customer_details: { name: "Synthetic QA", email, phone },
+    };
     await dbTest((db) => applySession(db, paid));
     const requests: { payload: EmailPayload; key: string }[] = [];
     const dependencies = emailDependencies(a, async (payload, key) => {
@@ -1114,13 +1119,22 @@ test("a failed customer copy retries with its original payload and key while the
       first.find((row) => row.audience === "customer")?.status,
       "pending",
     );
-    assert.equal((await f.savedOrder(a)).paymentStatus, "paid");
-    const customer = requests.find((request) =>
-      request.payload.to.endsWith("@example.invalid"),
-    );
+    const saved = await f.savedOrder(a);
+    assert.equal(saved.paymentStatus, "paid");
+    assert.equal(saved.customerEmail, email);
+    assert.equal(saved.customerPhone, phone);
+    const customer = requests.find((request) => request.payload.to === email);
     assert.ok(customer);
-    assert.equal(requests[0].payload.from, "feedme@saltedfocaccia.com");
-    assert.equal(requests[0].payload.to, "feedme@saltedfocaccia.com");
+    const business = requests.find(
+      (request) => request.payload.to === "feedme@saltedfocaccia.com",
+    );
+    assert.ok(business);
+    assert.equal(business.payload.from, "feedme@saltedfocaccia.com");
+    for (const format of ["html", "text"] as const) {
+      assert.ok(business.payload[format].includes(email));
+      assert.ok(business.payload[format].includes(phone));
+      assert.ok(!customer.payload[format].includes(phone));
+    }
     await deliverOrderEmails(a.orderId, {
       ...dependencies,
       copy: async () => {

@@ -13,6 +13,7 @@ import { stripeClient } from "../../src/commerce/config";
 import { createOrRecoverSession } from "../../src/commerce/checkout";
 import { applySession } from "../../src/commerce/store";
 import { checkoutInput } from "../../src/commerce/validation";
+import { fillStripePaymentForm, sandboxPhone } from "./stripe-payment-form";
 test.describe("default Friday menu with real sandbox payments", () => {
   test.skip(
     process.env.MANUAL_MENU_QA !== "true",
@@ -85,7 +86,7 @@ test.describe("default Friday menu with real sandbox payments", () => {
         request.url().endsWith("/api/commerce/checkout"),
     );
     await dialog
-      .getByRole("button", { name: "Continue to Payment", exact: true })
+      .getByRole("button", { name: /^Continue to (?:Payment|Stripe)$/i })
       .click();
     attemptIds.push(
       checkoutInput.parse((await checkoutRequest).postDataJSON()).requestKey,
@@ -93,29 +94,11 @@ test.describe("default Friday menu with real sandbox payments", () => {
     await expect(page).toHaveURL(/^https:\/\/checkout\.stripe\.com\//, {
       timeout: 45000,
     });
-    await page
-      .getByRole("textbox", { name: "email@example.com", exact: true })
-      .fill("manual-menu-qa@example.invalid");
-    await page
-      .getByRole("textbox", { name: "Full name", exact: true })
-      .fill("Synthetic Manual Menu QA");
-    await page
-      .getByRole("textbox", { name: "Card number", exact: true })
-      .fill("4242424242424242");
-    await page
-      .getByRole("textbox", { name: "Expiration", exact: true })
-      .fill("1230");
-    await page
-      .getByRole("textbox", {
-        name: "Credit or debit card CVC/CVV",
-        exact: true,
-      })
-      .fill("123");
-    await page
-      .getByRole("textbox", { name: "Cardholder name", exact: true })
-      .fill("Synthetic Manual Menu QA");
-    await page.getByRole("textbox", { name: "ZIP", exact: true }).fill("95677");
-    await page.getByRole("button", { name: "Pay", exact: true }).click();
+    const form = await fillStripePaymentForm(page, {
+      email: "manual-menu-qa@example.invalid",
+      name: "Synthetic Manual Menu QA",
+    });
+    await form.getByRole("button", { name: "Pay", exact: true }).click();
     await expect(page).toHaveURL(/\/order\/success\?session_id=cs_test_/, {
       timeout: 60000,
     });
@@ -135,6 +118,16 @@ test.describe("default Friday menu with real sandbox payments", () => {
         .where(eq(orders.stripeCheckoutSessionId, sessionId)),
     );
     expect(record.order.paymentStatus).toBe("paid");
+    expect(record.order.customerEmail).toBe("manual-menu-qa@example.invalid");
+    expect(record.order.customerPhone).toBe(sandboxPhone);
+    const session = await stripeClient().checkout.sessions.retrieve(sessionId, {
+      expand: ["customer"],
+    });
+    const customer = session.customer;
+    if (!customer || typeof customer === "string" || customer.deleted)
+      throw new Error("Missing Stripe Customer record.");
+    expect(customer.email).toBe(record.order.customerEmail);
+    expect(customer.phone).toBe(record.order.customerPhone);
     expect(record.attempt.inventoryMode).toBe("uncapped");
     const items = await dbQA((db) =>
       db

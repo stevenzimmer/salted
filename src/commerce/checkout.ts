@@ -39,6 +39,8 @@ export function sessionParams(
     adaptive_pricing: { enabled: false },
     billing_address_collection: "auto",
     name_collection: { individual: { enabled: true, optional: false } },
+    phone_number_collection: { enabled: true },
+    customer_creation: "always",
     client_reference_id: orderId,
     integration_identifier: "salted_hosted_qxzmkpar",
     metadata: {

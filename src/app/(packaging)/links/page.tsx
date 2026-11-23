@@ -1,6 +1,6 @@
 import { Wordmark } from "@/components/brand/wordmark";
 
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { cache } from "react";
 import { Text } from "@/components/cms/text";
 import { navigationHref } from "@/lib/navigation";
@@ -49,7 +49,6 @@ export default async function LinksPage() {
           <nav aria-label="Salted Focaccia links">
             <ul className="grid gap-3">
               {links.map(({ key, label, href, newTab }) => {
-                const Arrow = newTab ? ArrowUpRight : ArrowRight;
                 return (
                   <li key={key}>
                     <a
@@ -60,7 +59,7 @@ export default async function LinksPage() {
                     >
                       <span className="wrap-anywhere">{label}</span>
                       <span className="grid size-9 shrink-0 place-items-center rounded-full bg-background text-primary">
-                        <Arrow size={19} aria-hidden="true" />
+                        <ArrowRight size={19} aria-hidden="true" />
                       </span>
                       {newTab ? (
                         <span className="sr-only"> (opens in a new tab)</span>

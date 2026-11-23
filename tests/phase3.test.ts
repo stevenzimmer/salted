@@ -139,7 +139,7 @@ test("Wednesday cutoff uses Pacific offset across both DST transitions", () => {
     "2026-11-05T07:59:59.000Z",
   );
 });
-test("Session parameters contain only validated cents, fixed USD and immediate cards/wallets", () => {
+test("Session parameters set validated prices, card payments and native customer contact collection", () => {
   const i = input();
   const params = sessionParams(
     i,
@@ -150,6 +150,8 @@ test("Session parameters contain only validated cents, fixed USD and immediate c
   assert.equal(params.mode, "payment");
   assert.deepEqual(params.allowed_payment_method_types, ["card"]);
   assert.equal(params.wallet_options?.link?.display, "never");
+  assert.equal(params.phone_number_collection?.enabled, true);
+  assert.equal(params.customer_creation, "always");
   assert.equal(params.line_items?.[0].price_data?.unit_amount, 1250);
   assert.equal(params.shipping_address_collection, undefined);
   assert.equal(params.allow_promotion_codes, undefined);
