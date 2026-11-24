@@ -3,9 +3,11 @@ import { cache } from "react";
 import { fetchCatalog, fetchPickupBlackoutDates } from "./catalog";
 import { buildPickupSchedule } from "./schedule-model";
 import type { MockSchedule } from "../types/content";
+export const getPublishedPickupCatalog = cache(fetchCatalog);
+
 export async function liveSchedule(): Promise<MockSchedule> {
   const [catalog, blackoutDates] = await Promise.all([
-    fetchCatalog(),
+    getPublishedPickupCatalog(),
     fetchPickupBlackoutDates(),
   ]);
   return buildPickupSchedule(catalog, blackoutDates);

@@ -73,6 +73,7 @@ There is **no page builder**. Homepage order remains Hero → How It Works → P
 Existing public routes remain `/`, `/products/[slug]`, `/recipes`, `/recipes/[slug]`, `/pickup`, `/special-orders`, `/about`, `/storage-heating`, `/privacy`, `/terms`, `/order/success`. Checkout stays inside the cart Sheet. `/studio/[[...tool]]` replaces the placeholder. API routes also serve checkout, pickup availability, and signed Stripe webhooks. A site catch-all renders the CMS-controlled 404.
 
 - `src/app/(site)`: dynamic website root layout, metadata, server pages, `SanityLive`, and draft-only `VisualEditing`.
+- `src/app/(confirmation)`: separate order success root with the shared storefront shell and no analytics.
 - `src/app/(studio)`: separate root layout and `NextStudio`; no storefront, analytics, cart, `SanityLive`, or Visual Editing overlays.
 - `src/sanity/schema`: fixed content slots, reusable objects, repeatable documents, validation.
 - `src/sanity/lib/queries.ts`: all centralized `defineQuery` queries. `sanityFetch` from `defineLive` supplies live content and source maps. Shared settings, commerce copy, and the current catalog are fetched once per React request through `getGlobalContent`.
@@ -81,7 +82,11 @@ Existing public routes remain `/`, `/products/[slug]`, `/recipes`, `/recipes/[sl
 - `src/data`: pickup rules, historical test fixtures and special-order rules only.
 - `src/lib/cart.ts`: validates browser records against the current CMS catalog, resolves integer-cent prices, and preserves the versioned local-storage cart shape.
 
-Metadata is cleaned with Sanity's stega utility. Canonical paths are code-owned. The entire staging website remains `noindex, nofollow`; Studio is also non-indexable. Set the approved site URL and resolve [open decisions](docs/open-decisions.md) before a launch.
+## Search and local discoverability
+
+Published Sanity fields power search metadata and structured data. The canonical site is `https://saltedfocaccia.com`. `NEXT_PUBLIC_SITE_URL` still configures the deployment origin used by commerce. Production indexing requires explicit approval, the canonical host and `SEO_INDEXING_ENABLED=true` on the production build. Staging, previews and private routes stay nonindexable.
+
+See the [SEO implementation and route inventory](docs/seo-implementation.md), [audit](docs/seo-audit.md), [keyword strategy](docs/seo-keyword-strategy.md), [content recommendations](docs/seo-content-recommendations.md), [local SEO checklist](docs/local-seo-checklist.md) and [search launch checklist](docs/seo-launch-checklist.md).
 
 ## TypeGen and quality checks
 
@@ -97,7 +102,7 @@ npm run build
 
 The existing webpack production build is retained. Tests cover complete-cart availability, DST/cutoff rules, catalog pricing, analytics, stega-aware removals, Portable Text, image annotations, missing images, deleted catalog identities, and blank variant labels. The optional `npm run cms:qa -- prepare|long|clear|inactive|cleanup` workflow creates only a clearly identified temporary draft and a short-lived preview session, for authenticated browser QA. Always run cleanup. It does not publish or alter real content. See [Phase 2 QA/report](docs/phase-2-report.md) for performed checks and remaining editor acceptance steps.
 
-Google Analytics (`G-FF1JFYJLTV`) remains on website routes. It records preview activity, never purchases. See [analytics](docs/analytics.md).
+Google Analytics (`G-FF1JFYJLTV`) remains on storefront routes. Order confirmation opens in a separate root layout without the analytics script. It records no purchase event. See [analytics](docs/analytics.md).
 
 ## Deployment and future work
 

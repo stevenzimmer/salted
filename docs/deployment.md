@@ -52,7 +52,7 @@ Before a future authorized deployment, set these in the appropriate Vercel envir
 - `NEXT_PUBLIC_SANITY_DATASET=production`.
 - `NEXT_PUBLIC_SANITY_API_VERSION=2026-02-01` (fixed, not generated).
 - `SANITY_API_READ_TOKEN`: Viewer role; server-only.
-- `NEXT_PUBLIC_SITE_URL`: the exact deployment/canonical origin.
+- `NEXT_PUBLIC_SITE_URL`: the exact deployment origin used by checkout.
 
 `SANITY_API_TOKEN` is supported as a server-only setup compatibility alias. Prefer the dedicated Viewer token in Vercel. Do not deploy `SANITY_API_WRITE_TOKEN`; it is needed only for the initial content seed. Environment changes require an authorized new deployment; this implementation does not deploy or push.
 
@@ -88,7 +88,7 @@ Before enabling staged **test** checkout: apply migrations to a dedicated staged
 
 Stripe payment receipts are controlled in the matching Stripe Dashboard customer-email settings. Enable successful-payment receipts, confirm sender/business information, test receipt behavior, and review refund receipts if used. The requested [paid-order confirmations](order-emails.md) and [special-order notifications](special-orders.md) use durable Postgres delivery records and Resend. Other Phase 4 messaging and SMS remain deferred.
 
-`NEXT_PUBLIC_SITE_URL` is embedded by Next at build time. Set the correct origin before building; changing only the `next start` environment cannot repair a mismatched built checkout origin.
+`NEXT_PUBLIC_SITE_URL` is embedded by Next at build time. Set the correct origin before building; changing only the `next start` environment cannot repair a mismatched built checkout origin. Search canonicals are fixed at `https://saltedfocaccia.com`. See the [search launch checklist](seo-launch-checklist.md) for the separate `SEO_INDEXING_ENABLED` approval.
 
 Before deploying real special-order requests, apply migration `0006_loose_tusk.sql` to the intended application database after isolated QA verification, run `npm run cms:activate-special-orders`, and review the published form/email copy. Configure `RESEND_API_KEY` and `EMAIL_FROM` for the verified sending domain. The destination is `feedme@saltedfocaccia.com`. Without the key, requests still save and notifications remain pending; use `npm run special-orders:retry-emails` after configuration. This implementation does not deploy or change hosted environment variables.
 

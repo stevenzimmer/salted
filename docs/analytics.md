@@ -53,7 +53,7 @@ standard ecommerce event. No customer fields, raw error messages, or payment
 information are sent. The transport uses the
 existing Google queue, buffers events before its script loads, and isolates
 analytics failures from checkout. It adds no storage or dependencies.
-The website layout initializes GA before mounting the cart and page components.
+The storefront layout initializes GA before mounting the cart and page components. Order confirmation uses the shared storefront shell in a separate root layout without GA, so Checkout session query parameters stay outside automatic GA page views.
 
 ## Storefront filters
 

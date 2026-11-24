@@ -5,14 +5,12 @@ import { PageIntro } from "@/components/content/page-intro";
 import { Text } from "@/components/cms/text";
 import { fetchContent } from "@/sanity/lib/fetch-content";
 import { RECIPES_QUERY, RECIPES_PAGE_QUERY } from "@/sanity/lib/queries";
-import { contentMetadata } from "@/sanity/lib/metadata";
+import { fixedPageMetadata } from "@/lib/seo/metadata";
+import { FixedPageStructuredData } from "@/components/cms/search-structured-data";
 import { mapRecipe } from "@/sanity/lib/mappers";
 import { getGlobalContent } from "@/sanity/lib/data";
-export async function generateMetadata() {
-  return contentMetadata(
-    (await fetchContent(RECIPES_PAGE_QUERY))?.seo,
-    "/recipes",
-  );
+export function generateMetadata() {
+  return fixedPageMetadata("/recipes");
 }
 export default async function RecipesPage() {
   const [page, recipes, { commerce }] = await Promise.all([
@@ -25,6 +23,7 @@ export default async function RecipesPage() {
     return null;
   return (
     <div className="shell pb-24">
+      <FixedPageStructuredData path="/recipes" />
       <PageIntro {...page?.intro} />
       {items.length ? (
         <div className="recipe-grid">

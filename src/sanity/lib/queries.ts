@@ -15,7 +15,7 @@ export const RECIPE_QUERY = defineQuery(
   `*[_type == "recipe" && active == true && slug.current == $slug][0]`,
 );
 export const PRODUCT_QUERY = defineQuery(
-  `*[_type == "product" && slug.current == $slug][0]`,
+  `*[_type == "product" && slug.current == $slug][0]{..., "categoryTitle": category->title}`,
 );
 export const ABOUT_QUERY = defineQuery(
   `*[_type == "aboutPage" && _id == "aboutPage"][0]`,
@@ -55,3 +55,15 @@ export const ORDER_EMAIL_QUERY = defineQuery(
 export const PICKUP_BLACKOUT_DATES_QUERY = defineQuery(
   `*[_type == "pickupPage" && _id == "pickupPage"][0].blackoutDates`,
 );
+
+export const SEARCH_SETTINGS_QUERY = defineQuery(
+  `*[_type == "siteSettings" && _id == "siteSettings"][0]{seo, searchBusiness, brand, contact}`,
+);
+export const SEARCH_SITEMAP_DETAILS_QUERY = defineQuery(`{
+  "products": *[_type == "product" && defined(slug.current) && (active == true || keepUnavailableIndexed == true)]{
+    _updatedAt, slug, id, active, keepUnavailableIndexed, displayName, category, tier, "seo": seo{noIndex}
+  },
+  "recipes": *[_type == "recipe" && active == true && defined(slug.current)]{
+    _updatedAt, slug, active, displayTitle, "seo": seo{noIndex}
+  }
+}`);

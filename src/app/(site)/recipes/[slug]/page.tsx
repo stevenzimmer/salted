@@ -12,21 +12,71 @@ import { fetchContent } from "@/sanity/lib/fetch-content";
 import { RECIPE_QUERY } from "@/sanity/lib/queries";
 import { getGlobalContent } from "@/sanity/lib/data";
 import { mapRecipe } from "@/sanity/lib/mappers";
-import { contentMetadata } from "@/sanity/lib/metadata";
+import { pageMetadata } from "@/lib/seo/metadata";
+import {
+  getFixedSearchPage,
+  getSearchRecipe,
+  getSearchSettings,
+  isSearchDraft,
+} from "@/lib/seo/content";
+import { searchableRecipe } from "@/lib/seo/eligibility";
+import { searchText } from "@/lib/seo/fields";
+import { detailPath, noIndex } from "@/lib/seo/policy";
+import { pageEntities, recipeEntity } from "@/lib/seo/structured-data";
+import { SearchStructuredData } from "@/components/cms/search-structured-data";
 import { hasImage, hasText } from "@/sanity/lib/content";
 type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
-  const doc = await fetchContent(RECIPE_QUERY, { slug });
-  return contentMetadata(
-    {
-      ...doc?.seo,
-      title: doc?.seo?.title ?? doc?.displayTitle,
-      description: doc?.seo?.description ?? doc?.description,
-    },
-    `/recipes/${encodeURIComponent(slug)}`,
+  const [doc] = await Promise.all([getSearchRecipe(slug), getSearchSettings()]);
+  if (!doc) return { robots: noIndex };
+  const title = searchText(doc.displayTitle) ?? "Focaccia Recipe";
+  return pageMetadata({
+    path: detailPath("recipes", slug),
+    eligible: searchableRecipe(doc),
+    seo: doc.seo,
+    title,
+    description: doc.description,
+    fallbackDescription: `Read ${title}, a serving idea from Salted Focaccia.`,
+    image: doc.image,
+    article: true,
+  });
+}
+
+async function RecipeStructuredData({ slug }: { slug: string }) {
+  const [draft, doc, settings, listing] = await Promise.all([
+    isSearchDraft(),
+    getSearchRecipe(slug),
+    getSearchSettings(),
+    getFixedSearchPage("/recipes"),
+  ]);
+  if (
+    draft ||
+    !doc ||
+    !searchableRecipe(doc) ||
+    settings?.seo?.noIndex === true
+  )
+    return null;
+  const path = detailPath("recipes", slug);
+  const recipe = recipeEntity(path, mapRecipe(doc));
+  const name = searchText(doc.displayTitle);
+  if (!name) return null;
+  return (
+    <SearchStructuredData
+      nodes={[
+        ...pageEntities(
+          path,
+          name,
+          "WebPage",
+          recipe ? { "@id": recipe["@id"] } : undefined,
+          listing.eligible,
+        ),
+        ...(recipe ? [recipe] : []),
+      ]}
+    />
   );
 }
+
 export default async function RecipePage({ params }: Props) {
   const { slug } = await params;
   const [doc, { products, commerce }] = await Promise.all([
@@ -60,6 +110,7 @@ export default async function RecipePage({ params }: Props) {
   ].filter((item) => item.value !== undefined);
   return (
     <article className="shell">
+      <RecipeStructuredData slug={slug} />
       {hasText(c?.allRecipes) ? (
         <Link className="back-link" href="/recipes">
           <ArrowLeft size={15} aria-hidden="true" />
@@ -67,10 +118,13 @@ export default async function RecipePage({ params }: Props) {
         </Link>
       ) : null}
       <PageIntro
-        eyebrow={recipe.tags.join(" · ")}
+        eyebrow={[...recipe.tags, recipe.recipeCategory, recipe.recipeCuisine]
+          .filter(hasText)
+          .join(" · ")}
         title={recipe.title}
         description={recipe.description}
       />
+      <Text className="text-sm text-muted-foreground" value={recipe.author} />
       {hasImage(recipe.image) ? (
         <div className="recipe-hero-image">
           <CmsImage

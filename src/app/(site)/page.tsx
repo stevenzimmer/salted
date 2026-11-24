@@ -3,7 +3,6 @@ import {
   // hasRecipeCardContent,
 } from "@/sanity/lib/card-content";
 import Link from "next/link";
-import { draftMode } from "next/headers";
 import { ArrowUpRight, CalendarDays } from "lucide-react";
 import { storefrontSchedule } from "@/commerce/schedule";
 import { nextMenuPickup } from "@/lib/availability";
@@ -19,23 +18,12 @@ import { getGlobalContent } from "@/sanity/lib/data";
 import { fetchContent } from "@/sanity/lib/fetch-content";
 import { HOME_QUERY } from "@/sanity/lib/queries";
 // import { mapRecipe } from "@/sanity/lib/mappers";
-import { contentMetadata } from "@/sanity/lib/metadata";
+import { fixedPageMetadata } from "@/lib/seo/metadata";
+import { FixedPageStructuredData } from "@/components/cms/search-structured-data";
 import { SectionHeading } from "@/components/content/section-heading";
-import {
-  homeShareCard,
-  homeShareImagePath,
-  shareCardMetadata,
-} from "@/lib/og/cards";
 
-export async function generateMetadata() {
-  const page = (await fetchContent(HOME_QUERY))?.page;
-  const sharePage = (await draftMode()).isEnabled
-    ? (await fetchContent(HOME_QUERY, {}, { publishedOnly: true }))?.page
-    : page;
-  return {
-    ...contentMetadata(page?.seo, "/"),
-    ...shareCardMetadata(homeShareImagePath, homeShareCard(sharePage ?? {})),
-  };
+export function generateMetadata() {
+  return fixedPageMetadata("/");
 }
 export default async function HomePage() {
   const [data, { settings, commerce, products }, schedule] = await Promise.all([
@@ -78,6 +66,7 @@ export default async function HomePage() {
     v = page.reviewsSection;
   return (
     <>
+      <FixedPageStructuredData path="/" />
       <Hero page={page} />
       {hasCopy(how) ? (
         <section className="section-pad how-section border-border bg-muted/40">

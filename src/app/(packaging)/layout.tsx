@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { siteOrigin } from "@/lib/seo/policy";
 import { draftMode } from "next/headers";
 import type { ReactNode } from "react";
 import { DisableDraftMode } from "@/components/cms/disable-draft-mode";
@@ -11,9 +12,7 @@ import "../globals.css";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
-  ),
+  metadataBase: new URL(siteOrigin),
   robots: { index: false, follow: false },
 };
 

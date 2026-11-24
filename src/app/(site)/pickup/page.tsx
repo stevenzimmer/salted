@@ -5,9 +5,10 @@ import { Text } from "@/components/cms/text";
 import { hasCopy, hasText } from "@/sanity/lib/content";
 import { fetchContent } from "@/sanity/lib/fetch-content";
 import { PICKUP_QUERY } from "@/sanity/lib/queries";
-import { contentMetadata } from "@/sanity/lib/metadata";
-export async function generateMetadata() {
-  return contentMetadata((await fetchContent(PICKUP_QUERY))?.seo, "/pickup");
+import { fixedPageMetadata } from "@/lib/seo/metadata";
+import { FixedPageStructuredData } from "@/components/cms/search-structured-data";
+export function generateMetadata() {
+  return fixedPageMetadata("/pickup");
 }
 export default async function PickupPage() {
   const page = await fetchContent(PICKUP_QUERY);
@@ -23,6 +24,7 @@ export default async function PickupPage() {
   ].filter((pair) => pair.some(hasText));
   return (
     <div className="shell pb-24">
+      <FixedPageStructuredData path="/pickup" />
       <PageIntro {...page.intro} />
       {hasCopy(when) || hasCopy(where) ? (
         <div

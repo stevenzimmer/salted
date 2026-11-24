@@ -9,12 +9,10 @@ import {
   MARKETING_CONSENT_QUERY,
   SPECIAL_ORDERS_QUERY,
 } from "@/sanity/lib/queries";
-import { contentMetadata } from "@/sanity/lib/metadata";
-export async function generateMetadata() {
-  return contentMetadata(
-    (await fetchContent(SPECIAL_ORDERS_QUERY))?.seo,
-    "/special-orders",
-  );
+import { fixedPageMetadata } from "@/lib/seo/metadata";
+import { FixedPageStructuredData } from "@/components/cms/search-structured-data";
+export function generateMetadata() {
+  return fixedPageMetadata("/special-orders");
 }
 export default async function SpecialOrdersPage() {
   const [page, marketingConsentLabel] = await Promise.all([
@@ -41,6 +39,7 @@ export default async function SpecialOrdersPage() {
   ].filter((stat) => hasText(stat.label) && hasText(stat.value));
   return (
     <div className="shell pb-24">
+      <FixedPageStructuredData path="/special-orders" />
       <PageIntro {...page.intro} />
       <div
         className={`special-order-layout ${!hasCopy(p) ? "cms-single-column" : ""}`}
@@ -64,7 +63,9 @@ export default async function SpecialOrdersPage() {
               <ol className="special-workflow">
                 {workflow.map((step) => (
                   <li key={step.index}>
-                    <span>{String(step.index + 1).padStart(2, "0")}</span>
+                    <span aria-hidden="true">
+                      {String(step.index + 1).padStart(2, "0")}
+                    </span>
                     {step.text}
                   </li>
                 ))}

@@ -56,3 +56,11 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Keep operator CSVs and all credentials out of git. Never publish customer-data endpoints without proper authentication.
 - Newsletter opt-in is optional and unchecked. Capture only against the current published CMS wording, persist its evidence on the checkout order, and preserve it under retries/webhooks. Historical opt-in is not current subscriber status; never restore an unsubscribe from an old order. This phase sends no marketing emails.
 - `/unsubscribe` saves current preferences in `marketing_subscriptions`, separately from order evidence. Keep responses identical for known/unknown addresses, require explicit POST confirmation for signed links, and keep tokens/emails out of analytics and server logs. Future senders must check current status immediately before delivery. Late/duplicate payments cannot override a newer withdrawal; only a later affirmative checkout may resubscribe. See `docs/unsubscribe.md`.
+
+## Phase 5 search conventions
+
+- Build search metadata from published Sanity content with stega removed. Keep document titles and visible text optional where the CMS requires it. Add no hard-coded replacement for cleared visible copy.
+- Keep the canonical origin `https://saltedfocaccia.com` independent of the deployment origin used by checkout. Indexing requires approval and `SEO_INDEXING_ENABLED=true` on the production apex. Staging, preview, Draft Mode and private routes remain nonindexable.
+- Keep sitemap eligibility aligned with metadata, published route availability and CMS hide switches. Keep public crawler assets reachable. Preserve the production domain’s existing named crawler restrictions. Change model-training preferences only with explicit business approval.
+- Structured data must reflect published facts and visible content. Keep private pickup addresses, checkout capabilities and customer details out of search and analytics. Derive product offers from current pickup availability and verified published prices. Use recipe markup only for reviewed, complete recipes.
+- Review [SEO launch steps](docs/seo-launch-checklist.md) before any search activation. Run the SEO browser suite against a local production build when search behavior changes.

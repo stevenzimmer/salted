@@ -7,9 +7,10 @@ import { Text } from "@/components/cms/text";
 import { hasCopy, hasImage, hasText } from "@/sanity/lib/content";
 import { fetchContent } from "@/sanity/lib/fetch-content";
 import { ABOUT_QUERY } from "@/sanity/lib/queries";
-import { contentMetadata } from "@/sanity/lib/metadata";
-export async function generateMetadata() {
-  return contentMetadata((await fetchContent(ABOUT_QUERY))?.seo, "/about");
+import { fixedPageMetadata } from "@/lib/seo/metadata";
+import { FixedPageStructuredData } from "@/components/cms/search-structured-data";
+export function generateMetadata() {
+  return fixedPageMetadata("/about");
 }
 export default async function AboutPage() {
   const page = await fetchContent(ABOUT_QUERY);
@@ -20,6 +21,7 @@ export default async function AboutPage() {
     copy = hasCopy(story);
   return (
     <div className="shell pb-24">
+      <FixedPageStructuredData path="/about" />
       <PageIntro {...page.intro} />
       {copy || hasImage(page.image) ? (
         <div

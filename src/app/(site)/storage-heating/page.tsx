@@ -4,12 +4,10 @@ import { Text } from "@/components/cms/text";
 import { hasCopy, hasPortableTextContent } from "@/sanity/lib/content";
 import { fetchContent } from "@/sanity/lib/fetch-content";
 import { STORAGE_QUERY } from "@/sanity/lib/queries";
-import { contentMetadata } from "@/sanity/lib/metadata";
-export async function generateMetadata() {
-  return contentMetadata(
-    (await fetchContent(STORAGE_QUERY))?.seo,
-    "/storage-heating",
-  );
+import { fixedPageMetadata } from "@/lib/seo/metadata";
+import { FixedPageStructuredData } from "@/components/cms/search-structured-data";
+export function generateMetadata() {
+  return fixedPageMetadata("/storage-heating");
 }
 export default async function StoragePage() {
   const page = await fetchContent(STORAGE_QUERY);
@@ -25,6 +23,7 @@ export default async function StoragePage() {
     return null;
   return (
     <div className="shell pb-24">
+      <FixedPageStructuredData path="/storage-heating" />
       <PageIntro {...page.intro} />
       <Text className="draft-pill" value={g?.note} />
       <StorageGuide guide={g} />
