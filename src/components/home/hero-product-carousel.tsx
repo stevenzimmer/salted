@@ -194,7 +194,7 @@ export function HeroProductCarousel({
         role="group"
         aria-label={label}
         tabIndex={0}
-        className="hero-carousel-viewport flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain scroll-smooth motion-reduce:scroll-auto"
+        className="hero-carousel-viewport flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain scroll-smooth motion-reduce:scroll-auto mb-4"
         onScroll={handleScroll}
       >
         {items.map((item, index) => (
