@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import type { Homepage, ImageWithAlt } from "../../../sanity.types";
 import type { Product } from "@/types/content";
-import { clean, hasImage, hasText } from "@/sanity/lib/content";
+import { clean, hasText } from "@/sanity/lib/content";
+import { approvedPhoto } from "@/lib/seo/fields";
 import { money } from "@/lib/format";
 
 export const shareImageSize = { width: 1200, height: 630 };
@@ -40,9 +41,8 @@ export function homeShareCard(
       .filter(Boolean)
       .join(" · "),
     tagline: cardText(page.hero?.eyebrow),
-    photo: hasImage(page.heroImage)
-      ? page.heroImage
-      : page.heroPhotos?.find(hasImage),
+    photo:
+      approvedPhoto(page.heroImage) ?? page.heroPhotos?.find(approvedPhoto),
   };
 }
 
@@ -64,7 +64,7 @@ export function productShareCard(
     title: cardText(product.name),
     description: cardText(product.shortDescription),
     price,
-    photo: hasImage(product.image) ? product.image : undefined,
+    photo: approvedPhoto(product.image),
     background:
       product.category === "product-category-sourdough" ? "oat" : "cream",
   };

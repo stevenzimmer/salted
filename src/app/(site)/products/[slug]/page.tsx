@@ -3,9 +3,8 @@ import {
   hasRecipeCardContent,
 } from "@/sanity/lib/card-content";
 import { notFound } from "next/navigation";
-import { draftMode } from "next/headers";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { ProductPurchase } from "@/components/commerce/product-purchase";
 import { ProductUnavailable } from "@/components/commerce/product-unavailable";
 import { ProductDetailLayout } from "@/components/commerce/product-images";
@@ -20,39 +19,106 @@ import { fetchContent } from "@/sanity/lib/fetch-content";
 import { PRODUCT_QUERY, RECIPES_QUERY } from "@/sanity/lib/queries";
 import { getGlobalContent } from "@/sanity/lib/data";
 import { mapProduct, mapRecipe } from "@/sanity/lib/mappers";
-import { contentMetadata } from "@/sanity/lib/metadata";
-import { hasCopy, hasImage, hasText } from "@/sanity/lib/content";
+import { pageMetadata } from "@/lib/seo/metadata";
 import {
-  productShareCard,
-  productShareImagePath,
-  shareCardMetadata,
-} from "@/lib/og/cards";
+  getSearchProduct,
+  getSearchSettings,
+  isSearchDraft,
+} from "@/lib/seo/content";
+import { searchableProduct } from "@/lib/seo/eligibility";
+import { searchText } from "@/lib/seo/fields";
+import { detailPath, noIndex } from "@/lib/seo/policy";
+import { pageEntities, productEntity } from "@/lib/seo/structured-data";
+import { SearchStructuredData } from "@/components/cms/search-structured-data";
+import {
+  getPublishedPickupCatalog,
+  storefrontSchedule,
+} from "@/commerce/schedule";
+import { hasCopy, hasImage, hasText } from "@/sanity/lib/content";
+type Props = {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ size?: string | string[] }>;
+};
 
-type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
-  const product = await fetchContent(PRODUCT_QUERY, { slug });
-  const shareProduct = (await draftMode()).isEnabled
-    ? await fetchContent(PRODUCT_QUERY, { slug }, { publishedOnly: true })
-    : product;
-  const mapped = shareProduct && mapProduct(shareProduct);
-  const metadata = contentMetadata(
-    {
-      ...product?.seo,
-      title: product?.seo?.title ?? product?.displayName,
-      description: product?.seo?.description ?? product?.shortDescription,
-    },
-    `/products/${encodeURIComponent(slug)}`,
-  );
-  return mapped
-    ? {
-        ...metadata,
-        ...shareCardMetadata(productShareImagePath(slug), productShareCard(mapped)),
-      }
-    : metadata;
+  const [doc] = await Promise.all([
+    getSearchProduct(slug),
+    getSearchSettings(),
+  ]);
+  if (!doc || !mapProduct(doc)) return { robots: noIndex };
+
+  const name = searchText(doc.displayName);
+  const category = searchText(doc.categoryTitle);
+  const breadTitle =
+    category?.toLowerCase() === "sourdough" &&
+    name &&
+    /\bsourdough\b/i.test(name) &&
+    !/\b(?:bread|loaf|loaves)\b/i.test(name)
+      ? `${name} Bread`
+      : undefined;
+  const title =
+    breadTitle ??
+    (name && category && !name.toLowerCase().includes(category.toLowerCase())
+      ? `${name} ${category}`
+      : (name ?? "Bread Menu Item"));
+  const short = searchText(doc.shortDescription) ?? searchText(doc.description);
+  return pageMetadata({
+    path: detailPath("products", slug),
+    eligible: searchableProduct(doc),
+    seo: doc.seo,
+    title,
+    description:
+      short && doc.active
+        ? `${short} See sizes and Friday pickup options.`
+        : short,
+    fallbackDescription: `See details for ${title} from Salted Focaccia’s Rocklin pickup menu.`,
+    image: doc.image,
+  });
 }
-export default async function ProductPage({ params }: Props) {
-  const { slug } = await params;
+
+async function ProductStructuredData({ slug }: { slug: string }) {
+  const [draft, doc, settings] = await Promise.all([
+    isSearchDraft(),
+    getSearchProduct(slug),
+    getSearchSettings(),
+  ]);
+  if (
+    draft ||
+    !doc ||
+    !searchableProduct(doc) ||
+    settings?.seo?.noIndex === true
+  )
+    return null;
+  const product = mapProduct(doc);
+  if (!product) return null;
+  const [schedule, catalog] = product.active
+    ? await Promise.all([
+        storefrontSchedule(),
+        getPublishedPickupCatalog().catch(() => undefined),
+      ])
+    : [];
+  const path = detailPath("products", slug);
+  const entity = productEntity(
+    path,
+    product,
+    searchText(doc.categoryTitle),
+    schedule,
+    catalog,
+  );
+  if (!entity) return null;
+  return (
+    <SearchStructuredData
+      nodes={[
+        ...pageEntities(path, entity.name, "WebPage", { "@id": entity["@id"] }),
+        entity,
+      ]}
+    />
+  );
+}
+
+export default async function ProductPage({ params, searchParams }: Props) {
+  const [{ slug }, { size }] = await Promise.all([params, searchParams]);
   const [doc, recipeDocs, { commerce, products }] = await Promise.all([
     fetchContent(PRODUCT_QUERY, { slug }),
     fetchContent(RECIPES_QUERY),
@@ -64,6 +130,10 @@ export default async function ProductPage({ params }: Props) {
   const activeVariants = product.variants.filter(
     (option) => option.active !== false,
   );
+  const selectedSize =
+    product.active && typeof size === "string"
+      ? activeVariants.find((option) => option.id === size)
+      : undefined;
   const relatedRecipes = (recipeDocs ?? [])
     .filter((recipe) => product.relatedRecipeIds.includes(recipe._id))
     .map(mapRecipe)
@@ -77,12 +147,14 @@ export default async function ProductPage({ params }: Props) {
     product.ingredients.length ||
     product.allergens.length ||
     product.dietaryLabels.length;
-  // const storage =
-  //   hasText(product.storageSummary) ||
-  //   hasText(product.reheatingSummary) ||
-  //   hasText(c?.storageBody) ||
-  //   hasText(c?.storageCta);
-  // const pickup = hasText(c?.pickupBody) || hasText(c?.pickupCta);
+  const storage =
+    hasText(product.storageSummary) ||
+    hasText(product.reheatingSummary) ||
+    hasText(c?.storageBody) ||
+    hasText(c?.storageCta);
+  const pickup = hasText(c?.pickupBody) || hasText(c?.pickupCta);
+  const showStorage = storage && hasText(c?.storageHeading);
+  const showPickup = pickup && hasText(c?.pickupHeading);
   const gallery = product.gallery?.filter(hasImage) ?? [];
   const copy =
     [
@@ -93,18 +165,23 @@ export default async function ProductPage({ params }: Props) {
     ].some(hasText) ||
     product.variants.length ||
     (!product.active && hasCopy(commerce?.inactiveProduct)) ||
-    food;
-    // (hasText(c?.storageHeading) && storage) ||
-    // (hasText(c?.pickupHeading) && pickup);
+    food ||
+    showStorage ||
+    showPickup;
   return (
     <div className="shell">
+      <ProductStructuredData slug={slug} />
       {hasText(c?.back) ? (
         <Link href="/#products" className="back-link">
           <ArrowLeft size={15} aria-hidden="true" />
           {c.back}
         </Link>
       ) : null}
-      <ProductSelectionProvider product={product}>
+      <ProductSelectionProvider
+        product={product}
+        initialVariantId={selectedSize?.id}
+        key={selectedSize?.id}
+      >
         <ProductDetailLayout>
           {copy ? (
             <div className="product-detail-copy">
@@ -120,10 +197,12 @@ export default async function ProductPage({ params }: Props) {
               <Text as="h1" value={product.name} />
               {activeVariants[0] ? (
                 <p className="detail-price">
-                  {activeVariants.length > 1 && hasText(c?.from) ? (
+                  {!selectedSize &&
+                  activeVariants.length > 1 &&
+                  hasText(c?.from) ? (
                     <>{c.from} </>
                   ) : null}
-                  {money(activeVariants[0].price)}
+                  {money((selectedSize ?? activeVariants[0]).price)}
                 </p>
               ) : null}
               <Text
@@ -140,7 +219,9 @@ export default async function ProductPage({ params }: Props) {
               ) : (
                 <ProductUnavailable copy={commerce?.inactiveProduct} />
               )}
-              {(food && hasText(c?.foodSummary)) ? (
+              {(food && hasText(c?.foodSummary)) ||
+              showStorage ||
+              showPickup ? (
                 <div className="product-information">
                   {food && hasText(c?.foodSummary) ? (
                     <details>
@@ -178,39 +259,39 @@ export default async function ProductPage({ params }: Props) {
                       </div>
                     </details>
                   ) : null}
-                  {/* {storage && hasText(c?.storageHeading) ? (
+                  {showStorage ? (
                     <details>
-                      <summary>{c.storageHeading}</summary>
+                      <summary>{c?.storageHeading}</summary>
                       <div className="detail-content">
                         <Text value={product.storageSummary} />
                         <Text value={product.reheatingSummary} />
-                        <Text value={c.storageBody} />
-                        {hasText(c.storageCta) ? (
+                        <Text value={c?.storageBody} />
+                        {hasText(c?.storageCta) ? (
                           <Link
                             href="/storage-heating"
                             className="inline-link mt-4"
                           >
-                            {c.storageCta}
-                            <ArrowUpRight size={15} />
+                            {c?.storageCta}
+                            <ArrowUpRight size={15} aria-hidden="true" />
                           </Link>
                         ) : null}
                       </div>
                     </details>
-                  ) : null} */}
-                  {/* {pickup && hasText(c?.pickupHeading) ? (
+                  ) : null}
+                  {showPickup ? (
                     <details>
-                      <summary>{c.pickupHeading}</summary>
+                      <summary>{c?.pickupHeading}</summary>
                       <div className="detail-content">
-                        <Text value={c.pickupBody} />
-                        {hasText(c.pickupCta) ? (
+                        <Text value={c?.pickupBody} />
+                        {hasText(c?.pickupCta) ? (
                           <Link href="/pickup" className="inline-link mt-4">
-                            {c.pickupCta}
-                            <ArrowUpRight size={15} />
+                            {c?.pickupCta}
+                            <ArrowUpRight size={15} aria-hidden="true" />
                           </Link>
                         ) : null}
                       </div>
                     </details>
-                  ) : null} */}
+                  ) : null}
                 </div>
               ) : null}
             </div>
@@ -241,6 +322,14 @@ export default async function ProductPage({ params }: Props) {
           <SectionHeading
             eyebrow={c?.recipesEyebrow}
             heading={c?.recipesHeading}
+            action={
+              hasText(commerce?.recipe?.allRecipes) ? (
+                <Link className="inline-link" href="/recipes">
+                  {commerce.recipe.allRecipes}
+                  <ArrowUpRight size={15} aria-hidden="true" />
+                </Link>
+              ) : null
+            }
           />
           <div className="recipe-grid">
             {relatedRecipes.map((recipe) => (

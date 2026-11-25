@@ -43,7 +43,7 @@ async function expectProductImage(
     .toBe(url);
 }
 
-test("product cards and detail pages start with default thumbnails and change images only after size selection", async ({
+test("product cards and detail pages show the thumbnail for their current selection", async ({
   page,
 }) => {
   const client = createClient({
@@ -77,13 +77,25 @@ test("product cards and detail pages start with default thumbnails and change im
     })
     .click();
   for (const product of products) {
-    const card = page.locator('.product-card[data-variant="storefront"]').filter({
-      has: page.locator(`.product-heading a[href="/products/${product.slug}"]`),
-    });
+    const card = page
+      .locator('.product-card[data-variant="storefront"]')
+      .filter({
+        has: page.locator(
+          `.product-heading a[href="/products/${product.slug}"]`,
+        ),
+      });
     await expect(card).toHaveCount(1);
-    await expectProductImage(card, product);
-    await expect(card.locator('input[type="radio"]:checked')).toHaveCount(0);
-    await expect(card.locator(".variant-option.is-selected")).toHaveCount(0);
+    const initialSize =
+      product.variants.length === 1 && product.variants[0].active !== false
+        ? product.variants[0]
+        : undefined;
+    await expectProductImage(card, product, initialSize);
+    await expect(card.locator('input[type="radio"]:checked')).toHaveCount(
+      initialSize ? 1 : 0,
+    );
+    await expect(card.locator(".variant-option.is-selected")).toHaveCount(
+      initialSize ? 1 : 0,
+    );
     for (const variant of product.variants) {
       const radio = card.locator(`input[type="radio"][value="${variant.id}"]`);
       if (variant.active === false) {
@@ -96,8 +108,10 @@ test("product cards and detail pages start with default thumbnails and change im
       await expect(card.locator(".add-button")).toBeEnabled();
     }
   }
-  const product = products.find((item) =>
-    item.variants.some((variant) => variant.active !== false),
+  const product = products.find(
+    (item) =>
+      item.variants.length > 1 &&
+      item.variants.some((variant) => variant.active !== false),
   );
   if (!product)
     throw new Error(

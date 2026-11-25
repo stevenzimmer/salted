@@ -32,7 +32,7 @@ export function Hero({ page }: { page: Homepage }) {
           path={path}
           fill={false}
           preload={index === 0}
-          sizes="(max-width: 767px) 100vw, 45vw"
+          sizes="(max-width: 767px) calc(100vw - 44px), (max-width: 1199px) calc(50vw - 36px), min(calc(50vw - 52px), 660px)"
           className="aspect-[4/3] w-full border border-border bg-muted object-cover"
         />
         <Text
@@ -68,9 +68,9 @@ export function Hero({ page }: { page: Homepage }) {
             </p>
           ) : null}
 
-          <div className="hero-brand">
+          <h1 className="hero-brand" aria-label="Salted Focaccia">
             <Wordmark className="hero-wordmark" />
-          </div>
+          </h1>
           <Text className="eyebrow hero-tagline" value={hero?.eyebrow} />
           {hasText(hero?.cta) ? (
             <a className="button-primary hero-cta" href="#products">

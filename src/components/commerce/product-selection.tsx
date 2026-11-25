@@ -16,13 +16,19 @@ const ProductSelectionContext = createContext<ProductSelection | null>(null);
 export function ProductSelectionProvider({
   product,
   children,
+  initialVariantId,
 }: {
   product: Product;
   children: ReactNode;
+  initialVariantId?: string;
 }) {
   const options = product.variants.filter((option) => hasText(option.label));
-  const [variantId, setVariantId] = useState<string | null>(() =>
-    options.length === 1 && options[0].active !== false ? options[0].id : null,
+  const [variantId, setVariantId] = useState<string | null>(
+    () =>
+      initialVariantId ??
+      (options.length === 1 && options[0].active !== false
+        ? options[0].id
+        : null),
   );
   const variant = options.find(
     (option) => option.id === variantId && option.active !== false,

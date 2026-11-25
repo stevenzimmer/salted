@@ -68,14 +68,13 @@ test("server-provided Fridays remain selectable without client availability refr
       json: { code: "unavailable", error: "This Friday is unavailable." },
     }),
   );
-  await dialog
-    .getByRole("button", { name: "Continue to Payment", exact: true })
-    .click();
+  const payment = dialog.getByRole("button", {
+    name: /^Continue to (?:Payment|Stripe)$/i,
+  });
+  await payment.click();
   await expect(dialog.getByRole("alert")).toHaveText(
     "This Friday is unavailable.",
   );
-  await expect(
-    dialog.getByRole("button", { name: "Continue to Payment", exact: true }),
-  ).toBeEnabled();
+  await expect(payment).toBeEnabled();
   expect(availabilityRequests).toEqual([]);
 });

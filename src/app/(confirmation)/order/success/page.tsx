@@ -6,21 +6,16 @@ import { money, pickupLabel, pickupWindowLabel } from "@/lib/format";
 import { getGlobalContent } from "@/sanity/lib/data";
 import { fetchContent } from "@/sanity/lib/fetch-content";
 import { ORDER_EMAIL_QUERY } from "@/sanity/lib/queries";
-import { clean, hasText, safeUrl } from "@/sanity/lib/content";
+import { hasText, safeUrl } from "@/sanity/lib/content";
 import { ownerCapability } from "@/commerce/http";
 import { orderConfirmation } from "@/commerce/confirmation";
 import { ConfirmationRefresh } from "@/components/commerce/confirmation-refresh";
 import { VerifiedCartClear } from "@/components/commerce/verified-cart-clear";
 import { cookies } from "next/headers";
 import { CONFIRMATION_COOKIE } from "@/commerce/confirmation-token";
-export async function generateMetadata() {
-  const { commerce } = await getGlobalContent();
-  return {
-    title: clean(commerce?.confirmation?.seoTitle),
-    robots: { index: false, follow: false },
-    referrer: "no-referrer",
-  };
-}
+export const metadata = {
+  title: "Order confirmation | Salted Focaccia",
+};
 export default async function SuccessPage({
   searchParams,
 }: {
@@ -79,7 +74,11 @@ export default async function SuccessPage({
               value={pickupCopy?.pickupAddress}
             />
             {directionsUrl && hasText(pickupCopy?.pickupDirectionsLabel) ? (
-              <Link target="_blank" href={directionsUrl} className="inline-link mt-2">
+              <Link
+                target="_blank"
+                href={directionsUrl}
+                className="inline-link mt-2"
+              >
                 {pickupCopy.pickupDirectionsLabel}
               </Link>
             ) : null}

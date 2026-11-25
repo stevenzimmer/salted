@@ -7,5 +7,5 @@ export const fetchCache = "force-no-store";
 
 export async function GET() {
   const data = await fetchContent(HOME_QUERY, {}, { publishedOnly: true });
-  return renderShareCard(homeShareCard(data?.page ?? {}));
+  return renderShareCard(homeShareCard({ hero: data?.page?.hero }));
 }

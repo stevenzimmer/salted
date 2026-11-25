@@ -9,10 +9,10 @@ export function AnnouncementBar({
   const text = settings?.announcement?.text;
   if (!settings?.announcementEnabled || !hasText(text)) return null;
   return (
-    <div className="announcement">
+    <section className="announcement" aria-label="Announcement">
       <Spark className="mr-3" />
       {text}
       <Spark className="ml-3 hidden sm:inline-block" />
-    </div>
+    </section>
   );
 }

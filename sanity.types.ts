@@ -15,6 +15,11 @@
 export declare const internalGroqTypeReferenceTo: unique symbol;
 
 // Source: schema.json
+export type PublicAddress = {
+  street?: string;
+  postalCode?: string;
+};
+
 export type Review = {
   _id: string;
   _type: "review";
@@ -67,6 +72,11 @@ export type Recipe = {
   >;
   notes?: PortableText;
   tags?: Array<string>;
+  recipeMarkupApproved?: boolean;
+  publishedOn?: string;
+  author?: string;
+  recipeCategory?: string;
+  recipeCuisine?: string;
   relatedProducts?: Array<
     {
       _key: string;
@@ -171,6 +181,7 @@ export type Product = {
       _key: string;
     } & ProductReference
   >;
+  keepUnavailableIndexed?: boolean;
   seo?: Seo;
 };
 
@@ -695,6 +706,7 @@ export type SiteSettings = {
   _updatedAt: string;
   _rev: string;
   internalName: string;
+  searchBusiness?: SearchBusiness;
   brand?: {
     businessName?: string;
     wordmark?: string;
@@ -748,7 +760,23 @@ export type Seo = {
   _type: "seo";
   title?: string;
   description?: string;
+  socialTitle?: string;
+  socialDescription?: string;
   image?: ImageWithAlt;
+  noIndex?: boolean;
+};
+
+export type SearchBusiness = {
+  _type: "searchBusiness";
+  description?: string;
+  telephone?: string;
+  pickupCity?: string;
+  state?: string;
+  county?: string;
+  nearbyCommunities?: Array<string>;
+  publicAddress?: PublicAddress;
+  socialProfiles?: Array<string>;
+  logo?: ImageWithAlt;
 };
 
 export type InstagramPhoto = {
@@ -781,6 +809,19 @@ export type ProductVariant = {
   active?: boolean;
 };
 
+export type LandingLink = {
+  _type: "landingLink";
+  label?: string;
+  href?: string;
+  openInNewTab?: boolean;
+};
+
+export type NavigationItem = {
+  _type: "navigationItem";
+  label?: string;
+  href?: string;
+};
+
 export type SanityImageCrop = {
   _type: "sanity.imageCrop";
   top: number;
@@ -795,19 +836,6 @@ export type SanityImageHotspot = {
   y: number;
   height: number;
   width: number;
-};
-
-export type LandingLink = {
-  _type: "landingLink";
-  label?: string;
-  href?: string;
-  openInNewTab?: boolean;
-};
-
-export type NavigationItem = {
-  _type: "navigationItem";
-  label?: string;
-  href?: string;
 };
 
 export type SanityImagePaletteSwatch = {
@@ -908,6 +936,7 @@ export type Geopoint = {
 };
 
 export type AllSanitySchemaTypes =
+  | PublicAddress
   | Review
   | ProductReference
   | Recipe
@@ -932,14 +961,15 @@ export type AllSanitySchemaTypes =
   | Homepage
   | SiteSettings
   | Seo
+  | SearchBusiness
   | InstagramPhoto
   | RecipeStep
   | RecipeIngredientGroup
   | ProductVariant
-  | SanityImageCrop
-  | SanityImageHotspot
   | LandingLink
   | NavigationItem
+  | SanityImageCrop
+  | SanityImageHotspot
   | SanityImagePaletteSwatch
   | SanityImagePalette
   | SanityImageDimensions
@@ -960,6 +990,7 @@ export type GLOBAL_QUERY_RESULT = {
     _updatedAt: string;
     _rev: string;
     internalName: string;
+    searchBusiness?: SearchBusiness;
     brand?: {
       businessName?: string;
       wordmark?: string;
@@ -1232,6 +1263,7 @@ export type GLOBAL_QUERY_RESULT = {
         _key: string;
       } & ProductReference
     >;
+    keepUnavailableIndexed?: boolean;
     seo?: Seo;
   }>;
 };
@@ -1346,6 +1378,11 @@ export type HOME_QUERY_RESULT = {
       >;
       notes?: PortableText;
       tags?: Array<string>;
+      recipeMarkupApproved?: boolean;
+      publishedOn?: string;
+      author?: string;
+      recipeCategory?: string;
+      recipeCuisine?: string;
       relatedProducts?: Array<
         {
           _key: string;
@@ -1403,6 +1440,11 @@ export type RECIPES_QUERY_RESULT = Array<{
   >;
   notes?: PortableText;
   tags?: Array<string>;
+  recipeMarkupApproved?: boolean;
+  publishedOn?: string;
+  author?: string;
+  recipeCategory?: string;
+  recipeCuisine?: string;
   relatedProducts?: Array<
     {
       _key: string;
@@ -1444,6 +1486,11 @@ export type RECIPE_QUERY_RESULT = {
   >;
   notes?: PortableText;
   tags?: Array<string>;
+  recipeMarkupApproved?: boolean;
+  publishedOn?: string;
+  author?: string;
+  recipeCategory?: string;
+  recipeCuisine?: string;
   relatedProducts?: Array<
     {
       _key: string;
@@ -1454,7 +1501,7 @@ export type RECIPE_QUERY_RESULT = {
 
 // Source: src/sanity/lib/queries.ts
 // Variable: PRODUCT_QUERY
-// Query: *[_type == "product" && slug.current == $slug][0]
+// Query: *[_type == "product" && slug.current == $slug][0]{..., "categoryTitle": category->title}
 export type PRODUCT_QUERY_RESULT = {
   _id: string;
   _type: "product";
@@ -1500,7 +1547,9 @@ export type PRODUCT_QUERY_RESULT = {
       _key: string;
     } & ProductReference
   >;
+  keepUnavailableIndexed?: boolean;
   seo?: Seo;
+  categoryTitle: string | null;
 } | null;
 
 // Source: src/sanity/lib/queries.ts
@@ -1818,6 +1867,62 @@ export type ORDER_EMAIL_QUERY_RESULT = {
 // Query: *[_type == "pickupPage" && _id == "pickupPage"][0].blackoutDates
 export type PICKUP_BLACKOUT_DATES_QUERY_RESULT = Array<string> | null;
 
+// Source: src/sanity/lib/queries.ts
+// Variable: SEARCH_SETTINGS_QUERY
+// Query: *[_type == "siteSettings" && _id == "siteSettings"][0]{seo, searchBusiness, brand, contact}
+export type SEARCH_SETTINGS_QUERY_RESULT = {
+  seo: Seo | null;
+  searchBusiness: SearchBusiness | null;
+  brand: {
+    businessName?: string;
+    wordmark?: string;
+    tagline?: string;
+    sealTop?: string;
+    sealBottom?: string;
+    footerCopy?: string;
+    copyright?: string;
+    domain?: string;
+    previewLabel?: string;
+    mobileDescription?: string;
+    mobileNote?: string;
+  } | null;
+  contact: {
+    instagramLabel?: string;
+    instagramHeading?: string;
+    instagramUrl?: string;
+    email?: string;
+    shortLocation?: string;
+  } | null;
+} | null;
+
+// Source: src/sanity/lib/queries.ts
+// Variable: SEARCH_SITEMAP_DETAILS_QUERY
+// Query: {  "products": *[_type == "product" && defined(slug.current) && (active == true || keepUnavailableIndexed == true)]{    _updatedAt, slug, id, active, keepUnavailableIndexed, displayName, category, tier, "seo": seo{noIndex}  },  "recipes": *[_type == "recipe" && active == true && defined(slug.current)]{    _updatedAt, slug, active, displayTitle, "seo": seo{noIndex}  }}
+export type SEARCH_SITEMAP_DETAILS_QUERY_RESULT = {
+  products: Array<{
+    _updatedAt: string;
+    slug: Slug;
+    id: string;
+    active: boolean | null;
+    keepUnavailableIndexed: boolean | null;
+    displayName: string | null;
+    category: ProductCategoryReference;
+    tier: "classic" | "specialty";
+    seo: {
+      noIndex: boolean | null;
+    } | null;
+  }>;
+  recipes: Array<{
+    _updatedAt: string;
+    slug: Slug;
+    active: true;
+    displayTitle: string | null;
+    seo: {
+      noIndex: boolean | null;
+    } | null;
+  }>;
+};
+
 // Query TypeMap
 declare global {
   interface SanityQueries {
@@ -1825,7 +1930,7 @@ declare global {
     '{\n  "page": *[_type == "homepage" && _id == "homepage"][0]{..., "recipes": featuredRecipes[]->, "reviews": featuredReviews[]->}\n}': HOME_QUERY_RESULT;
     '*[_type == "recipe" && active == true] | order(displayOrder asc, _id asc)': RECIPES_QUERY_RESULT;
     '*[_type == "recipe" && active == true && slug.current == $slug][0]': RECIPE_QUERY_RESULT;
-    '*[_type == "product" && slug.current == $slug][0]': PRODUCT_QUERY_RESULT;
+    '*[_type == "product" && slug.current == $slug][0]{..., "categoryTitle": category->title}': PRODUCT_QUERY_RESULT;
     '*[_type == "aboutPage" && _id == "aboutPage"][0]': ABOUT_QUERY_RESULT;
     '*[_type == "pickupPage" && _id == "pickupPage"][0]': PICKUP_QUERY_RESULT;
     '*[_type == "specialOrdersPage" && _id == "specialOrdersPage"][0]': SPECIAL_ORDERS_QUERY_RESULT;
@@ -1838,6 +1943,8 @@ declare global {
     '*[_type == "commerceCopy" && _id == "commerceCopy"][0].marketingConsent.label': MARKETING_CONSENT_QUERY_RESULT;
     '*[_type == "commerceCopy" && _id == "commerceCopy"][0]{orderEmail, "pickupGuidance": checkout.pickupGuidance}': ORDER_EMAIL_QUERY_RESULT;
     '*[_type == "pickupPage" && _id == "pickupPage"][0].blackoutDates': PICKUP_BLACKOUT_DATES_QUERY_RESULT;
+    '*[_type == "siteSettings" && _id == "siteSettings"][0]{seo, searchBusiness, brand, contact}': SEARCH_SETTINGS_QUERY_RESULT;
+    '{\n  "products": *[_type == "product" && defined(slug.current) && (active == true || keepUnavailableIndexed == true)]{\n    _updatedAt, slug, id, active, keepUnavailableIndexed, displayName, category, tier, "seo": seo{noIndex}\n  },\n  "recipes": *[_type == "recipe" && active == true && defined(slug.current)]{\n    _updatedAt, slug, active, displayTitle, "seo": seo{noIndex}\n  }\n}': SEARCH_SITEMAP_DETAILS_QUERY_RESULT;
   }
 }
 // Lets @sanity/client releases that predate the global registry read it too

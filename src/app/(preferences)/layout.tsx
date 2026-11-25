@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { siteOrigin } from "@/lib/seo/policy";
 import Link from "next/link";
 import { draftMode } from "next/headers";
 import { editorialFont, displayFont } from "@/lib/fonts";
@@ -13,9 +14,7 @@ import { hasText } from "@/sanity/lib/content";
 import "../globals.css";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
-  ),
+  metadataBase: new URL(siteOrigin),
   robots: { index: false, follow: false },
   referrer: "no-referrer",
 };

@@ -6,7 +6,6 @@ export async function generateMetadata() {
   const { commerce } = await getGlobalContent();
   return {
     title: clean(commerce?.unsubscribe?.title) || undefined,
-    alternates: { canonical: "/unsubscribe" },
   };
 }
 export default async function UnsubscribePage() {

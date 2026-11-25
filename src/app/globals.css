@@ -1392,7 +1392,7 @@ img {
   font-size: 12px;
 }
 .special-workflow li > span {
-  color: var(--copper-ink);
+  color: color-mix(in srgb, var(--copper-ink) 80%, var(--charcoal));
   font-family: var(--font-display), sans-serif;
   font-size: 22px;
 }

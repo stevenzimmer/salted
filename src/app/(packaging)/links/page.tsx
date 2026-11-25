@@ -6,13 +6,20 @@ import { Text } from "@/components/cms/text";
 import { navigationHref } from "@/lib/navigation";
 import { hasItems, hasText } from "@/sanity/lib/content";
 import { fetchContent } from "@/sanity/lib/fetch-content";
-import { contentMetadata } from "@/sanity/lib/metadata";
+import { pageMetadata } from "@/lib/seo/metadata";
 import { LINKS_QUERY } from "@/sanity/lib/queries";
 
 const getLinksPage = cache(() => fetchContent(LINKS_QUERY));
 
 export async function generateMetadata() {
-  return contentMetadata((await getLinksPage())?.seo, "/links");
+  const page = await fetchContent(LINKS_QUERY, {}, { publishedOnly: true });
+  return pageMetadata({
+    path: "/links",
+    eligible: false,
+    title: "Bakery Links",
+    seo: page?.seo,
+    description: page?.intro?.blurb,
+  });
 }
 
 export default async function LinksPage() {
@@ -37,9 +44,9 @@ export default async function LinksPage() {
     <main className="min-h-svh border-t-4 border-primary px-6 pt-[clamp(3.5rem,11svh,7rem)] pb-12 sm:px-8">
       <div className="mx-auto flex max-w-sm flex-col gap-9">
         <div className="flex flex-col items-center gap-5">
-           <div className="hero-brand">
-                      <Wordmark className="hero-wordmark" />
-                    </div>
+          <h1 className="hero-brand" aria-label="Salted Focaccia">
+            <Wordmark className="hero-wordmark" />
+          </h1>
           <Text
             value={page?.intro?.blurb}
             className="max-w-[28ch] text-center text-base leading-relaxed text-pretty wrap-anywhere italic sm:text-lg"

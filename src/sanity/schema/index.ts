@@ -41,6 +41,20 @@ const internalName = defineField({
   type: "string",
   validation: (r) => r.required(),
 });
+const seoText = (
+  name: string,
+  label: string,
+  max: number,
+  description: string,
+) =>
+  defineField({
+    ...text(name),
+    title: label,
+    description,
+    validation: (rule) =>
+      rule.max(max).warning(`Aim for about ${max} characters or fewer.`),
+  });
+
 const seoField = defineField({
   name: "seo",
   title: "Search & social",
@@ -105,6 +119,50 @@ const productFilters = defineField({
 });
 
 const objects = [
+  defineType({
+    name: "searchBusiness",
+    title: "Public business details for search",
+    type: "object",
+    description:
+      "Use approved, already public information only. Never enter a private pickup address here.",
+    fields: [
+      {
+        ...text("description"),
+        description:
+          "A factual summary that also appears in public storefront copy.",
+      },
+      text("telephone"),
+      text("pickupCity"),
+      text("state"),
+      text("county"),
+      {
+        ...strings("nearbyCommunities"),
+        description:
+          "Approved communities customers travel from for pickup. These are not bakery locations or delivery areas.",
+      },
+      defineField({
+        name: "publicAddress",
+        title: "Approved public pickup address",
+        type: "object",
+        description:
+          "Leave empty for private or residential pickup. Enter a street address only after the owner approves public use and it is already visible on the Pickup page.",
+        fields: [text("street"), text("postalCode")],
+      }),
+      defineField({
+        name: "socialProfiles",
+        type: "array",
+        description:
+          "Official public profiles. The existing Instagram link is included automatically.",
+        of: [
+          defineArrayMember({
+            type: "url",
+            validation: (rule) => rule.uri({ scheme: ["https"] }),
+          }),
+        ],
+      }),
+      image("logo", "square preferred for business search"),
+    ],
+  }),
   defineType({
     name: "navigationItem",
     title: "Navigation item",
@@ -199,9 +257,42 @@ const objects = [
     title: "Search & social",
     type: "object",
     fields: [
-      text("title"),
-      text("description"),
-      image("image", "1200 × 630 px for social sharing"),
+      seoText(
+        "title",
+        "Search title",
+        60,
+        "Leave blank to use the page title or a route-specific fallback. The site name is added automatically.",
+      ),
+      seoText(
+        "description",
+        "Search description",
+        160,
+        "Summarize this page in a sentence or two. Leave blank to use relevant published copy or a route-specific fallback.",
+      ),
+      seoText(
+        "socialTitle",
+        "Social sharing title",
+        70,
+        "Optional. Defaults to the search title.",
+      ),
+      seoText(
+        "socialDescription",
+        "Social sharing description",
+        200,
+        "Optional. Defaults to the search description.",
+      ),
+      {
+        ...image("image", "1200 × 630 px for social sharing"),
+        description:
+          "Use approved artwork and fill in its alt text. Blank uses a page photo or the branded default.",
+      },
+      defineField({
+        name: "noIndex",
+        title: "Hide this page from search",
+        type: "boolean",
+        description:
+          "Advanced. The published page still opens by link, but asks search engines to omit it and is removed from the sitemap. On Site Settings this applies to the entire storefront.",
+      }),
     ],
   }),
   defineType({
@@ -323,6 +414,9 @@ const singletons = Object.entries(copyFields).map(([name, groups]) =>
         : undefined,
     fields: [
       internalName,
+      ...(name === "siteSettings"
+        ? [defineField({ name: "searchBusiness", type: "searchBusiness" })]
+        : []),
       ...(name === "pickupPage"
         ? [
             defineField({
@@ -580,6 +674,13 @@ export const schemaTypes = [
       }),
       references("relatedRecipes", "recipe"),
       references("relatedProducts", "product"),
+      defineField({
+        name: "keepUnavailableIndexed",
+        type: "boolean",
+        title: "Keep this unavailable product in search",
+        description:
+          "Use for a temporarily unavailable product with useful, approved copy. It stays searchable without a purchase offer. The Search & social hide control takes precedence.",
+      }),
       seoField,
     ],
     preview: {
@@ -633,6 +734,21 @@ export const schemaTypes = [
       }),
       defineField({ name: "notes", type: "portableText" }),
       strings("tags"),
+      defineField({
+        name: "recipeMarkupApproved",
+        title: "Approved recipe for search",
+        type: "boolean",
+        description:
+          "Turn on only for a complete, reviewed recipe with accurate ingredients, instructions and a final photo. Serving ideas can remain public without recipe markup.",
+      }),
+      defineField({
+        name: "publishedOn",
+        type: "date",
+        title: "Original public recipe date",
+      }),
+      text("author"),
+      text("recipeCategory"),
+      text("recipeCuisine"),
       references("relatedProducts", "product"),
       seoField,
     ],
