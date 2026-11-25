@@ -240,7 +240,7 @@ export function HeroProductCarousel({
                   className="group flex min-h-11 w-6 shrink-0 items-center justify-center rounded-full focus-visible:outline-offset-0 xl:w-7"
                   onClick={() => goToSlide(index)}
                 >
-                  <span className="size-1.5 rounded-full bg-foreground/45 transition-colors group-hover:bg-primary group-aria-[current=true]:bg-primary motion-reduce:transition-none" />
+                  <span className="size-1.5 rounded-full bg-foreground/45 transition-colors group-hover:bg-primary group-aria-current:bg-primary motion-reduce:transition-none" />
                 </button>
               ))}
             </div>

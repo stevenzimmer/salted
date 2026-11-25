@@ -317,7 +317,7 @@ export default async function ProductPage({ params, searchParams }: Props) {
           ))}
         </div>
       ) : null}
-      {relatedRecipes.length ? (
+      {/* {relatedRecipes.length ? (
         <section className="section-pad">
           <SectionHeading
             eyebrow={c?.recipesEyebrow}
@@ -341,16 +341,16 @@ export default async function ProductPage({ params, searchParams }: Props) {
             ))}
           </div>
         </section>
-      ) : null}
+      ) : null} */}
       {relatedProducts.length ? (
         <section className="section-pad border-t border-border">
           <SectionHeading
             eyebrow={c?.relatedEyebrow}
             heading={c?.relatedHeading}
           />
-          <div className="related-product-grid">
+          <div className="product-grid">
             {relatedProducts.map((other) => (
-              <ProductCard product={other} key={other.id} copy={c} />
+              <ProductCard product={other} key={other.id} copy={c} variant="storefront" />
             ))}
           </div>
         </section>

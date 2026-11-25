@@ -508,12 +508,12 @@ img {
 }
 .product-image img,
 .recipe-image img {
-  transition: transform 0.5s ease;
+  transition: transform 0.3s ease;
 }
 .product-image:hover img,
 .product-image:focus-within img,
 .recipe-image:hover img {
-  transform: scale(1.035);
+  transform: scale(1.15);
 }
 .product-badge {
   position: absolute;
@@ -1211,8 +1211,8 @@ img {
 .related-product-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 30px;
-  max-width: 1000px;
+  gap: 24px;
+  max-width: 1200px;
 }
 .recipe-hero-image {
   position: relative;
