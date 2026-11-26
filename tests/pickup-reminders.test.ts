@@ -18,38 +18,32 @@ import {
   migratePickupReminderCopy,
 } from "../scripts/migrations/pickup-reminder";
 
-test("Hobby cron entries each run weekly and exactly one accepts the 9am Pacific hour in either DST season", () => {
+test("Vercel configuration defines one Friday pickup reminder schedule at 9am Pacific", () => {
   const config: {
-    fluid: boolean;
-    crons: { path: string; schedule: string }[];
+    fluid?: unknown;
+    crons?: unknown;
+    schedules?: unknown;
   } = JSON.parse(
     readFileSync(new URL("../vercel.json", import.meta.url), "utf8"),
   );
   assert.equal(config.fluid, true);
-  // Each expression must contain a single minute/hour: the Hobby limit applies
-  // per job. Separate UTC jobs preserve DST without a subdaily expression.
-  assert.equal(config.crons.length, 2);
-  const hours = config.crons.map(({ path, schedule }) => {
-    assert.equal(path, "/api/cron/pickup-reminders");
-    assert.match(schedule, /^0 (16|17) \* \* 5$/);
-    return Number(schedule.split(" ")[1]);
+  assert.equal(Object.hasOwn(config, "crons"), false);
+  assert.deepEqual(config.schedules, {
+    "pickup-reminders": {
+      schedule: "0 9 * * 5",
+      timezone: "America/Los_Angeles",
+      path: "/api/cron/pickup-reminders",
+      requestMethod: "GET",
+    },
   });
-  assert.equal(new Set(hours).size, 2);
-  for (const day of ["2026-03-06", "2026-03-13", "2026-10-30", "2026-11-06"]) {
-    // Hobby may invoke at any minute within the configured hour.
-    for (const minute of ["00", "30", "59"]) {
-      const eligible = hours.map((hour) =>
-        pickupReminderDate(new Date(`${day}T${hour}:${minute}:59Z`)),
-      );
-      assert.deepEqual(eligible.filter(Boolean), [day]);
-    }
-  }
 });
 
 test("Friday reminders start at 9am Pacific across DST and manual recovery stops at 2pm", () => {
   for (const [date, offset] of [
-    ["2026-07-10", "-07:00"],
-    ["2026-11-20", "-08:00"],
+    ["2026-03-06", "-08:00"],
+    ["2026-03-13", "-07:00"],
+    ["2026-10-30", "-07:00"],
+    ["2026-11-06", "-08:00"],
   ]) {
     for (const clock of ["09:00:00", "09:59:59"]) {
       assert.equal(

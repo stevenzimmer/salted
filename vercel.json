@@ -1,14 +1,12 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "fluid": true,
-  "crons": [
-    {
+  "schedules": {
+    "pickup-reminders": {
+      "schedule": "0 9 * * 5",
+      "timezone": "America/Los_Angeles",
       "path": "/api/cron/pickup-reminders",
-      "schedule": "0 16 * * 5"
-    },
-    {
-      "path": "/api/cron/pickup-reminders",
-      "schedule": "0 17 * * 5"
+      "requestMethod": "GET"
     }
-  ]
+  }
 }
